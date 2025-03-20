@@ -1,0 +1,26 @@
+{
+  "name": "CreatureTime Repo",
+  "author": "CreatureTime Developers",
+  "url": "https://vcc.creaturetime.com",
+  "id": "com.creaturetime.vcc",
+  "packages": {
+    "com.creaturetime.worlds": {
+      "versions": {
+        "1.1211.0": {
+          "name": "com.creaturetime.worlds",
+          "displayName": "CreatureTime-Worlds",
+          "version": "0.1.0",
+          "description": "Core code used in worlds designed by CreatureTime.",
+          "unity": "2019.4",
+          "author": {
+            "name": "CreatureTime"
+          },
+          "legacyFolders": {},
+          "legacyFiles": {},
+          "hideInEditor": true,
+          "url": "https://vcc.creaturetime.com/com.creaturetime.worlds-0.1.0.zip"
+        }
+      }
+    }
+  }
+}
