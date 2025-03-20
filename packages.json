@@ -1,7 +1,7 @@
 {
   "name": "CreatureTime Repo",
   "author": "CreatureTime Developers",
-  "url": "https://vcc.creaturetime.com",
+  "url": "https://github.com/MakerOfWyverns/VCC/blob/main",
   "id": "com.creaturetime.vcc",
   "packages": {
     "com.creaturetime.worlds": {
