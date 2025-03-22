@@ -1,7 +1,6 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace CreatureTime
 {
@@ -10,7 +9,7 @@ namespace CreatureTime
     {
         [SerializeField] private CtBlackboardEntryData entryData;
         [SerializeField] private CtBehaviorTree behaviorTree;
-        [FormerlySerializedAs("artbiter")] [SerializeField] private CtNpcArbiter arbiter;
+        [SerializeField] private CtNpcArbiter arbiter;
 
         // Translate game state to world state.
         public override void Sense()
@@ -18,12 +17,19 @@ namespace CreatureTime
             foreach (var action in arbiter.BlackboardIteration(behaviorTree.Context))
             {
                 // Blackboard actions to set up blackboard.
+                // action.Execute(behaviorTree.Context);
             }
         }
 
         public override void Think()
         {
             behaviorTree.Process();
+        }
+
+        private void Update()
+        {
+            Sense();
+            Think();
         }
     }
 }

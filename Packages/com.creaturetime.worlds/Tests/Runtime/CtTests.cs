@@ -33,17 +33,11 @@ namespace CreatureTime
 
         public void _RunBehaviorTreeTest0()
         {
-            behaviorTree.Children = behaviorTreeTest0;
         }
 
         private void Update()
         {
-            if (behaviorTree.Children.Length > 0)
-            {
-                var behaviorTreeResult = behaviorTree.Process();
-                if (behaviorTreeResult != ENodeStatus.Running)
-                    behaviorTree.Children = new CtBehaviorTreeNodeBase[0];
-            }
+            behaviorTree.Process();
         }
     }
 }

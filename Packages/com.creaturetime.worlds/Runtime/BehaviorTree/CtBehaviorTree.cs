@@ -9,26 +9,13 @@ namespace CreatureTime
     {
         [SerializeField] private CtNpcContext context;
 
-        [SerializeField] private CtBehaviorTreeNodeBase[] _children = { };
+        [SerializeField] private CtBehaviorTreeNodeBase[] children = { };
 
         public CtNpcContext Context => context;
 
-        public CtBehaviorTreeNodeBase[] Children
-        {
-            get => _children;
-            set
-            {
-                foreach (var child in _children)
-                    child.OnExit(context);
-                _children = value;
-                foreach (var child in _children)
-                    child.OnEnter(context);
-            }
-        }
-
         public ENodeStatus Process()
         {
-            foreach (var child in _children)
+            foreach (var child in children)
             {
                 var status = child.Process(context);
                 if (status != ENodeStatus.Success)

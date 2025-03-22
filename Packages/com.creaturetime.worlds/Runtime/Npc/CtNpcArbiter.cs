@@ -27,7 +27,7 @@ namespace CreatureTime
                 bestExpert.Execute(blackboard);
             }
 
-            return blackboard.GetNodes();
+            return blackboard.GetActions();
         }
     }
 }

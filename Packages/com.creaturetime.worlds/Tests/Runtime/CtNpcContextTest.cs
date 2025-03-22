@@ -3,6 +3,6 @@ namespace CreatureTime
 {
     public class CtNpcContextTest : CtNpcContext
     {
-        public override CtBehaviorTreeNodeBase[] GetNodes() => new CtBehaviorTreeNodeBase[0];
+        public override CtBehaviorTreeNodeBase[] GetActions() => new CtBehaviorTreeNodeBase[0];
     }
 }

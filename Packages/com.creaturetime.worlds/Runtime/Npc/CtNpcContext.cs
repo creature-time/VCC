@@ -1,20 +1,25 @@
 ﻿
 using UnityEngine;
 using UnityEngine.AI;
+using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
     public abstract class CtNpcContext : CtBlackboard
     {
         [SerializeField] private CtNpcBrain brain;
-        // [SerializeField] private CtEntity entity;
         [SerializeField] private NavMeshAgent agent;
 
         public CtNpcBrain Brain => brain;
-        // public CtEntity Entity => entity;
         public NavMeshAgent Agent => agent;
-        public Transform Transform => gameObject.transform;
+        public Transform Transform => agent.transform;
 
-        public abstract CtBehaviorTreeNodeBase[] GetNodes();
+        // TODO: Change node to actions that modify the blackboard with given information from the expert.
+        private DataList _actions = new DataList();
+        public void AddAction()
+        {
+        }
+
+        public abstract CtBehaviorTreeNodeBase[] GetActions();
     }
 }
