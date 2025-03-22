@@ -14,20 +14,15 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtSequenceManager : CtAbstractSignal<ESequencerSignal>
     {
-        [SerializeField] private CtSequenceNodeBase[] nodes;
         [SerializeField] private CtBlackboard[] contexts;
         [SerializeField] private CtBlackboardEntryData entryData;
 
-        [SerializeField] private CtSequenceNodeBase[] _states;
-
+        private CtSequenceNodeBase[] _nodes;
         private int _processing;
 
         private void Start()
         {
-            _states = new CtSequenceNodeBase[contexts.Length];
-            foreach (var context in contexts)
-                context.SetupBlackboard(entryData);
-
+            _nodes = new CtSequenceNodeBase[contexts.Length];
             enabled = false;
         }
 
@@ -35,43 +30,41 @@ namespace CreatureTime
 
         public int Process(CtSequenceNodeBase nodeBase)
         {
-            int index = Array.IndexOf(_states, null);
-            if (index == -1)
+            int identifier = Array.IndexOf(_nodes, null);
+            if (identifier == -1)
             {
                 CtLogger.LogWarning("Sequence Manager", "Failed to find an available sequence.");
                 return -1;
             }
 
-            _NextNode(index, nodeBase);
-            return index;
+            _NextNode(identifier, nodeBase);
+            return identifier;
         }
 
-        private void _NextNode(int identifier, CtSequenceNodeBase nextState)
+        private void _NextNode(int identifier, CtSequenceNodeBase nextNode)
         {
             var context = contexts[identifier];
-            var prevState = _states[identifier];
-            if (prevState)
+            var prevNode = _nodes[identifier];
+            if (prevNode)
             {
-                LogDebug($"Leaving state (identifier={identifier}, prevState={prevState})");
-                prevState.OnExit(context);
+                LogDebug($"Leaving node (identifier={identifier}, prevNode={prevNode})");
+                prevNode.OnExit(context);
             }
-            else if (nextState)
+
+            _nodes[identifier] = nextNode;
+            if (nextNode)
             {
+                Emit(ESequencerSignal.Started);
+
+                context.SetupBlackboard(entryData);
+
                 if (_processing == 0)
                     enabled = true;
                 _processing++;
             }
-
-            _states[identifier] = nextState;
-            if (nextState)
-            {
-                LogDebug($"Entering state (identifier={identifier}, prevState={prevState})");
-                nextState.OnEnter(context);
-
-                enabled = true;
-            }
             else
             {
+                Emit(ESequencerSignal.Finished);
                 context.Clear();
 
                 LogDebug($"Stopping (identifier={identifier})");
@@ -84,16 +77,22 @@ namespace CreatureTime
 
         private void Update()
         {
-            for (int i = 0; i < _states.Length; i++)
+            for (int i = 0; i < _nodes.Length; i++)
             {
+                var node = _nodes[i];
+                if (!node)
+                    continue;
+
                 var context = contexts[i];
-                var state = _states[i];
-                if (!state)
-                    continue;
-                state.Execute(context);
-                if (!state.IsComplete(context))
-                    continue;
-                _NextNode(i, state.GetNext(context));
+                switch (node.Process(context))
+                {
+                    case ENodeStatus.Success:
+                        _NextNode(i, node.GetNext(context));
+                        break;
+                    case ENodeStatus.Failure:
+                        _NextNode(i, null);
+                        break;
+                }
             }
         }
     }

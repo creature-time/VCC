@@ -4,7 +4,8 @@ using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
-    public abstract class CtBlackboard : UdonSharpBehaviour
+    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    public class CtBlackboard : UdonSharpBehaviour
     {
         private DataDictionary _data = new DataDictionary();
 

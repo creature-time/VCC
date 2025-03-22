@@ -71,7 +71,7 @@ namespace CreatureTime
             {
                 var unittest = Activator.CreateInstance(pair.Key);
 
-                var setupMethod = pair.Key.GetMethod("Setup");
+                var setUpMethod = pair.Key.GetMethod("SetUp");
                 var tearDownMethod = pair.Key.GetMethod("TearDown");
 
                 var testResults = new Dictionary<MethodInfo, List<string>>();
@@ -80,7 +80,7 @@ namespace CreatureTime
                 {
                     List<string> errors = new List<string>();
                     testResults.Add(test, errors);
-                    setupMethod?.Invoke(unittest, null);
+                    setUpMethod?.Invoke(unittest, null);
 
                     try
                     {
@@ -138,9 +138,9 @@ namespace CreatureTime
     // [CtUnitTests.UnitTest("UnitTest UnitTest")]
     // public class UnitTestExample
     // {
-    //     public void Setup()
+    //     public void SetUp()
     //     {
-    //         Debug.Log("Setup");
+    //         Debug.Log("SetUp");
     //     }
     //
     //     [CtUnitTests.Test("Test Pass Example")]

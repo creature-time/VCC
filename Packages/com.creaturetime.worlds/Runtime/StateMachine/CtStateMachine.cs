@@ -1,59 +1,104 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 
 namespace CreatureTime
 {
-    public enum EFiniteStateMachineSignal
+    public enum EStateMachineSignal
     {
         Started,
         Finished
     }
 
-    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtStateMachine : CtAbstractSignal<EFiniteStateMachineSignal>
+    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    public class CtStateMachine : CtAbstractSignal<EStateMachineSignal>
     {
-        [SerializeField] private CtStateBase[] states;
-        [SerializeField] private CtBlackboard context;
+        [SerializeField] private CtBlackboard[] contexts;
+        [SerializeField] private CtBlackboardEntryData entryData;
+        
+        private CtStateBase[] _states;
+        private int _processing;
 
-        private CtStateBase _stateBase;
-
-        public void Process(CtStateBase stateBase)
+        private void Start()
         {
-            _NextNode(stateBase);
+            _states = new CtStateBase[contexts.Length];
+            enabled = false;
         }
 
-        private void _NextNode(CtStateBase nextStateBase)
+        public CtBlackboard GetContext(int identifier) => contexts[identifier];
+
+        public int Process(CtStateBase nodeBase)
         {
-            if (_stateBase)
+            int identifier = Array.IndexOf(_states, null);
+            if (identifier == -1)
             {
-                _stateBase.OnExit(context);
-            }
-            else if (nextStateBase)
-            {
-                LogDebug("State machine started.");
-                Emit(EFiniteStateMachineSignal.Started);
+                LogWarning("Failed to find an available sequence.");
+                return -1;
             }
 
-            _stateBase = nextStateBase;
-            if (_stateBase)
+            _NextNode(identifier, nodeBase);
+            return identifier;
+        }
+
+        private void _NextNode(int identifier, CtStateBase nextState)
+        {
+            var context = contexts[identifier];
+            var prevState = _states[identifier];
+            if (prevState)
             {
-                _stateBase.OnEnter(context);
-                enabled = true;
+                LogDebug($"Leaving state (identifier={identifier}, prevState={prevState})");
+                prevState.OnExit(context);
+            }
+            else if (nextState)
+            {
+                Emit(EStateMachineSignal.Started);
+
+                context.SetupBlackboard(entryData);
+
+                if (_processing == 0)
+                    enabled = true;
+                _processing++;
+            }
+
+            _states[identifier] = nextState;
+            if (nextState)
+            {
+                LogDebug($"Entering state (identifier={identifier}, prevState={prevState})");
+                nextState.OnEnter(context);
             }
             else
             {
-                enabled = false;
-                Emit(EFiniteStateMachineSignal.Finished);
-                LogDebug("State machine finished.");
+                Emit(EStateMachineSignal.Finished);
+                context.Clear();
+
+                LogDebug($"Stopping (identifier={identifier})");
+
+                _processing--;
+                if (_processing == 0)
+                    enabled = false;
             }
         }
 
         private void Update()
         {
-            _stateBase.Execute(context);
-            if (!_stateBase.IsComplete(context)) return;
-            _NextNode(_stateBase.GetNext(context));
+            for (int i = 0; i < _states.Length; i++)
+            {
+                var state = _states[i];
+                if (!state)
+                    continue;
+
+                var context = contexts[i];
+                switch (state.Process(context))
+                {
+                    case ENodeStatus.Success:
+                        _NextNode(i, state.GetNext(context));
+                        break;
+                    case ENodeStatus.Failure:
+                        _NextNode(i, null);
+                        break;
+                }
+            }
         }
     }
 }

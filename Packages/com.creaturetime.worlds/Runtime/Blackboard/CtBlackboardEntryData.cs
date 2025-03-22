@@ -24,28 +24,28 @@ namespace CreatureTime
                 switch (entry.Type)
                 {
                     case EBlackboardEntryDataType.Bool:
-                        blackboard.SetValue(entry.name, entry.Bool);
+                        blackboard.SetValue(entry.Key, entry.Bool);
                         break;
                     case EBlackboardEntryDataType.Short:
-                        blackboard.SetValue(entry.name, entry.Short);
+                        blackboard.SetValue(entry.Key, entry.Short);
                         break;
                     case EBlackboardEntryDataType.UShort:
-                        blackboard.SetValue(entry.name, entry.UShort);
+                        blackboard.SetValue(entry.Key, entry.UShort);
                         break;
                     case EBlackboardEntryDataType.Int:
-                        blackboard.SetValue(entry.name, entry.Int);
+                        blackboard.SetValue(entry.Key, entry.Int);
                         break;
                     case EBlackboardEntryDataType.UInt:
-                        blackboard.SetValue(entry.name, entry.UInt);
+                        blackboard.SetValue(entry.Key, entry.UInt);
                         break;
                     case EBlackboardEntryDataType.Long:
-                        blackboard.SetValue(entry.name, entry.Long);
+                        blackboard.SetValue(entry.Key, entry.Long);
                         break;
                     case EBlackboardEntryDataType.ULong:
-                        blackboard.SetValue(entry.name, entry.ULong);
+                        blackboard.SetValue(entry.Key, entry.ULong);
                         break;
                     case EBlackboardEntryDataType.Float:
-                        blackboard.SetValue(entry.name, entry.Float);
+                        blackboard.SetValue(entry.Key, entry.Float);
                         break;
                 }
             }

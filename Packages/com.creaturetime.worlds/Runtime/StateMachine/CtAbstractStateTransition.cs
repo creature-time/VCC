@@ -8,6 +8,6 @@ namespace CreatureTime.Worlds.CtRpgGame
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public abstract class CtAbstractStateTransition : UdonSharpBehaviour
     {
-        public abstract CtStateBase GetNext();
+        // public abstract CtStateBase GetNext();
     }
 }
