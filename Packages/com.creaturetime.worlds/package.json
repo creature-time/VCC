@@ -1,0 +1,17 @@
+{
+  "name": "com.creaturetime.worlds",
+  "version": "1.0.0",
+  "displayName": "CreatureTime-Worlds",
+  "description": "Core code used in worlds designed by CreatureTime",
+  "unity": "2022.3",
+  "author": {
+    "name": "CreatureTime Developers",
+    "email": "vcc@creaturetime.com",
+    "url": "https://vcc.creaturetime.com/"
+  },
+  "vpmDependencies" : {
+    "com.vrchat.base": "3.7.5",
+    "com.vrchat.worlds" : "3.x"
+  },
+  "url": "https://vcc.creaturetime.com"
+}
