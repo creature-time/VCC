@@ -18,40 +18,84 @@ namespace CreatureTime
 
         [UdonSynced] private byte[] _data;
 
-        private Vector3[][] _localData;
-        private Quaternion[][] _localRotations;
-        private Vector3[][] _localVelocity;
+        private Vector3[][] _positions;
+        private Quaternion[][] _rotations;
+        private Vector3[][] _velocities;
 
         private void Start()
         {
-            Init();
-
-            _localData = new Vector3[maxSnapshotCount][];
+            _positions = new Vector3[maxSnapshotCount][];
 
             _data = new byte[agents.Length * compressDataSize];
 
-            _localData = new Vector3[maxSnapshotCount][];
-            _localRotations = new Quaternion[maxSnapshotCount][];
-            _localVelocity = new Vector3[maxSnapshotCount][];
+            _positions = new Vector3[maxSnapshotCount][];
+            _rotations = new Quaternion[maxSnapshotCount][];
+            _velocities = new Vector3[maxSnapshotCount][];
             for (int i = 0; i < maxSnapshotCount; i++)
             {
-                _localData[i] = new Vector3[agents.Length];
-                _localRotations[i] = new Quaternion[agents.Length];
-                _localVelocity[i] = new Vector3[agents.Length];
+                _positions[i] = new Vector3[agents.Length];
+                _rotations[i] = new Quaternion[agents.Length];
+                _velocities[i] = new Vector3[agents.Length];
             }
 
             for (int i = 0; i < maxSnapshotCount - 1; i++)
             {
                 for (int j = 0; j < agents.Length; j++)
                 {
-                    _localData[i][j] = Vector3.zero;
-                    _localRotations[i][j] = Quaternion.identity;
-                    _localVelocity[i][j] = Vector3.zero;
+                    _positions[i][j] = Vector3.zero;
+                    _rotations[i][j] = Quaternion.identity;
+                    _velocities[i][j] = Vector3.zero;
                 }
             }
         }
 
-        private static void CompressData(byte[] data, int offset, Vector3 position, float yRotationComponent, Vector3 velocity)
+        public override void OnPreSerializeSyncData()
+        {
+            for (int i = 0; i < agents.Length; i++)
+            {
+                var agent = agents[i];
+                _CompressData(_data, i * compressDataSize, 
+                    agent.transform.position, agent.transform.rotation.eulerAngles.y, agent.velocity);
+            }
+        }
+
+        public override void OnTakeSnapshot(float timestamp, int index)
+        {
+            Vector3 rotationVector = Vector3.zero;
+            var localData = _positions[index];
+            var localRotation = _rotations[index];
+            var localVelocity = _velocities[index];
+            for (int i = 0; i < agents.Length; i++)
+            {
+                _DecompressData(_data, i * compressDataSize, 
+                    out localData[i], out rotationVector.y, out localVelocity[i]);
+                localRotation[i] = Quaternion.Euler(rotationVector);
+            }
+        }
+
+        public override void OnUpdateSync(int a, int b, float t)
+        {
+            Vector3[] prevPosition = _positions[a];
+            Vector3[] nextPosition = _positions[b];
+            Quaternion[] prevRotation = _rotations[a];
+            Quaternion[] nextRotation = _rotations[b];
+            Vector3[] prevVelocity = _velocities[a];
+            Vector3[] nextVelocity = _velocities[b];
+
+            for (int i = 0; i < agents.Length; i++)
+            {
+                var agent = agents[i];
+                if (agent)
+                {
+                    agent.transform.position = Vector3.Slerp(prevPosition[i], nextPosition[i], t);
+                    agent.transform.rotation = Quaternion.Lerp(prevRotation[i], nextRotation[i], t);
+                    agent.velocity = Vector3.Slerp(prevVelocity[i], nextVelocity[i], t);
+                }
+            }
+        }
+
+        private static void _CompressData(byte[] data, int offset, 
+            Vector3 position, float yRotationComponent, Vector3 velocity)
         {
             ushort x = (ushort)(position.x * compressDataPercision + 32767.0f);
             byte[] xBytes = BitConverter.GetBytes(x);
@@ -96,7 +140,8 @@ namespace CreatureTime
             offset += zVelBytes.Length;
         }
 
-        private static void DecompressData(byte[] data, int offset, out Vector3 position, out float yRotationComponent, out Vector3 velocity)
+        private static void _DecompressData(byte[] data, int offset, 
+            out Vector3 position, out float yRotationComponent, out Vector3 velocity)
         {
             ushort x = BitConverter.ToUInt16(data, offset + 0);
             position.x = (x - 32767.0f) * decompressDataPercision;
@@ -118,53 +163,6 @@ namespace CreatureTime
 
             z = BitConverter.ToUInt16(data, offset + 12);
             velocity.z = (z - 32767.0f) * decompressDataPercision;
-        }
-
-        public override void OnPreSerializeSyncData()
-        {
-            for (int i = 0; i < agents.Length; i++)
-            {
-                var agent = agents[i];
-                CompressData(_data, i * compressDataSize, 
-                    agent.transform.position, agent.transform.rotation.eulerAngles.y, agent.velocity);
-            }
-        }
-
-        public override void OnTakeSnapshot(float timestamp, int index)
-        {
-            Vector3 rotationVector = Vector3.zero;
-            var localData = _localData[index];
-            var localRotation = _localRotations[index];
-            var localVelocity = _localVelocity[index];
-            for (int i = 0; i < agents.Length; i++)
-            {
-                DecompressData(_data, i * compressDataSize, 
-                    out localData[i], out rotationVector.y, out localVelocity[i]);
-                localRotation[i] = Quaternion.Euler(rotationVector);
-            }
-        }
-
-        public override void OnUpdateSync(int a, int b, float t)
-        {
-            Vector3[] localData = _localData[b];
-            Vector3[] prevData = _localData[a];
-
-            Quaternion[] localRotation = _localRotations[b];
-            Quaternion[] prevRotation = _localRotations[a];
-            
-            Vector3[] localVelocity = _localVelocity[b];
-            Vector3[] prevVelocity = _localVelocity[a];
-
-            for (int i = 0; i < agents.Length; i++)
-            {
-                var agent = agents[i];
-                if (agent)
-                {
-                    agent.transform.position = Vector3.Slerp(prevData[i], localData[i], t);
-                    agent.transform.rotation = Quaternion.Lerp(prevRotation[i], localRotation[i], t);
-                    agent.velocity = Vector3.Slerp(prevVelocity[i], localVelocity[i], t);
-                }
-            }
         }
     }
 }

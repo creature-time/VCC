@@ -23,13 +23,10 @@ namespace CreatureTime
         private float _delta;
         private float _frameSize;
 
-        protected void Init()
-        {
-            _frameSize = 1 / packetsPerSecond;
-        }
-
         private void Update()
         {
+            _frameSize = 1 / packetsPerSecond;
+
             if (Networking.IsOwner(gameObject))
             {
                 if (_delta >= _frameSize)
@@ -87,6 +84,7 @@ namespace CreatureTime
             _OnTakeSnapshot(result.sendTime);
         }
 
+        // Delay the owner snapshot so we can serialize as soon as possible.
         public void _DelayedEvent_TakeSnapshot()
         {
             // Object owner will always have latest.
