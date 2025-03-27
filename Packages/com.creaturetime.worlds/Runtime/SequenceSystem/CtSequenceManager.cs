@@ -12,7 +12,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtSequenceManager : CtAbstractSignal<ESequencerSignal>
+    public class CtSequenceManager : CtAbstractSignal
     {
         [SerializeField] private CtBlackboard[] contexts;
         [SerializeField] private CtBlackboardEntryData entryData;
@@ -54,7 +54,7 @@ namespace CreatureTime
             _nodes[identifier] = nextNode;
             if (nextNode)
             {
-                Emit(ESequencerSignal.Started);
+                this.Emit(ESequencerSignal.Started);
 
                 context.SetupBlackboard(entryData);
 
@@ -64,7 +64,7 @@ namespace CreatureTime
             }
             else
             {
-                Emit(ESequencerSignal.Finished);
+                this.Emit(ESequencerSignal.Finished);
                 context.Clear();
 
                 LogDebug($"Stopping (identifier={identifier})");

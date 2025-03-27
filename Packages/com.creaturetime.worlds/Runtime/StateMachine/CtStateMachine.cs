@@ -12,7 +12,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class CtStateMachine : CtAbstractSignal<EStateMachineSignal>
+    public class CtStateMachine : CtAbstractSignal
     {
         [SerializeField] private CtBlackboard[] contexts;
         [SerializeField] private CtBlackboardEntryData entryData;
@@ -52,7 +52,7 @@ namespace CreatureTime
             }
             else if (nextState)
             {
-                Emit(EStateMachineSignal.Started);
+                this.Emit(EStateMachineSignal.Started);
 
                 context.SetupBlackboard(entryData);
 
@@ -69,7 +69,7 @@ namespace CreatureTime
             }
             else
             {
-                Emit(EStateMachineSignal.Finished);
+                this.Emit(EStateMachineSignal.Finished);
                 context.Clear();
 
                 LogDebug($"Stopping (identifier={identifier})");

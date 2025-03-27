@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class CtTests : UdonSharpBehaviour
+    public class CtWorldsTests : UdonSharpBehaviour
     {
         [Header("State Machine Tests")]
         [SerializeField] private CtStateMachine stateMachine;

@@ -19,7 +19,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtNetSocket : CtAbstractSignal<ENetSocketSignal>
+    public class CtNetSocket : CtAbstractSignal
     {
         private const int MaxQueue = 256;
 
@@ -122,7 +122,7 @@ namespace CreatureTime
         public void OnHandlePacket(byte[] data)
         {
             Packet = data;
-            Emit(ENetSocketSignal.PacketChanged);
+            this.Emit(ENetSocketSignal.PacketChanged);
         }
     }
 }

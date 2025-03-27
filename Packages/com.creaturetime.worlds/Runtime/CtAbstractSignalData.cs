@@ -1,17 +1,26 @@
 ﻿
-using VRC.SDK3.Data;
+using System;
 
 namespace CreatureTime
 {
-    public abstract class CtAbstractSignalData : CtLoggerUdonScript
+    public static class CtAbstractSignalExtensions
     {
-        protected DataDictionary _changedCallbacks = new DataDictionary();
-        protected DataDictionary _addCallbacks = new DataDictionary();
-        protected DataDictionary _removeCallbacks = new DataDictionary();
+        public static void Connect<T>(this CtAbstractSignal signal, T typeId, CtAbstractSignal receiver, string method)
+            where T : Enum
+        {
+            signal.Connect(Convert.ToInt32(typeId), receiver, method);
+        }
 
-        protected bool _blocked;
+        public static void Disconnect<T>(this CtAbstractSignal signal, T typeId, CtAbstractSignal receiver, string method)
+            where T : Enum
+        {
+            signal.Disconnect(Convert.ToInt32(typeId), receiver, method);
+        }
 
-        // TODO: Can we make these arguments stack in a DataList?
-        protected int _signalIndex;
+        public static void Emit<T>(this CtAbstractSignal signal, T typeId)
+            where T : Enum
+        {
+            signal.Emit(Convert.ToInt32(typeId));
+        }
     }
 }

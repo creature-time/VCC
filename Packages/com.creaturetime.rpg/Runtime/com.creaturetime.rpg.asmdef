@@ -1,9 +1,9 @@
 {
-    "name": "com.creaturetime.worlds.test",
+    "name": "com.creaturetime.rpg",
     "rootNamespace": "",
     "references": [
         "GUID:99835874ee819da44948776e0df4ff1d",
-        "com.creaturetime.worlds"
+        "GUID:16cbe4cee437c5f41b25e0d3851d9f04"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

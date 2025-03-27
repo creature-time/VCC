@@ -6,7 +6,7 @@ using UnityEngine.AI;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-    public class CtNpcSync : CtLoggerUdonScript
+    public class CtNpcAnimationTest : CtLoggerUdonScript
     {
         [SerializeField] private CtNpcManager npcManager;
         [SerializeField] private NavMeshAgent npcAgent;

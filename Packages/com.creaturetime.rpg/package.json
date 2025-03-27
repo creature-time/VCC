@@ -1,0 +1,18 @@
+{
+  "name": "com.creaturetime.rpg",
+  "version": "1.0.0",
+  "displayName": "CreatureTime-Rpg",
+  "description": "Code for Turn-based RPG game",
+  "unity": "2022.3",
+  "author": {
+    "name": "CreatureTime Developers",
+    "email": "vcc@creaturetime.com",
+    "url": "https://vcc.creaturetime.com/"
+  },
+  "vpmDependencies" : {
+    "com.vrchat.base": "3.7.5",
+    "com.vrchat.worlds" : "3.x",
+    "com.creaturetime.worlds" : "3.x"
+  },
+  "url": "https://vcc.creaturetime.com"
+}

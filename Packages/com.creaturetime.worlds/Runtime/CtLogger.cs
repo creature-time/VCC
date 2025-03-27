@@ -2,6 +2,7 @@
 using System;
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
@@ -20,7 +21,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtLogger : CtAbstractSignal<ELoggerSignal>
+    public class CtLogger : CtAbstractSignal
     {
         private const string InstanceName = "__Logger";
 
@@ -39,11 +40,6 @@ namespace CreatureTime
             CriticalColor
         };
 
-        private void Start()
-        {
-            Emit(ELoggerSignal.MessageChanged);
-        }
-
         private string _message;
 
         private string GetColor(ELoggerType loggerType) => _colors[(int)loggerType];
@@ -56,7 +52,7 @@ namespace CreatureTime
             return obj.GetComponent<CtLogger>();
         }
 
-        public static void ConnectMessageChanged(UdonSharpBehaviour receiver, string method)
+        public static void ConnectMessageChanged(CtAbstractSignal receiver, string method)
         {
             CtLogger logger = Logger();
             if (!logger)
@@ -64,7 +60,7 @@ namespace CreatureTime
             logger.Connect(ELoggerSignal.MessageChanged, receiver, method);
         }
 
-        public static void DisconnectMessageChanged(UdonSharpBehaviour receiver, string method)
+        public static void DisconnectMessageChanged(CtAbstractSignal receiver, string method)
         {
             CtLogger logger = Logger();
             if (!logger)
@@ -176,7 +172,8 @@ namespace CreatureTime
                     break;
             }
 
-            Emit(ELoggerSignal.MessageChanged);
+            this.SetArgs.Add(_message);
+            this.Emit(ELoggerSignal.MessageChanged);
         }
     }
 }
