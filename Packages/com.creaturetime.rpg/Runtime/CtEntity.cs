@@ -2,6 +2,7 @@
 using System;
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VRC.SDKBase;
 
 namespace CreatureTime
@@ -33,41 +34,30 @@ namespace CreatureTime
         [SerializeField] private CtGameData gameData;
 
         public ushort Identifier { get; private set; } = CtConstants.InvalidId;
-        public int Index { get; private set; } = -1;
-        public CtEntity[] Team { get; private set; }
 
-        [UdonSynced, FieldChangeCallback(nameof(MemberIdCallback))]
-        [SerializeField] ushort _memberId = CtConstants.InvalidId;
-
-        public ushort MemberIdCallback
+        [UdonSynced, FieldChangeCallback(nameof(EntityIdCallback))]
+        ushort _entityId = CtConstants.InvalidId;
+        
+        public ushort EntityIdCallback
         {
-            get => _memberId;
+            get => _entityId;
             set
             {
-                if (_memberId == value)
+                if (_entityId == value)
                     return;
 
-                _memberId = value;
-                LogDebug($"Identifier changed {_memberId}");
+                _entityId = value;
 
                 this.Emit(EEntitySignal.IdentifierChanged);
-
-                // Auto-reset if we don't have a member identifier.
-                if (_memberId == CtConstants.InvalidId)
-                {
-                    Health = -1;
-                    Energy = -1;
-                    _ResetSkillInstanceData();
-                }
             }
         }
 
-        public ushort MemberId
+        public ushort EntityId
         {
-            get => MemberIdCallback;
+            get => EntityIdCallback;
             set
             {
-                MemberIdCallback = value;
+                EntityIdCallback = value;
                 RequestSerialization();
             }
         }
@@ -259,17 +249,16 @@ namespace CreatureTime
         public bool IsBlind { get; set; }
 
         public float NormalizedHealth => Health / (float)_entityStats.MaxHealth;
-
         public string DisplayName => _entityStats.DisplayName;
-
         public Texture Icon => _entityStats.Icon;
+        public bool IsPlayer { get; private set; }
 
         private CtEntityDef _entityStats;
 
         public CtEntityDef EntityStats
         {
             get => _entityStats;
-            set
+            private set
             {
                 if (_entityStats)
                 {
@@ -293,17 +282,32 @@ namespace CreatureTime
             }
         }
 
-        public void Init(ushort identifier, int index, CtEntity[] team)
+        public CtPlayerDef PlayerDef
         {
-            Identifier = identifier;
-            Index = index;
-            Team = team;
+            set
+            {
+                if (EntityStats)
+                    IsPlayer = false;
+                EntityStats = value;
+                if (EntityStats)
+                    IsPlayer = true;
+            }
         }
 
-        private void OnEnable()
+        public CtNpcDef NpcDef
         {
-            // var globals = CtGlobals.Instance();
-            // gameData = globals.GameData;
+            set => EntityStats = value;
+        }
+
+        public void RemoveEntityDef()
+        {
+            EntityStats = null;
+            IsPlayer = false;
+        }
+
+        public void Init(ushort identifier)
+        {
+            Identifier = identifier;
         }
 
         public void _OnSkillChanged()
@@ -317,15 +321,22 @@ namespace CreatureTime
 
         public void Reset()
         {
+            Health = -1;
+            Energy = -1;
             _ResetSkillInstanceData();
+            _ResetStats();
 
+            RequestSerialization();
+        }
+
+        private void _ResetStats()
+        {
             DamageDealt = 0;
             DamageTaken = 0;
             HealingDealt = 0;
             HealingTaken = 0;
             DamageResisted = 0;
             DamageTakenResisted = 0;
-            RequestSerialization();
         }
 
         private void _ResetSkillInstanceData()
@@ -442,6 +453,9 @@ namespace CreatureTime
             Health = EntityStats.MaxHealth;
             Energy = EntityStats.MaxEnergy;
             _ResetSkillInstanceData();
+            _ResetStats();
+
+            RequestSerialization();
         }
 
         public void UpdateStatsAndSkills()

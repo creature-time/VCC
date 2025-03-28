@@ -1,4 +1,5 @@
 
+using UnityEngine;
 using VRC.SDK3.Data;
 
 namespace CreatureTime
@@ -11,10 +12,12 @@ namespace CreatureTime
 
         // TODO: Can we make these arguments stack in a DataList?
         private DataList _setArgs = new DataList();
-        private DataList _getArgs;
+        private DataList _getArgs = new DataList();
+        private DataList _sender = new DataList();
 
+        public CtAbstractSignal Sender => (CtAbstractSignal)_sender[0].Reference;
         public DataList SetArgs => _setArgs;
-        public DataList GetArgs => _getArgs;
+        public DataList GetArgs => _getArgs[0].DataList;
 
         public void Connect(int typeId, CtAbstractSignal receiver, string method)
         {
@@ -77,16 +80,21 @@ namespace CreatureTime
                     var receiver = tokens[i];
                     var reference = (CtAbstractSignal)receiver.Reference;
 
-                    reference._getArgs = _setArgs;
+                    reference._sender.Insert(0, this);
+                    reference._getArgs.Insert(0, _setArgs);
 
                     var methods = receivers[receiver].DataList;
                     for (int j = 0; j < methods.Count; ++j)
                     {
                         string method = methods[j].String;
+                        LogDebug(
+                            "Emitting " +
+                            $"(typeId={typeId}, sender={reference.Sender}, receiver={receiver}, method={method}).");
                         reference.SendCustomEvent(method);
                     }
 
-                    reference._getArgs = null;
+                    reference._sender.RemoveAt(0);
+                    reference._getArgs.RemoveAt(0);
                 }
             }
 

@@ -40,7 +40,7 @@ namespace CreatureTime
             return null;
         }
 
-        private void OnEnable()
+        private void Start()
         {
             PlayerDefinitions = new CtPlayerDef[maxPlayerCount];
         }
