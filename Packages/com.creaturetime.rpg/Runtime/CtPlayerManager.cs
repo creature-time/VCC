@@ -2,13 +2,15 @@
 using System;
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 using VRC.SDKBase;
 
 namespace CreatureTime
 {
     public enum EPlayerManagerSignal
     {
-        PlayersChanged,
+        PlayerAdded,
+        PlayerRemoved,
         LocalPlayerChanged
     }
 
@@ -22,7 +24,8 @@ namespace CreatureTime
         public CtPlayerDef LocalPlayerDef { get; private set; }
         public CtPlayerDef[] PlayerDefinitions { get; private set; }
 
-        [HideInInspector] public RenderTexture[] playerRenderTextures;
+        [SerializeField, HideInInspector] private RenderTexture[] playerRenderTextures;
+        private DataList playerRenderTexturesToUpdate = new DataList();
 
         public CtPlayerDef GetPlayerDef(ushort playerId)
         {
@@ -88,6 +91,7 @@ namespace CreatureTime
                 return;
             }
 
+            Debug.Log(playerRenderTextures[index]);
             playerDef.SetRenderTexture(playerRenderTextures[index]);
 
             if (playerDef.IsLocal)
@@ -99,9 +103,9 @@ namespace CreatureTime
             PlayerDefinitions[index] = playerDef;
 
             SetArgs.Add(index);
-            this.Emit(EPlayerManagerSignal.PlayersChanged);
+            this.Emit(EPlayerManagerSignal.PlayerAdded);
 
-            SendCustomEventDelayedSeconds(nameof(_UpdatePlayerAvatar), 5);
+            QueueUpdatePlayerAvatar(playerDef.PlayerId);
         }
 
         public void Client_OnPlayerRemoved(CtPlayerDef playerDef)
@@ -109,7 +113,7 @@ namespace CreatureTime
             int index = Array.IndexOf(PlayerDefinitions, playerDef);
 
             SetArgs.Add(index);
-            this.Emit(EPlayerManagerSignal.PlayersChanged);
+            this.Emit(EPlayerManagerSignal.PlayerRemoved);
 
             if (playerDef.IsLocal)
             {
@@ -123,15 +127,26 @@ namespace CreatureTime
                 $"Player removed (displayName={playerDef.DisplayName}).");
         }
 
-        public void _UpdatePlayerAvatar()
+        public void UpdatePlayerAvatar()
         {
-            for (int i = 0; i < PlayerDefinitions.Length; i++)
-                avatarSnapshot.UpdatePlayerIcon(PlayerDefinitions[i]);
+            for (int i = 0; i < playerRenderTexturesToUpdate.Count; i++)
+            {
+                var playerDef = GetPlayerDef(playerRenderTexturesToUpdate[i].UShort);
+                if (playerDef)
+                    avatarSnapshot.UpdatePlayerIcon(playerDef);
+            }
+            playerRenderTexturesToUpdate.Clear();
+        }
+
+        public void QueueUpdatePlayerAvatar(ushort playerId)
+        {
+            playerRenderTexturesToUpdate.Add(playerId);
+            SendCustomEventDelayedSeconds(nameof(UpdatePlayerAvatar), 5);
         }
 
         public override void OnAvatarChanged(VRCPlayerApi player)
         {
-            SendCustomEventDelayedSeconds(nameof(_UpdatePlayerAvatar), 5);
+            QueueUpdatePlayerAvatar((ushort)player.playerId);
         }
     }
 }

@@ -75,7 +75,7 @@ namespace CreatureTime
             req += generatedRarity - rolledRarity;
             int modifierStats = CtRandomizer.GetIntValue(minModifierStat, maxModifierStat);
 
-            return CtInventoryData.CreateOffHandData(
+            return CtDataBlock.CreateOffHandData(
                 Identifier,
                 EOffHandPrefix.None,
                 EOffHandSuffix.None,
@@ -115,7 +115,7 @@ namespace CreatureTime
 
             string color = RarityDefaultColor;
 
-            rarity = CtInventoryData.GetOffHandRarity(dataBlock);
+            rarity = CtDataBlock.GetOffHandRarity(dataBlock);
             switch (rarity)
             {
                 case EItemRarity.None:
@@ -138,8 +138,8 @@ namespace CreatureTime
                     break;
             }
 
-            requirement = CtInventoryData.GetOffHandRequirement(dataBlock);
-            modifierStat = CtInventoryData.GetOffHandModifierStat(dataBlock);
+            requirement = CtDataBlock.GetOffHandRequirement(dataBlock);
+            modifierStat = CtDataBlock.GetOffHandModifierStat(dataBlock);
 
             weaponName = $"<color={color}>{DisplayName}</color>";
 

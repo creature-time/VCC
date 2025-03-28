@@ -498,7 +498,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 3458601013559376932}
-  identifier: 2
+  identifier: 4
   displayName: Test Armor Legs
   icon: {fileID: 0}
   armorRating: 40
@@ -675,7 +675,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 5363772470993169806}
-  identifier: 2
+  identifier: 5
   displayName: Test Armor Feet
   icon: {fileID: 0}
   armorRating: 40
@@ -927,34 +927,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 402594309919875350, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -4.0643725
-      objectReference: {fileID: 0}
-    - target: {fileID: 402594309919875350, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 9.013787
-      objectReference: {fileID: 0}
-    - target: {fileID: 402594309919875350, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -7.436389
-      objectReference: {fileID: 0}
-    - target: {fileID: 402594309919875350, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 402594309919875350, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 402594309919875350, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 402594309919875350, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 402594309919875350, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
@@ -976,7 +948,7 @@ PrefabInstance:
       objectReference: {fileID: 1407678206794916683, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
     - target: {fileID: 1719592017791742977, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
       propertyPath: m_Name
-      value: GameData Variant
+      value: Test_GameData
       objectReference: {fileID: 0}
     - target: {fileID: 1935584232186011099, guid: 11f9252730762ac4d966ef103396bdd6, type: 3}
       propertyPath: serializationData.Prefab

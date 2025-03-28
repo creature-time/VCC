@@ -77,7 +77,7 @@ namespace CreatureTime
             int rolledRarity = CtRandomizer.GetIntValue(generatedRarity + 1);
             req += generatedRarity - rolledRarity;
 
-            return CtInventoryData.CreateWeaponData(
+            return CtDataBlock.CreateWeaponData(
                 Identifier,
                 EWeaponPrefix.None,
                 EWeaponSuffix.None,
@@ -161,7 +161,7 @@ namespace CreatureTime
 
             string color = RarityDefaultColor;
 
-            rarity = CtInventoryData.GetWeaponRarity(dataBlock);
+            rarity = CtDataBlock.GetWeaponRarity(dataBlock);
             switch (rarity)
             {
                 case EItemRarity.None:
@@ -184,7 +184,7 @@ namespace CreatureTime
                     break;
             }
 
-            requirement = CtInventoryData.GetWeaponRequirement(dataBlock);
+            requirement = CtDataBlock.GetWeaponRequirement(dataBlock);
 
             weaponName = $"<color={color}>{DisplayName}</color>";
 

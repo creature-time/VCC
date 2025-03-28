@@ -39,19 +39,19 @@ namespace CreatureTime
         [Header("Equipment")]
 
         [SerializeField, UdonSynced, FieldChangeCallback(nameof(MainHandWeaponCallback))]
-        private ulong mainHandWeaponData = CtInventoryData.InvalidData;
+        private ulong mainHandWeaponData = CtDataBlock.InvalidData;
 
         [SerializeField, UdonSynced, FieldChangeCallback(nameof(OffHandWeaponCallback))]
-        private ulong offHandWeaponData = CtInventoryData.InvalidData;
+        private ulong offHandWeaponData = CtDataBlock.InvalidData;
 
         [SerializeField, UdonSynced]
         private ulong[] equipmentData = new ulong[MaxEquipmentCount] {
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData,
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData
         };
         private ulong[] _cmpEquipmentData = new ulong[MaxEquipmentCount] {
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData,
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData
         };
 
         [Header("Skills")]
@@ -89,7 +89,7 @@ namespace CreatureTime
         }
 
         [SerializeField, UdonSynced, FieldChangeCallback(nameof(AttributeDataCallback))]
-        private ulong attributeData = CtInventoryData.InvalidData;
+        private ulong attributeData = CtDataBlock.InvalidData;
 
         [SerializeField] private CtUserData userData;
 

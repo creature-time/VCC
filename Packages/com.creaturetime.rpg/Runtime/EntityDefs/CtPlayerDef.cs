@@ -43,18 +43,18 @@ namespace CreatureTime
 
         [UdonSynced] public ulong[] _inventory = new ulong[MaxInventoryCount]
         {
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData,
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData,
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData,
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData
         };
 
         private ulong[] _cmpInventory = new ulong[MaxInventoryCount]
         {
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData,
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData,
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData,
-            CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData, CtInventoryData.InvalidData
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
+            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData
         };
 
         // public int InvCountOf(ushort identifier)
@@ -82,7 +82,7 @@ namespace CreatureTime
 
         public int InvIndexOfEmpty()
         {
-            return Array.IndexOf(_inventory, CtInventoryData.InvalidData);
+            return Array.IndexOf(_inventory, CtDataBlock.InvalidData);
         }
 
         public void InvAddTo(int index, ulong data)
@@ -97,7 +97,7 @@ namespace CreatureTime
 
         public void InvRemoveFrom(int index)
         {
-            SetInventoryData(index, CtInventoryData.InvalidData);
+            SetInventoryData(index, CtDataBlock.InvalidData);
         }
 
         private void SetInventoryData(int index, ulong data)

@@ -8,7 +8,7 @@ namespace CreatureTime
         OffHand
     }
 
-    public static class CtInventoryData
+    public static class CtDataBlock
     {
         public const ulong InvalidData = 0xFFFFFFFFFFFFFFFF;
         private const int DataTypeBitMask = 0x000000000000000F;

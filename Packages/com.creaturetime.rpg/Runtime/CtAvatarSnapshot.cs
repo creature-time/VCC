@@ -13,11 +13,14 @@ namespace CreatureTime
         [Range(0.1f, 100.0f)]
         public float distance = 1.0f;
 
-        public void UpdatePlayerIcon(CtPlayerDef playerStats)
+        private void Start()
         {
             // Move it to root so we can properly assign the position and rotation for taking the photo.
-            transform.parent = null;
+            captureCamera.transform.parent = null;
+        }
 
+        public void UpdatePlayerIcon(CtPlayerDef playerStats)
+        {
             int playerMask = LayerMask.NameToLayer("Player");
             int mirrorReflectionMask = LayerMask.NameToLayer("MirrorReflection");
 

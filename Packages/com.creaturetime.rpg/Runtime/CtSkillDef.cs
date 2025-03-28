@@ -98,9 +98,9 @@ namespace CreatureTime
             int armorHit = CtArmorDef.GetArmorIndex(CtArmorDef.RollArmorHit());
             ulong armorData = target.EntityStats.EquipmentData[armorHit];
             int armorRating = 0;
-            if (CtInventoryData.IsValid(armorData))
+            if (CtDataBlock.IsValid(armorData))
             {
-                ushort armorIdentifier = CtInventoryData.GetEquipmentIdentifier(armorData);
+                ushort armorIdentifier = CtDataBlock.GetEquipmentIdentifier(armorData);
                 CtArmorDef armorDefinition = gameData.GetArmorDef(armorIdentifier);
                 if (armorDefinition)
                 {
@@ -114,17 +114,17 @@ namespace CreatureTime
             }
 
             ulong offHandWeaponData = target.EntityStats.OffHandWeapon;
-            if (CtInventoryData.IsValid(offHandWeaponData))
+            if (CtDataBlock.IsValid(offHandWeaponData))
             {
-                ushort offHandIdentifier = CtInventoryData.GetOffHandIdentifier(offHandWeaponData);
+                ushort offHandIdentifier = CtDataBlock.GetOffHandIdentifier(offHandWeaponData);
                 CtOffHandDef offHandDefinition = gameData.GetOffHandDef(offHandIdentifier);
                 if (offHandDefinition.OffHandType == EOffHandType.Shield)
                 {
                     int attributeRank = 
                         TryGetAttributeLevelByAttributeType(gameData, target.EntityStats, offHandDefinition.AttributeType);
-                    int reqRank = CtInventoryData.GetOffHandRequirement(offHandWeaponData);
+                    int reqRank = CtDataBlock.GetOffHandRequirement(offHandWeaponData);
 
-                    int additionalArmorRating = CtInventoryData.GetOffHandModifierStat(offHandWeaponData);
+                    int additionalArmorRating = CtDataBlock.GetOffHandModifierStat(offHandWeaponData);
                     int armorRatingCap = 16;
 
                     // If source does not meet requirements to use the weapon.
@@ -152,7 +152,7 @@ namespace CreatureTime
         private static int _CalcMeleeAttack(CtGameData gameData, CtEntity target, CtEntity source,
             out CtWeaponDef weaponDefinition, out int attributeRank, out bool isCritical)
         {
-            ushort identifier = CtInventoryData.GetWeaponIdentifier(source.EntityStats.MainHandWeapon);
+            ushort identifier = CtDataBlock.GetWeaponIdentifier(source.EntityStats.MainHandWeapon);
             weaponDefinition = gameData.GetWeaponDef(identifier);
             if (!weaponDefinition)
                 CtLogger.LogCritical("Skill Definition", $"Weapon could not be found (identifier={identifier})");
@@ -162,7 +162,7 @@ namespace CreatureTime
 
             int armorRating = CalculateArmorRating(gameData, target);
 
-            int weaponAttributeLevel = CtInventoryData.GetWeaponRequirement(source.EntityStats.MainHandWeapon);
+            int weaponAttributeLevel = CtDataBlock.GetWeaponRequirement(source.EntityStats.MainHandWeapon);
             return weaponDefinition.CalcDamage(weaponAttributeLevel, attributeRank, source.EntityStats.CharacterLevel,
                 target.EntityStats.CharacterLevel, armorRating, out isCritical);
         }
@@ -255,11 +255,11 @@ namespace CreatureTime
 
         public static int TryGetAttributeLevelByAttributeType(CtGameData gameData, CtEntityDef entityStats, EAttributeType attributeType)
         {
-            ushort profession = CtInventoryData.GetProfession(entityStats.AttributeData);
+            ushort profession = CtDataBlock.GetProfession(entityStats.AttributeData);
             CtProfessionDef professionDefinition = gameData.GetProfessionDef(profession);
             for (int i = 0; i < professionDefinition.Attributes.Length; ++i)
                 if (professionDefinition.Attributes[i].AttributeType == attributeType)
-                    return CtInventoryData.GetAttributeRank(entityStats.AttributeData, i);
+                    return CtDataBlock.GetAttributeRank(entityStats.AttributeData, i);
 
             return 0;
         }
