@@ -13,23 +13,27 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtPartyManager : CtAbstractSignal
     {
-        [SerializeField] private CtParty[] parties;
+        [SerializeField, HideInInspector] private CtParty[] playerParties;
+        [SerializeField, HideInInspector] private CtParty[] enemyParties;
 
         private void Start()
         {
-            for (int i = 0; i < parties.Length; i++)
+            for (int i = 0; i < playerParties.Length; i++)
             {
-                var party = parties[i];
+                var party = playerParties[i];
                 party.Init((ushort)i);
-                party.Connect(EPartySignal.Started, this, nameof(_OnPartyStarted));
-                party.Connect(EPartySignal.Disbanded, this, nameof(_OnPartyDisbanded));
+                party.Connect(EPartySignal.Started, this, nameof(_OnPlayerPartyStarted));
+                party.Connect(EPartySignal.Disbanded, this, nameof(_OnPlayerPartyDisbanded));
             }
+
+            for (int i = 0; i < enemyParties.Length; i++)
+                enemyParties[i].Init((ushort)i);
         }
 
-        public bool TryGetParty(ushort identifier, out CtParty party)
+        public bool TryGetPlayerParty(ushort identifier, out CtParty party)
         {
             party = null;
-            foreach (var other in parties)
+            foreach (var other in playerParties)
             {
                 if (other.Identifier == identifier)
                 {
@@ -41,7 +45,7 @@ namespace CreatureTime
             return false;
         }
 
-        public bool TryGetParty(CtEntity entity, out CtParty party)
+        public bool TryGetPlayerParty(CtEntity entity, out CtParty party)
         {
             party = null;
             if (!entity)
@@ -50,7 +54,7 @@ namespace CreatureTime
                 return false;
             }
 
-            foreach (var other in parties)
+            foreach (var other in playerParties)
             {
                 if (other.HasMember(entity))
                 {
@@ -62,10 +66,10 @@ namespace CreatureTime
             return false;
         }
 
-        public bool TryGetAvailableParty(out CtParty party)
+        public bool TryGetAvailablePlayerParty(out CtParty party)
         {
             party = null;
-            foreach (var other in parties)
+            foreach (var other in playerParties)
             {
                 if (other.IsEmpty)
                 {
@@ -76,7 +80,7 @@ namespace CreatureTime
             return false;
         }
 
-        public void _OnPartyStarted()
+        public void _OnPlayerPartyStarted()
         {
             var party = (CtParty)GetArgs[0].Reference;
 
@@ -84,7 +88,7 @@ namespace CreatureTime
             this.Emit(EPartyManagerSignal.PartyStarted);
         }
 
-        public void _OnPartyDisbanded()
+        public void _OnPlayerPartyDisbanded()
         {
             var party = (CtParty)GetArgs[0].Reference;
 

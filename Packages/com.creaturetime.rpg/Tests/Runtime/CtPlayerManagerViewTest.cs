@@ -30,7 +30,7 @@ namespace CreatureTime
             prefab.SetActive(true);
             prefab.transform.position = new Vector3(index * 3, 10, 10);
 
-            var playerDef = playerManager.PlayerDefinitions[index];
+            var playerDef = playerManager.GetPlayerDefByIndex(index);
             prefab.name = playerDef.DisplayName;
 
             MaterialPropertyBlock props = new MaterialPropertyBlock();

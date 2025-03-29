@@ -29,7 +29,6 @@ namespace CreatureTime
             for (int i = 0; i < 4; ++i)
             {
                 var identifier = party.GetMemberId(i);
-                Debug.LogError($"identifier {identifier}");
                 if (identifier != CtConstants.InvalidId)
                 {
                     if (!entityManager.TryGetEntity(identifier, out var entity))
@@ -48,13 +47,13 @@ namespace CreatureTime
 
         public void _RunPartyManagerTest0()
         {
-            if (partyManager.TryGetParty(entityManager.LocalEntity, out var party))
+            if (partyManager.TryGetPlayerParty(entityManager.LocalEntity, out var party))
             {
                 LogWarning($"Entity already joined party  (identifier={party.Identifier})");
                 return;
             }
 
-            if (partyManager.TryGetAvailableParty(out party))
+            if (partyManager.TryGetAvailablePlayerParty(out party))
             {
                 LogDebug($"Empty party found (identifier={party.Identifier})");
                 party.Join(entityManager.LocalEntity);
@@ -67,7 +66,7 @@ namespace CreatureTime
 
         public void _RunPartyManagerTest1()
         {
-            if (!partyManager.TryGetParty(entityManager.LocalEntity, out var party))
+            if (!partyManager.TryGetPlayerParty(entityManager.LocalEntity, out var party))
             {
                 LogWarning("Entity was not in a party)");
                 return;
@@ -81,7 +80,7 @@ namespace CreatureTime
 
         public void _RunPartyManagerTest2()
         {
-            if (!partyManager.TryGetParty(entityManager.LocalEntity, out var party))
+            if (!partyManager.TryGetPlayerParty(entityManager.LocalEntity, out var party))
             {
                 LogWarning("Entity was not in a party)");
                 return;
@@ -98,7 +97,7 @@ namespace CreatureTime
 
         public void _RunPartyManagerTest3()
         {
-            if (!partyManager.TryGetParty(entityManager.LocalEntity, out var party))
+            if (!partyManager.TryGetPlayerParty(entityManager.LocalEntity, out var party))
             {
                 LogWarning("Entity was not in a party)");
                 return;

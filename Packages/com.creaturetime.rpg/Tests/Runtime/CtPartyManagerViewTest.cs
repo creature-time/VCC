@@ -1,7 +1,6 @@
 
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VRC.SDK3.Data;
 
 namespace CreatureTime
@@ -10,7 +9,7 @@ namespace CreatureTime
     public class CtPartyManagerViewTest : CtAbstractSignal
     {
         [SerializeField] private CtPartyManager partyManager;
-        [FormerlySerializedAs("npcEntityManager")] [SerializeField] private CtEntityManager entityManager;
+        [SerializeField] private CtEntityManager entityManager;
 
         [SerializeField] private GameObject partyPrefab;
 
@@ -29,7 +28,7 @@ namespace CreatureTime
         {
             var identifier = GetArgs[0].UShort;
 
-            partyManager.TryGetParty(identifier, out var party);
+            partyManager.TryGetPlayerParty(identifier, out var party);
             party.Connect(EPartySignal.MemberAdded, this, nameof(_OnMemberAdded));
             party.Connect(EPartySignal.MemberRemoved, this, nameof(_OnMemberRemoved));
         }
@@ -38,7 +37,7 @@ namespace CreatureTime
         {
             var identifier = GetArgs[0].UShort;
 
-            partyManager.TryGetParty(identifier, out var party);
+            partyManager.TryGetPlayerParty(identifier, out var party);
             party.Disconnect(EPartySignal.MemberAdded, this, nameof(_OnMemberAdded));
             party.Disconnect(EPartySignal.MemberRemoved, this, nameof(_OnMemberRemoved));
         }

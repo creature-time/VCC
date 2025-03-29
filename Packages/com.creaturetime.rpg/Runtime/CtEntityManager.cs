@@ -8,9 +8,9 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtEntityManager : CtAbstractSignal
     {
-        [SerializeField] private CtEntity[] playerEntities;
-        [SerializeField] private CtEntity[] recruitEntities;
-        [SerializeField] private CtEntity[] enemyEntities;
+        [SerializeField, HideInInspector] private CtEntity[] playerEntities;
+        [SerializeField, HideInInspector] private CtEntity[] recruitEntities;
+        [SerializeField, HideInInspector] private CtEntity[] enemyEntities;
 
         [SerializeField] private CtPlayerManager playerManager;
         [SerializeField] private CtGameData gameData;
@@ -60,7 +60,7 @@ namespace CreatureTime
             var index = GetArgs[0].Int;
 
             Debug.Log("OnPlayerAdded");
-            var playerDef = playerManager.PlayerDefinitions[index];
+            var playerDef = playerManager.GetPlayerDefByIndex(index);
             if (!TryCreatePlayer(playerDef, out var entity))
             {
                 return;
@@ -71,7 +71,7 @@ namespace CreatureTime
         {
             var index = GetArgs[0].Int;
 
-            var playerDef = playerManager.PlayerDefinitions[index];
+            var playerDef = playerManager.GetPlayerDefByIndex(index);
             ushort memberId = GeneratePartyId(playerDef);
 
             foreach (var other in playerEntities)
@@ -94,7 +94,7 @@ namespace CreatureTime
                 if (IsPlayer(memberId))
                 {
                     ushort playerId = (ushort)((memberId & 0xFF00) >> 8);
-                    var playerDef = playerManager.GetPlayerDef(playerId);
+                    var playerDef = playerManager.GetPlayerDefById(playerId);
                     entity.PlayerDef = playerDef;
                     if (playerDef.IsLocal)
                         LocalEntity = entity;

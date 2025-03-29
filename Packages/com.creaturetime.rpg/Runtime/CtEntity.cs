@@ -123,21 +123,21 @@ namespace CreatureTime
         }
 
         [UdonSynced]
-        public int[] _recharge = new int[MaxSkillCount]
+        private int[] _recharge = new int[MaxSkillCount]
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
-        public int[] _rechargeCmp = new int[MaxSkillCount]
+        private int[] _rechargeCmp = new int[MaxSkillCount]
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
         [UdonSynced]
-        public int[] _adrenaline = new int[MaxSkillCount]
+        private int[] _adrenaline = new int[MaxSkillCount]
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
-        public int[] _adrenalineCmp = new int[MaxSkillCount]
+        private int[] _adrenalineCmp = new int[MaxSkillCount]
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };

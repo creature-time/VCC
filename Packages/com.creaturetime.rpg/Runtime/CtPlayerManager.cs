@@ -2,6 +2,7 @@
 using System;
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VRC.SDK3.Data;
 using VRC.SDKBase;
 
@@ -17,21 +18,20 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtPlayerManager : CtAbstractSignal
     {
-        [SerializeField] private int maxPlayerCount;
+        [SerializeField, HideInInspector] private CtPlayerDef[] playerDefs;
         [SerializeField] private CtEntityDef playerDefaultDef;
         [SerializeField] private CtAvatarSnapshot avatarSnapshot;
 
         public CtPlayerDef LocalPlayerDef { get; private set; }
-        public CtPlayerDef[] PlayerDefinitions { get; private set; }
 
         [SerializeField, HideInInspector] private RenderTexture[] playerRenderTextures;
         private DataList playerRenderTexturesToUpdate = new DataList();
 
-        public CtPlayerDef GetPlayerDef(ushort playerId)
+        public CtPlayerDef GetPlayerDefById(ushort playerId)
         {
-            for (int i = 0; i < PlayerDefinitions.Length; i++)
+            for (int i = 0; i < playerDefs.Length; i++)
             {
-                CtPlayerDef playerDef = PlayerDefinitions[i];
+                CtPlayerDef playerDef = playerDefs[i];
                 if (playerDef)
                     if (playerDef.PlayerId == playerId)
                         return playerDef;
@@ -40,9 +40,9 @@ namespace CreatureTime
             return null;
         }
 
-        private void Start()
+        public CtPlayerDef GetPlayerDefByIndex(int index)
         {
-            PlayerDefinitions = new CtPlayerDef[maxPlayerCount];
+            return playerDefs[index];
         }
 
         public void SetupPlayer(VRCPlayerApi player, CtPlayerDef playerDef)
@@ -72,8 +72,8 @@ namespace CreatureTime
         {
             Client_OnPlayerRemoved(playerDef);
 
-            int index = Array.IndexOf(PlayerDefinitions, playerDef);
-            PlayerDefinitions[index] = null;
+            int index = Array.IndexOf(playerDefs, playerDef);
+            playerDefs[index] = null;
 
             CtLogger.LogDebug("Player Manager",
                 $"Player destroyed (displayName={playerDef.DisplayName}, playerId={playerDef.PlayerId})");
@@ -84,7 +84,7 @@ namespace CreatureTime
             CtLogger.LogDebug("Player Manager",
                 $"Player added (displayName={playerDef.DisplayName}).");
 
-            int index = Array.IndexOf(PlayerDefinitions, null);
+            int index = Array.IndexOf(playerDefs, null);
             if (index == -1)
             {
                 CtLogger.LogCritical("Player Manager", "Could not find available player definition.");
@@ -100,7 +100,7 @@ namespace CreatureTime
                 this.Emit(EPlayerManagerSignal.LocalPlayerChanged);
             }
 
-            PlayerDefinitions[index] = playerDef;
+            playerDefs[index] = playerDef;
 
             SetArgs.Add(index);
             this.Emit(EPlayerManagerSignal.PlayerAdded);
@@ -110,7 +110,7 @@ namespace CreatureTime
 
         public void Client_OnPlayerRemoved(CtPlayerDef playerDef)
         {
-            int index = Array.IndexOf(PlayerDefinitions, playerDef);
+            int index = Array.IndexOf(playerDefs, playerDef);
 
             SetArgs.Add(index);
             this.Emit(EPlayerManagerSignal.PlayerRemoved);
@@ -131,7 +131,7 @@ namespace CreatureTime
         {
             for (int i = 0; i < playerRenderTexturesToUpdate.Count; i++)
             {
-                var playerDef = GetPlayerDef(playerRenderTexturesToUpdate[i].UShort);
+                var playerDef = GetPlayerDefById(playerRenderTexturesToUpdate[i].UShort);
                 if (playerDef)
                     avatarSnapshot.UpdatePlayerIcon(playerDef);
             }

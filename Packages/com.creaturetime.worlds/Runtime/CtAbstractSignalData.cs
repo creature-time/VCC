@@ -1,5 +1,6 @@
 ﻿
 using System;
+using UnityEngine;
 
 namespace CreatureTime
 {
@@ -8,6 +9,7 @@ namespace CreatureTime
         public static void Connect<T>(this CtAbstractSignal signal, T typeId, CtAbstractSignal receiver, string method)
             where T : Enum
         {
+            Debug.LogWarning($"Attempting to connect to CtAbstractSignal {receiver} {method}");
             signal.Connect(Convert.ToInt32(typeId), receiver, method);
         }
 
