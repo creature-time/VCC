@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
@@ -12,6 +13,10 @@ namespace CreatureTime
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
 
+        [SerializeField] private CtAbstractQuest[] quests;
+
+        private DataDictionary _quests = new DataDictionary();
+
         public CtGameData GameData => gameData;
         public CtPlayerManager PlayerManager => playerManager;
         public CtPartyManager PartyManager => partyManager;
@@ -21,6 +26,9 @@ namespace CreatureTime
 
         private void Start()
         {
+            foreach (var quest in quests)
+                _quests.Add(quest.Identifier, quest);
+
             playerManager.Connect(EPlayerManagerSignal.PlayerAdded, this, nameof(_OnPlayerAdded));
             playerManager.Connect(EPlayerManagerSignal.PlayerRemoved, this, nameof(_OnPlayerRemoved));
 
@@ -174,6 +182,16 @@ namespace CreatureTime
 
             if (!_HasPlayers(party))
                 party.Clear();
+        }
+
+        public void JoinQuest(CtParty party, CtAbstractQuest quest)
+        {
+            // TODO
+        }
+
+        public void LeaveQuest(CtParty party)
+        {
+            // TODO
         }
     }
 }

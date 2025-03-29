@@ -2,7 +2,6 @@
 using System;
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VRC.SDK3.Data;
 
 namespace CreatureTime
@@ -13,6 +12,7 @@ namespace CreatureTime
         Disbanded,
         MemberAdded,
         MemberRemoved,
+        QuestChanged
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
@@ -23,16 +23,39 @@ namespace CreatureTime
         [SerializeField, HideInInspector, UdonSynced] private ushort[] members;
         [SerializeField, HideInInspector] private ushort[] membersCmp;
 
+        [UdonSynced, FieldChangeCallback(nameof(QuestCallback))]
+        private ushort _questId = 0;
+
+        public ushort QuestCallback
+        {
+            get => _questId;
+            set
+            {
+                _questId = value;
+                this.Emit(EPartySignal.QuestChanged);
+            }
+        }
+
+        public ushort Quest
+        {
+            get => QuestCallback;
+            set
+            {
+                QuestCallback = value;
+                RequestSerialization();
+            }
+        }
+
         public ushort GetMemberId(int index)
         {
             return membersCmp[index];
         }
 
-        private DataList _entityCache = new DataList();
+        private DataList _memberCache = new DataList();
 
         public ushort Identifier {get; private set; }
-        public bool IsEmpty => _entityCache.Count == 0;
-        public bool IsFull => _entityCache.Count == members.Length;
+        public bool IsEmpty => _memberCache.Count == 0;
+        public bool IsFull => _memberCache.Count == members.Length;
 
         private void Start()
         {
@@ -62,9 +85,9 @@ namespace CreatureTime
                 SetArgs.Add(index);
                 this.Emit(EPartySignal.MemberRemoved);
 
-                _entityCache.Remove(membersCmp[index]);
+                _memberCache.Remove(membersCmp[index]);
 
-                if (_entityCache.Count == 0)
+                if (_memberCache.Count == 0)
                 {
                     SetArgs.Add(this);
                     this.Emit(EPartySignal.Disbanded);
@@ -75,13 +98,13 @@ namespace CreatureTime
 
             if (membersCmp[index] != CtConstants.InvalidId)
             {
-                if (_entityCache.Count == 0)
+                if (_memberCache.Count == 0)
                 {
                     SetArgs.Add(this);
                     this.Emit(EPartySignal.Started);
                 }
 
-                _entityCache.Add(membersCmp[index]);
+                _memberCache.Add(membersCmp[index]);
 
                 SetArgs.Add(index);
                 this.Emit(EPartySignal.MemberAdded);
@@ -109,7 +132,7 @@ namespace CreatureTime
 
         public bool HasMember(CtEntity entity)
         {
-            return _entityCache.IndexOf(entity.Identifier) != -1;
+            return _memberCache.IndexOf(entity.Identifier) != -1;
         }
 
         public void Clear()
