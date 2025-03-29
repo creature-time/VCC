@@ -79,7 +79,11 @@ crashlytics-build.properties
 # Ignore IDE files
 .idea/**
 
+# GitHub recommends to submit .gitattributes
+!.gitattributes
+
 # Do not include anything in assets
+/[Aa]ssets
 /[Aa]ssets/**
 
 # Do not include any packages by accident
@@ -90,3 +94,14 @@ crashlytics-build.properties
 !/[Pp]ackages/com.creaturetime.worlds/**
 !/[Pp]ackages/com.creaturetime.rpg
 !/[Pp]ackages/com.creaturetime.rpg/**
+
+# Ignore special cases:
+
+# Poiyomi optimized shaders.
+**/OptimizedShaders
+**/OptimizedShaders.meta
+
+# Blend backup files. Do we really need more than 9 backups?
+*.blend
+*.blend[0-9]
+*.blend[0-9].meta
