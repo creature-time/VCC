@@ -2,7 +2,6 @@
 using System;
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VRC.SDK3.Data;
 using VRC.SDKBase;
 
@@ -32,9 +31,13 @@ namespace CreatureTime
             for (int i = 0; i < playerDefs.Length; i++)
             {
                 CtPlayerDef playerDef = playerDefs[i];
-                if (playerDef)
-                    if (playerDef.PlayerId == playerId)
-                        return playerDef;
+                if (!playerDef)
+                    continue;
+
+                LogDebug($"[GetPlayerDefById] PlayerDef (playerId={playerDef.PlayerId}).");
+
+                if (playerDef.PlayerId == playerId)
+                    return playerDef;
             }
 
             return null;
@@ -91,7 +94,6 @@ namespace CreatureTime
                 return;
             }
 
-            Debug.Log(playerRenderTextures[index]);
             playerDef.SetRenderTexture(playerRenderTextures[index]);
 
             if (playerDef.IsLocal)

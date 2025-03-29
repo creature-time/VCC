@@ -27,9 +27,10 @@ namespace CreatureTime
                 var entity = playerEntities[i];
                 entity.Init(id);
                 _entityLookup.Add(id, entity);
-
-                entity.Connect(EEntitySignal.IdentifierChanged, this, nameof(_OnIdentifierChanged));
             }
+
+            playerManager.Connect(EPlayerManagerSignal.PlayerAdded, this, nameof(_OnPlayerAdded));
+            playerManager.Connect(EPlayerManagerSignal.PlayerRemoved, this, nameof(_OnPlayerRemoved));
 
             for (int i = 0; i < recruitEntities.Length; i++)
             {
@@ -50,38 +51,30 @@ namespace CreatureTime
 
                 entity.Connect(EEntitySignal.IdentifierChanged, this, nameof(_OnIdentifierChanged));
             }
-
-            playerManager.Connect(EPlayerManagerSignal.PlayerAdded, this, nameof(_OnPlayerAdded));
-            playerManager.Connect(EPlayerManagerSignal.PlayerRemoved, this, nameof(_OnPlayerRemoved));
         }
 
         public void _OnPlayerAdded()
         {
             var index = GetArgs[0].Int;
 
-            Debug.Log("OnPlayerAdded");
             var playerDef = playerManager.GetPlayerDefByIndex(index);
-            if (!TryCreatePlayer(playerDef, out var entity))
-            {
-                return;
-            }
+            TryCreatePlayer(index, playerDef, out var entity);
+
+            if (playerDef.IsLocal)
+                LocalEntity = entity;
+
+            entity.PlayerDef = playerDef;
+            entity.SetupEntityForBattle();
         }
 
         public void _OnPlayerRemoved()
         {
             var index = GetArgs[0].Int;
 
-            var playerDef = playerManager.GetPlayerDefByIndex(index);
-            ushort memberId = GeneratePartyId(playerDef);
-
-            foreach (var other in playerEntities)
-            {
-                if (other.EntityId == memberId)
-                {
-                    other.EntityId = CtConstants.InvalidId;
-                    break;
-                }
-            }
+            var entity = playerEntities[index];
+            entity.EntityId = CtConstants.InvalidId;
+            entity.PlayerDef = null;
+            entity.Reset();
         }
 
         public void _OnIdentifierChanged()
@@ -91,19 +84,8 @@ namespace CreatureTime
             var memberId = entity.EntityId;
             if (memberId != CtConstants.InvalidId)
             {
-                if (IsPlayer(memberId))
-                {
-                    ushort playerId = (ushort)((memberId & 0xFF00) >> 8);
-                    var playerDef = playerManager.GetPlayerDefById(playerId);
-                    entity.PlayerDef = playerDef;
-                    if (playerDef.IsLocal)
-                        LocalEntity = entity;
-                }
-                else
-                {
-                    ushort npcId = (ushort)((memberId & 0xFF00) >> 8);
-                    entity.NpcDef = gameData.GetNpcDef(npcId);
-                }
+                ushort npcId = (ushort)((memberId & 0xFF00) >> 8);
+                entity.NpcDef = gameData.GetNpcDef(npcId);
 
                 entity.SetupEntityForBattle();
             }
@@ -126,20 +108,10 @@ namespace CreatureTime
             return false;
         }
 
-        public bool TryCreatePlayer(CtPlayerDef playerDef, out CtEntity entity)
+        public void TryCreatePlayer(int index, CtPlayerDef playerDef, out CtEntity entity)
         {
-            entity = null;
-            foreach (var other in playerEntities)
-            {
-                if (other.EntityId == CtConstants.InvalidId)
-                {
-                    other.EntityId = GeneratePartyId(playerDef);
-                    entity = other;
-                    return true;
-                }
-            }
-
-            return false;
+            entity = playerEntities[index];
+            entity.EntityId = GeneratePartyId(playerDef);
         }
 
         public bool TryCreateRecruit(CtNpcDef npcDef, out CtEntity entity)

@@ -8,7 +8,7 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtBehaviorTreePathFindingTest : CtBehaviorTreeNodeBase
     {
-        [SerializeField] private Transform[] wayPoints;
+        [SerializeField] private Transform[] wayPoints = {};
         [SerializeField] private float nextWayPointDistance = 0.5f;
 
         private int _currentIndex;
@@ -20,6 +20,9 @@ namespace CreatureTime
 
         public override ENodeStatus Process(CtNpcContext context)
         {
+            if (wayPoints.Length == 0)
+                return ENodeStatus.Success;
+
             var agent = context.Agent;
             if (!Networking.IsOwner(agent.gameObject))
                 return ENodeStatus.Running;
@@ -29,7 +32,7 @@ namespace CreatureTime
             float distance = Vector3.Distance(targetPosition, context.transform.position);
             if (distance < nextWayPointDistance + agent.radius)
                 _currentIndex = (_currentIndex + 1) % wayPoints.Length;
-            return ENodeStatus.Running; //_currentIndex == wayPoints.Length ? ENodeStatus.Success : ENodeStatus.Running;
+            return _currentIndex == wayPoints.Length ? ENodeStatus.Success : ENodeStatus.Running;
         }
     }
 }
