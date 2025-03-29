@@ -16,7 +16,7 @@ namespace CreatureTime
         [SerializeField, HideInInspector] private CtParty[] playerParties;
         [SerializeField, HideInInspector] private CtParty[] enemyParties;
 
-        private void Start()
+        public void Init()
         {
             for (int i = 0; i < playerParties.Length; i++)
             {

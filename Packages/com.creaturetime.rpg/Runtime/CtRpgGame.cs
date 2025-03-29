@@ -26,6 +26,11 @@ namespace CreatureTime
 
         private void Start()
         {
+            gameData.Init();
+            playerManager.Init();
+            partyManager.Init();
+            entityManager.Init();
+
             foreach (var quest in quests)
                 _quests.Add(quest.Identifier, quest);
 
@@ -60,6 +65,10 @@ namespace CreatureTime
                 _LeaveParty(entity, party);
 
             entityManager.ReleasePlayerEntity(index);
+
+            var playerDef = playerManager.GetPlayerDefByIndex(index);
+            if (playerDef.IsLocal)
+                LocalEntity = null;
         }
 
         public void _OnNpcEntityChanged()
@@ -186,12 +195,12 @@ namespace CreatureTime
 
         public void JoinQuest(CtParty party, CtAbstractQuest quest)
         {
-            // TODO
+            party.Quest = quest.Identifier;
         }
 
         public void LeaveQuest(CtParty party)
         {
-            // TODO
+            party.Quest = CtConstants.InvalidId;
         }
     }
 }

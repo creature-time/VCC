@@ -26,6 +26,11 @@ namespace CreatureTime
         [SerializeField, HideInInspector] private RenderTexture[] playerRenderTextures;
         private DataList playerRenderTexturesToUpdate = new DataList();
 
+        public void Init()
+        {
+            // Do nothing?
+        }
+
         public CtPlayerDef GetPlayerDefById(ushort playerId)
         {
             for (int i = 0; i < playerDefs.Length; i++)

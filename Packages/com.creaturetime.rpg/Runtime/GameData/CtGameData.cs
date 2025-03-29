@@ -1,11 +1,9 @@
 ﻿
 using UdonSharp;
-using UnityEngine;
 using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
-    [DefaultExecutionOrder(-1)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtGameData : UdonSharpBehaviour
     {
@@ -16,7 +14,7 @@ namespace CreatureTime
         private DataDictionary _armorDefinitions = new DataDictionary();
         private DataDictionary _professionDefinitions = new DataDictionary();
 
-        private void OnEnable()
+        public void Init()
         {
             CtNpcDef[] npcDefs = GetComponentsInChildren<CtNpcDef>(true);
             CtSkillDef[] skillDefs = GetComponentsInChildren<CtSkillDef>(true);

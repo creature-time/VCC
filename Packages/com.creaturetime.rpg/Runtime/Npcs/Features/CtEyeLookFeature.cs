@@ -10,7 +10,7 @@ namespace CreatureTime
     {
         [SerializeField] private Vector2 minMaxEyeAngle = new Vector2(-35f, 35f);
         [SerializeField] private float lookDistance = 3.0f;
-        [SerializeField] private float lookSpeed = 10.0f;
+        [SerializeField] private float lookSpeed = 15.0f;
 
         #region Eye Left
         private Transform _eyeLeft;

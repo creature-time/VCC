@@ -9,10 +9,10 @@ namespace CreatureTime
     public class CtHeadLookFeature : CtNpcFeature
     {
         [SerializeField] private float resetTimer = 1.0f;
-        [SerializeField] private Vector2 minMaxEyeAngle = new Vector2(-30f, 30f);
+        [SerializeField] private Vector2 minMaxEyeAngle = new Vector2(-60f, 60f);
         [SerializeField] private float lookDistance = 2.5f;
-        [SerializeField] private float lookSpeed = 10.0f;
-        [SerializeField] private float resetLookSpeed = 20.0f;
+        [SerializeField] private float lookSpeed = 5.0f;
+        [SerializeField] private float resetLookSpeed = 5.0f;
 
         private bool _isWithinBounds;
         private bool _isLooking;
