@@ -28,7 +28,7 @@ namespace CreatureTime
         {
             var identifier = GetArgs[0].UShort;
 
-            partyManager.TryGetPlayerParty(identifier, out var party);
+            partyManager.TryGetParty(identifier, out var party);
             party.Connect(EPartySignal.MemberAdded, this, nameof(_OnMemberAdded));
             party.Connect(EPartySignal.MemberRemoved, this, nameof(_OnMemberRemoved));
         }
@@ -37,7 +37,7 @@ namespace CreatureTime
         {
             var identifier = GetArgs[0].UShort;
 
-            partyManager.TryGetPlayerParty(identifier, out var party);
+            partyManager.TryGetParty(identifier, out var party);
             party.Disconnect(EPartySignal.MemberAdded, this, nameof(_OnMemberAdded));
             party.Disconnect(EPartySignal.MemberRemoved, this, nameof(_OnMemberRemoved));
         }

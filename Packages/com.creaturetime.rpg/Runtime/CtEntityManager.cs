@@ -5,17 +5,17 @@ using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
+    enum EEntityManagerSignal
+    {
+        NpcEntityChanged
+    }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtEntityManager : CtAbstractSignal
     {
         [SerializeField, HideInInspector] private CtEntity[] playerEntities;
         [SerializeField, HideInInspector] private CtEntity[] recruitEntities;
         [SerializeField, HideInInspector] private CtEntity[] enemyEntities;
-
-        [SerializeField] private CtPlayerManager playerManager;
-        [SerializeField] private CtGameData gameData;
-
-        public CtEntity LocalEntity { get; private set; }
 
         private DataDictionary _entityLookup = new DataDictionary();
 
@@ -28,9 +28,6 @@ namespace CreatureTime
                 entity.Init(id);
                 _entityLookup.Add(id, entity);
             }
-
-            playerManager.Connect(EPlayerManagerSignal.PlayerAdded, this, nameof(_OnPlayerAdded));
-            playerManager.Connect(EPlayerManagerSignal.PlayerRemoved, this, nameof(_OnPlayerRemoved));
 
             for (int i = 0; i < recruitEntities.Length; i++)
             {
@@ -53,47 +50,16 @@ namespace CreatureTime
             }
         }
 
-        public void _OnPlayerAdded()
-        {
-            var index = GetArgs[0].Int;
-
-            var playerDef = playerManager.GetPlayerDefByIndex(index);
-            TryCreatePlayer(index, playerDef, out var entity);
-
-            if (playerDef.IsLocal)
-                LocalEntity = entity;
-
-            entity.PlayerDef = playerDef;
-            entity.SetupEntityForBattle();
-        }
-
-        public void _OnPlayerRemoved()
-        {
-            var index = GetArgs[0].Int;
-
-            var entity = playerEntities[index];
-            entity.EntityId = CtConstants.InvalidId;
-            entity.PlayerDef = null;
-            entity.Reset();
-        }
-
         public void _OnIdentifierChanged()
         {
             var entity = (CtEntity)Sender;
+            var previousId = GetArgs[0].UShort;
+            var entityId = GetArgs[1].UShort;
 
-            var memberId = entity.EntityId;
-            if (memberId != CtConstants.InvalidId)
-            {
-                ushort npcId = (ushort)((memberId & 0xFF00) >> 8);
-                entity.NpcDef = gameData.GetNpcDef(npcId);
-
-                entity.SetupEntityForBattle();
-            }
-            else
-            {
-                entity.RemoveEntityDef();
-                entity.Reset();
-            }
+            SetArgs.Add(entity);
+            SetArgs.Add(previousId);
+            SetArgs.Add(entityId);
+            this.Emit(EEntityManagerSignal.NpcEntityChanged);
         }
 
         public bool TryGetEntity(ushort identifer, out CtEntity entity)
@@ -108,13 +74,21 @@ namespace CreatureTime
             return false;
         }
 
-        public void TryCreatePlayer(int index, CtPlayerDef playerDef, out CtEntity entity)
+        public void AcquirePlayerEntity(int index, CtPlayerDef playerDef, out CtEntity entity)
         {
             entity = playerEntities[index];
             entity.EntityId = GeneratePartyId(playerDef);
         }
 
-        public bool TryCreateRecruit(CtNpcDef npcDef, out CtEntity entity)
+        public void ReleasePlayerEntity(int index)
+        {
+            var entity = playerEntities[index];
+            entity.EntityId = CtConstants.InvalidId;
+            entity.PlayerDef = null;
+            entity.Reset();
+        }
+
+        public bool TryAcquireRecruit(CtNpcDef npcDef, out CtEntity entity)
         {
             entity = null;
             foreach (var other in recruitEntities)
@@ -128,6 +102,14 @@ namespace CreatureTime
             }
 
             return false;
+        }
+
+        public void ReleaseRecruitEntity(int index)
+        {
+            var entity = playerEntities[index];
+            entity.EntityId = CtConstants.InvalidId;
+            entity.PlayerDef = null;
+            entity.Reset();
         }
 
         public bool TryCreateEnemy(CtNpcDef npcDef, out CtEntity entity)

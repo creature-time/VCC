@@ -46,8 +46,11 @@ namespace CreatureTime
                 if (_entityId == value)
                     return;
 
+                var previousId = _entityId;
                 _entityId = value;
 
+                SetArgs.Add(previousId);
+                SetArgs.Add(_entityId);
                 this.Emit(EEntitySignal.IdentifierChanged);
             }
         }
@@ -266,10 +269,11 @@ namespace CreatureTime
 
                     for (int i = 0; i < MaxSkillCount; ++i)
                         _skillDefs[i] = null;
+
+                    Reset();
                 }
 
                 _entityStats = value;
-
                 if (_entityStats)
                 {
                     _OnSkillChanged();
@@ -297,12 +301,6 @@ namespace CreatureTime
         public CtNpcDef NpcDef
         {
             set => EntityStats = value;
-        }
-
-        public void RemoveEntityDef()
-        {
-            EntityStats = null;
-            IsPlayer = false;
         }
 
         public void Init(ushort identifier)

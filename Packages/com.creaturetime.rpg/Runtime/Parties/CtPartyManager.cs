@@ -30,7 +30,7 @@ namespace CreatureTime
                 enemyParties[i].Init((ushort)i);
         }
 
-        public bool TryGetPlayerParty(ushort identifier, out CtParty party)
+        public bool TryGetParty(ushort identifier, out CtParty party)
         {
             party = null;
             foreach (var other in playerParties)
@@ -45,7 +45,7 @@ namespace CreatureTime
             return false;
         }
 
-        public bool TryGetPlayerParty(CtEntity entity, out CtParty party)
+        public bool TryGetEntityParty(CtEntity entity, out CtParty party)
         {
             party = null;
             if (!entity)
