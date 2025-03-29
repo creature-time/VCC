@@ -80,6 +80,18 @@ namespace CreatureTime
             entity.EntityId = GeneratePartyId(playerDef);
         }
 
+        public bool TryGetPlayerEntity(int index, out CtEntity entity)
+        {
+            entity = playerEntities[index];
+            if (entity.EntityId == CtConstants.InvalidId)
+            {
+                entity = null;
+                return false;
+            }
+
+            return true;
+        }
+
         public void ReleasePlayerEntity(int index)
         {
             var entity = playerEntities[index];

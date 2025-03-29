@@ -45,6 +45,12 @@ namespace CreatureTime
         {
             var index = GetArgs[0].Int;
 
+            if (!entityManager.TryGetPlayerEntity(index, out var entity))
+                return;
+
+            if (partyManager.TryGetEntityParty(entity, out var party))
+                _LeaveParty(entity, party);
+
             entityManager.ReleasePlayerEntity(index);
         }
 
@@ -91,6 +97,14 @@ namespace CreatureTime
             party.Join(playerEntity);
         }
 
+        public void _LeaveParty(CtEntity playerEntity, CtParty party)
+        {
+            party.Leave(playerEntity);
+
+            if (!_HasPlayers(party))
+                party.Clear();
+        }
+
         public void LeaveParty(CtEntity playerEntity)
         {
             if (!partyManager.TryGetEntityParty(playerEntity, out var party))
@@ -99,10 +113,7 @@ namespace CreatureTime
                 return;
             }
 
-            party.Leave(playerEntity);
-
-            if (!_HasPlayers(party))
-                party.Clear();
+            _LeaveParty(playerEntity, party);
         }
 
         private bool _HasPlayers(CtParty party)
