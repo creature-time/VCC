@@ -60,5 +60,10 @@ namespace CreatureTime
 
             rpgGame.ReleaseRecruitNpc(recruit);
         }
+
+        public void _RunDialogueTest0()
+        {
+            rpgGame.DialogueManager.StartConversation(1);
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace CreatureTime
         [SerializeField] private CtPlayerManager playerManager;
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
+        [SerializeField] private CtDialogueManager dialogueManager;
 
         [SerializeField] private CtAbstractQuest[] quests;
 
@@ -21,6 +22,7 @@ namespace CreatureTime
         public CtPlayerManager PlayerManager => playerManager;
         public CtPartyManager PartyManager => partyManager;
         public CtEntityManager EntityManager => entityManager;
+        public CtDialogueManager DialogueManager => dialogueManager;
 
         public CtEntity LocalEntity { get; private set; }
 

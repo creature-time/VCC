@@ -35,6 +35,17 @@ namespace CreatureTime
         {
         }
 
+        [Header("Audio Tests")]
+        [SerializeField] private CtSoundManager soundManager;
+        [SerializeField] private CtSoundBuilder soundBuilder;
+        [SerializeField] private AudioClip testClip;
+
+        public void _RunAudioTest0()
+        {
+            soundBuilder.Setup(testClip, false, true);
+            soundBuilder.Play();
+        }
+
         private void Update()
         {
             behaviorTree.Process();
