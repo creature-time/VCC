@@ -313,13 +313,6 @@ namespace CreatureTime
                 return InvalidData;
             }
 
-            if (attributeCount > AttributeCountBitShiftMask)
-            {
-                CtLogger.LogCritical("Data Mangle", "Profession greater than mask allowed " +
-                                  $"(profession={profession}, allowed={AttributeCountBitShiftMask}).");
-                return InvalidData;
-            }
-
             int bitShift = CalcAttributeBitShiftByIndex(attributeCount);
             ulong unusedBitMask = 0xFFFFFFFFFFFFFFFF << bitShift;
             return

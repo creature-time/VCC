@@ -1,101 +1,95 @@
 ﻿
 using UdonSharp;
-using UnityEngine;
 using VRC.SDK3.Data;
+using VRC.SDKBase;
 
 namespace CreatureTime
 {
     public enum EConversationModelSignal
     {
-        ConversationChanged,
-        EntryChanged,
-        StateChanged,
+        EntryChanged
     }
 
-    public enum EConversationState
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
+    public class CtConversationModel : CtAbstractConversationModel
     {
-        Processing,
-        Interrupted,
-        Completed
-    }
+        private CtDialogueEntry _entry;
 
-    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-    public class CtConversationModel : CtAbstractSignal
-    {
-        [SerializeField] private CtDialogueDatabase dialogueDatabase;
-        [SerializeField] private CtBlackboard blackboard;
-
-        [UdonSynced, FieldChangeCallback(nameof(ConversationIdCallback))] private ushort _conversationId = CtConstants.InvalidId;
+        // [UdonSynced, FieldChangeCallback(nameof(ConversationIdCallback))] 
+        private ushort _entryId = CtConstants.InvalidId;
 
         public ushort ConversationIdCallback
         {
-            get => _conversationId;
+            get => _entryId;
             set
             {
-                if (_conversation)
-                    EntryId = CtConstants.InvalidId;
+                _entryId = value;
+                dialogueDatabase.TryGetDialogueEntry(_entryId, out _entry);
+                if (_entry)
+                    State = EConversationState.Processing;
 
-                _conversation = dialogueDatabase.TryGetConversation(value, out var conversation) ? conversation : null;
-                this.Emit(EConversationModelSignal.ConversationChanged);
-
-                if (_conversation)
-                    EntryId = _conversation.GetFirstDialogueEntry().Identifier;
+                this.Emit(EConversationModelSignal.EntryChanged);
             }
         }
 
-        public ushort ConversationId
+        public override ushort Identifier
         {
             get => ConversationIdCallback;
             set
             {
                 ConversationIdCallback = value;
-                RequestSerialization();
+                // TODO: Can we make this toggleable or externally controlled?
+                // RequestSerialization();
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(EntryIdCallback))] private ushort _entryId = CtConstants.InvalidId;
-
-        public ushort EntryIdCallback
+        public string ActorName
         {
-            get => _conversationId;
-            set
+            get
             {
-                _entryId = value;
-                _conversation.TryGetEntry(_entryId, out _entry);
-                this.Emit(EConversationModelSignal.EntryChanged);
-
-                if (_entry)
-                    State = EConversationState.Processing;
+                var speaker = _entry.Actor;
+                switch (speaker.ActorType)
+                {
+                    case EActorType.Player:
+                        var player = VRCPlayerApi.GetPlayerById(speaker.Identifier);
+                        if (player == null)
+                            return $"<Unknown Player (id={speaker.Identifier})>";
+                        return player.displayName;
+                    case EActorType.LocalPlayer:
+                        var localPlayer = Networking.LocalPlayer;
+                        if (localPlayer == null)
+                            return "<Unknown Local Player>";
+                        return localPlayer.displayName;
+                    default:
+                        return speaker.ActorName;
+                }
             }
         }
 
-        public ushort EntryId
+        public string DialogueText
         {
-            get => EntryIdCallback;
-            set
+            get
             {
-                EntryIdCallback = value;
-                RequestSerialization();
+                string result = _entry.DialogueText;
+
+                // TODO: Bake these down in an actual editor. Sigh...
+
+                // TODO: Make this a setting within the database?
+                string playerColor = "#00FF00";
+
+                string localPlayer = Networking.LocalPlayer.displayName;
+                result = result.Replace("[LocalPlayer]", $"<color=#{playerColor}>{localPlayer}</color>");
+
+                // TODO: Handle [Actor={actorName/actorId}] to <color=#{actorColor}>{actorDisplayName}</color>.
+                // TODO: Handle [PlayerId={playerId}] to something like <color=#{playerColor}>{playerName}</color>.
+
+                return result;
             }
         }
 
-        private CtConversation _conversation;
-        private CtDialogueEntry _entry;
-        private EConversationState _state = EConversationState.Completed;
+        public CtDialogueActor Actor => _entry.Actor;
 
-        public CtBlackboard Blackboard => blackboard;
-
-        public CtDialogueEntry Entry => _entry;
-
-        public EConversationState State
-        {
-            get => _state;
-            set
-            {
-                _state = value;
-                this.Emit(EConversationModelSignal.StateChanged);
-            }
-        }
+        public CtDialogueActor Conversant => _entry.Conversant;
 
         public bool HasResponses => _entry && _entry.Responses.Length > 0;
 
@@ -105,7 +99,7 @@ namespace CreatureTime
             {
                 DataList results = new DataList();
                 foreach (var response in _entry.Responses)
-                    if (response.IsValid(blackboard))
+                    if (response.IsValid())
                         results.Add(response);
 
                 CtDialogueResponse[] responses = new CtDialogueResponse[results.Count];
@@ -115,27 +109,18 @@ namespace CreatureTime
             }
         }
 
-        public bool IsComplete => State != EConversationState.Processing;
-
         public void SetChoice(CtDialogueResponse response)
         {
-            response.Execute(blackboard);
-            EntryId = response.NextId;
+            response.Execute();
+            Identifier = response.NextId;
         }
 
-        public void Interrupt()
+        public override void UpdateConversation()
         {
-            State = EConversationState.Interrupted;
-        }
+            if (!IsComplete || Identifier == CtConstants.InvalidId)
+                return;
 
-        public void SetComplete() => State = EConversationState.Completed;
-
-        public void PollConversation()
-        {
-            if (_conversation && IsComplete)
-            {
-                EntryId = _entry.NextId;
-            }
+            Identifier = _entry.NextId;
         }
     }
 }

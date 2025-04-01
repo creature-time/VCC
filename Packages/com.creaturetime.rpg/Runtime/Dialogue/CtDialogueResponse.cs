@@ -25,18 +25,18 @@ namespace CreatureTime
         public EDialogueChoiceType ChoiceType => choiceType;
         public ushort NextId => nextId;
 
-        public bool IsValid(CtBlackboard blackboard)
+        public bool IsValid()
         {
             foreach (CtResponseCondition condition in conditions)
-                if (!condition.IsValid(blackboard))
+                if (!condition.IsValid())
                     return false;
             return true;
         }
 
-        public void Execute(CtBlackboard blackboard)
+        public void Execute()
         {
             foreach (CtResponseConsequence consequence in consequences)
-                consequence.Execute(blackboard);
+                consequence.Execute();
         }
     }
 }

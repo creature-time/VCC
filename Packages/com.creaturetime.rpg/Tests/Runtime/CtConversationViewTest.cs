@@ -1,4 +1,5 @@
 ﻿
+using TMPro;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
@@ -9,7 +10,11 @@ namespace CreatureTime
     public class CtConversationViewTest : CtAbstractSignal
     {
         [SerializeField] private CtConversationModel conversationModel;
+        [SerializeField] private TMP_Text dialogueText;
         [SerializeField] private GameObject responsePrefab;
+
+        [SerializeField] private CtChatterModel chatterModel;
+        [SerializeField] private TMP_Text chatterText;
 
         private DataList _prefabs = new DataList();
 
@@ -17,27 +22,23 @@ namespace CreatureTime
         {
             responsePrefab.SetActive(false);
 
-            conversationModel.Connect(EConversationModelSignal.ConversationChanged, this, nameof(_OnConversationChanged));
-            conversationModel.Connect(EConversationModelSignal.EntryChanged, this, nameof(_OnEntryChanged));
-            conversationModel.Connect(EConversationModelSignal.StateChanged, this, nameof(_OnStateChanged));
+            conversationModel.Connect(EConversationModelSignal.EntryChanged, this, nameof(_OnDialogueChanged));
+
+            chatterModel.Connect(EChatterModelSignal.EntryChanged, this, nameof(_OnChatterChanged));
         }
 
-        public void _OnConversationChanged()
-        {
-            Debug.Log($"_OnConversationChanged {conversationModel.ConversationId}");
-        }
-
-        public void _OnEntryChanged()
+        public void _OnDialogueChanged()
         {
             _ClearResponses();
 
-            if (conversationModel.Entry)
+            string text;
+            if (conversationModel.Identifier != CtConstants.InvalidId)
             {
-                Debug.Log($"_OnEntryChanged {conversationModel.Entry.DialogueText}");
+                text = $"[<b>{conversationModel.ActorName}</b>] {conversationModel.DialogueText}";
 
                 if (conversationModel.HasResponses)
                 {
-                    foreach (var response in conversationModel.Entry.Responses)
+                    foreach (var response in conversationModel.Responses)
                     {
                         var responseView = Instantiate(responsePrefab, responsePrefab.transform.parent)
                             .GetComponent<CtResponseViewTest>();
@@ -48,14 +49,23 @@ namespace CreatureTime
                 }
                 else
                 {
-                    conversationModel.SetComplete();
+                    conversationModel.SendCustomEventDelayedSeconds("SetComplete", 3);
                 }
             }
+            else
+            {
+                text = "[END]";
+            }
+
+            dialogueText.text = text;
         }
 
-        public void _OnStateChanged()
+        public void _OnChatterChanged()
         {
-            Debug.Log($"_OnStateChanged {conversationModel.State}");
+            if (chatterModel.Identifier != CtConstants.InvalidId)
+                chatterText.text = chatterModel.DialogueText;
+            else
+                chatterText.text = "[END]";
         }
 
         private void _ClearResponses()

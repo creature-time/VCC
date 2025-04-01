@@ -6,12 +6,12 @@ using VRC.SDK3.Data;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtConversation : UdonSharpBehaviour
+    public class CtChatter : UdonSharpBehaviour
     {
         [SerializeField] private ushort identifier = CtConstants.InvalidId;
         [SerializeField] private ushort startEntryId = CtConstants.InvalidId;
 
-        [SerializeField] private CtDialogueEntry[] entries;
+        [SerializeField] private CtChatterEntry[] entries;
 
         public ushort Identifier => identifier;
         public ushort StartEntryId => startEntryId;
@@ -24,12 +24,12 @@ namespace CreatureTime
                 _entries.Add(entry.Identifier, entry);
         }
 
-        public bool TryGetEntry(ushort entryId, out CtDialogueEntry entry)
+        public bool TryGetEntry(ushort entryId, out CtChatterEntry entry)
         {
             entry = null;
             if (_entries.TryGetValue(entryId, out var token))
             {
-                entry = (CtDialogueEntry)token.Reference;
+                entry = (CtChatterEntry)token.Reference;
                 return true;
             }
 

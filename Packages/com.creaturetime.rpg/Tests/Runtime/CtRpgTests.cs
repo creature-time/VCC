@@ -65,5 +65,10 @@ namespace CreatureTime
         {
             rpgGame.DialogueManager.StartConversation(1);
         }
+
+        public void _RunChatterTest0()
+        {
+            rpgGame.DialogueManager.StartChatter(1);
+        }
     }
 }

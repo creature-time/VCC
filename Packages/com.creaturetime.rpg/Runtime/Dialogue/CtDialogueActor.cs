@@ -19,10 +19,12 @@ namespace CreatureTime
         [SerializeField] private string actorName;
         [SerializeField] private EActorType actorType;
         [SerializeField] private Texture texture;
+        [SerializeField] private CtUserData userData;
 
         public ushort Identifier => identifier;
         public string ActorName => actorName;
         public EActorType ActorType => actorType;
         public Texture Texture => texture;
+        public CtUserData UserData => userData;
     }
 }
