@@ -80,10 +80,9 @@ namespace CreatureTime
             ushort identifier, int healingBase, float healingPerAttribute)
         {
             int attributeRank =
-                TryGetAttributeLevelByAttributeType(gameData, source.EntityStats, attributeType);
-            int skillValue = CalcSkillValue(healingBase, healingPerAttribute, attributeRank);
-            target.ApplyHeal(instanceId, skillValue, identifier, source);
-
+                TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, attributeType);
+            int skillValue = CalcSkillValue(-healingBase, healingPerAttribute, attributeRank);
+            target.ApplyDamage(instanceId, skillValue, EDamageType.Healing, EDamageSourceType.Skill, identifier, source, false);
         }
 
         public static void MeleeAttack(CtGameData gameData, ushort instanceId, CtEntity target, CtEntity source)
@@ -96,7 +95,7 @@ namespace CreatureTime
         private static int CalculateArmorRating(CtGameData gameData, CtEntity target)
         {
             int armorHit = CtArmorDef.GetArmorIndex(CtArmorDef.RollArmorHit());
-            ulong armorData = target.EntityStats.EquipmentData[armorHit];
+            ulong armorData = target.EntityDef.EquipmentData[armorHit];
             int armorRating = 0;
             if (CtDataBlock.IsValid(armorData))
             {
@@ -113,7 +112,7 @@ namespace CreatureTime
                 }
             }
 
-            ulong offHandWeaponData = target.EntityStats.OffHandWeapon;
+            ulong offHandWeaponData = target.EntityDef.OffHandWeapon;
             if (CtDataBlock.IsValid(offHandWeaponData))
             {
                 ushort offHandIdentifier = CtDataBlock.GetOffHandIdentifier(offHandWeaponData);
@@ -121,7 +120,7 @@ namespace CreatureTime
                 if (offHandDefinition.OffHandType == EOffHandType.Shield)
                 {
                     int attributeRank = 
-                        TryGetAttributeLevelByAttributeType(gameData, target.EntityStats, offHandDefinition.AttributeType);
+                        TryGetAttributeLevelByAttributeType(gameData, target.EntityDef, offHandDefinition.AttributeType);
                     int reqRank = CtDataBlock.GetOffHandRequirement(offHandWeaponData);
 
                     int additionalArmorRating = CtDataBlock.GetOffHandModifierStat(offHandWeaponData);
@@ -152,30 +151,30 @@ namespace CreatureTime
         private static int _CalcMeleeAttack(CtGameData gameData, CtEntity target, CtEntity source,
             out CtWeaponDef weaponDefinition, out int attributeRank, out bool isCritical)
         {
-            ushort identifier = CtDataBlock.GetWeaponIdentifier(source.EntityStats.MainHandWeapon);
+            ushort identifier = CtDataBlock.GetWeaponIdentifier(source.EntityDef.MainHandWeapon);
             weaponDefinition = gameData.GetWeaponDef(identifier);
             if (!weaponDefinition)
                 CtLogger.LogCritical("Skill Definition", $"Weapon could not be found (identifier={identifier})");
 
             attributeRank =
-                TryGetAttributeLevelByAttributeType(gameData, source.EntityStats, weaponDefinition.AttributeType);
+                TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, weaponDefinition.AttributeType);
 
             int armorRating = CalculateArmorRating(gameData, target);
 
-            int weaponAttributeLevel = CtDataBlock.GetWeaponRequirement(source.EntityStats.MainHandWeapon);
-            return weaponDefinition.CalcDamage(weaponAttributeLevel, attributeRank, source.EntityStats.CharacterLevel,
-                target.EntityStats.CharacterLevel, armorRating, out isCritical);
+            int weaponAttributeLevel = CtDataBlock.GetWeaponRequirement(source.EntityDef.MainHandWeapon);
+            return weaponDefinition.CalcDamage(weaponAttributeLevel, attributeRank, source.EntityDef.CharacterLevel,
+                target.EntityDef.CharacterLevel, armorRating, out isCritical);
         }
 
         public static void MeleeSkill(CtGameData gameData, ushort instanceId, CtEntity target, CtEntity source, int identifier, int damageBase, 
             float damagePerAttribute, float armorPenetration = 0)
         {
-            int armorLevel = target.EntityStats.armorLevel - 
-                             Mathf.RoundToInt(target.EntityStats.armorLevel * armorPenetration);
+            int armorLevel = target.EntityDef.armorLevel - 
+                             Mathf.RoundToInt(target.EntityDef.armorLevel * armorPenetration);
 
             // Skill Weapon Damage
             int damage = _CalcMeleeAttack(gameData, target, source, out var weaponDefinition, out var attributeRank, out var isCritical);
-            damage += CalcDamage(damageBase, damagePerAttribute, attributeRank, source.EntityStats.CharacterLevel,
+            damage += CalcDamage(damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel,
                 armorLevel);
             target.ApplyDamage(instanceId, damage, weaponDefinition.DamageType, EDamageSourceType.Skill, identifier, source,
                 isCritical);
@@ -185,9 +184,9 @@ namespace CreatureTime
             int identifier, EDamageType damageType, int damageBase, float damagePerAttribute)
         {
             int attributeRank =
-                TryGetAttributeLevelByAttributeType(gameData, source.EntityStats, attributeType);
-            int damage = CalcDamage(damageBase, damagePerAttribute, attributeRank, source.EntityStats.CharacterLevel,
-                target.EntityStats.armorLevel);
+                TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, attributeType);
+            int damage = CalcDamage(damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel,
+                target.EntityDef.armorLevel);
             target.ApplyDamage(instanceId, damage, damageType, EDamageSourceType.Skill, identifier,
                 source, false);
         }

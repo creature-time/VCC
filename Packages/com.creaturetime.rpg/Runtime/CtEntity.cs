@@ -2,7 +2,6 @@
 using System;
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VRC.SDKBase;
 
 namespace CreatureTime
@@ -26,44 +25,12 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-    public class CtEntity : CtAbstractSignal
+    public class CtEntity : CtEntityBase
     {
         private const int MaxSkillCount = 10;
 
         [Header("Global Variables")]
         [SerializeField] private CtGameData gameData;
-
-        public ushort Identifier { get; private set; } = CtConstants.InvalidId;
-
-        [UdonSynced, FieldChangeCallback(nameof(EntityIdCallback))]
-        ushort _entityId = CtConstants.InvalidId;
-        
-        public ushort EntityIdCallback
-        {
-            get => _entityId;
-            set
-            {
-                if (_entityId == value)
-                    return;
-
-                var previousId = _entityId;
-                _entityId = value;
-
-                SetArgs.Add(previousId);
-                SetArgs.Add(_entityId);
-                this.Emit(EEntitySignal.IdentifierChanged);
-            }
-        }
-
-        public ushort EntityId
-        {
-            get => EntityIdCallback;
-            set
-            {
-                EntityIdCallback = value;
-                RequestSerialization();
-            }
-        }
 
         public ECombatState State
         {
@@ -135,6 +102,11 @@ namespace CreatureTime
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
+        public int GetRecharge(int index)
+        {
+            return _recharge[index];
+        }
+
         [UdonSynced]
         private int[] _adrenaline = new int[MaxSkillCount]
         {
@@ -144,6 +116,11 @@ namespace CreatureTime
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
+
+        public int GetAdrenaline(int index)
+        {
+            return _adrenaline[index];
+        }
 
         # region Offensive
 
@@ -251,21 +228,21 @@ namespace CreatureTime
         public bool IsDazed { get; set; }
         public bool IsBlind { get; set; }
 
-        public float NormalizedHealth => Health / (float)_entityStats.MaxHealth;
-        public string DisplayName => _entityStats.DisplayName;
-        public Texture Icon => _entityStats.Icon;
+        public float NormalizedHealth => Health / (float)_entityDef.MaxHealth;
+        public string DisplayName => _entityDef.DisplayName;
+        public Texture Icon => _entityDef.Icon;
         public bool IsPlayer { get; private set; }
 
-        private CtEntityDef _entityStats;
+        private CtEntityDef _entityDef;
 
-        public CtEntityDef EntityStats
+        public CtEntityDef EntityDef
         {
-            get => _entityStats;
-            private set
+            get => _entityDef;
+            protected set
             {
-                if (_entityStats)
+                if (_entityDef)
                 {
-                    _entityStats.Disconnect(EEntityStatsSignal.SkillChanged, this, nameof(_OnSkillChanged));
+                    _entityDef.Disconnect(EEntityStatsSignal.SkillChanged, this, nameof(_OnSkillChanged));
 
                     for (int i = 0; i < MaxSkillCount; ++i)
                         _skillDefs[i] = null;
@@ -273,46 +250,24 @@ namespace CreatureTime
                     Reset();
                 }
 
-                _entityStats = value;
-                if (_entityStats)
+                _entityDef = value;
+                if (_entityDef)
                 {
                     _OnSkillChanged();
 
-                    _entityStats.Connect(EEntityStatsSignal.SkillChanged, this, nameof(_OnSkillChanged));
+                    _entityDef.Connect(EEntityStatsSignal.SkillChanged, this, nameof(_OnSkillChanged));
                 }
 
-                SetArgs.Add(_entityStats);
+                SetArgs.Add(_entityDef);
                 this.Emit(EEntitySignal.EntityStatsChanged);
             }
-        }
-
-        public CtPlayerDef PlayerDef
-        {
-            set
-            {
-                if (EntityStats)
-                    IsPlayer = false;
-                EntityStats = value;
-                if (EntityStats)
-                    IsPlayer = true;
-            }
-        }
-
-        public CtNpcDef NpcDef
-        {
-            set => EntityStats = value;
-        }
-
-        public void Init(ushort identifier)
-        {
-            Identifier = identifier;
         }
 
         public void _OnSkillChanged()
         {
             for (int i = 0; i < MaxSkillCount; ++i)
             {
-                ushort skillId = _entityStats.GetSkill(i);
+                ushort skillId = _entityDef.GetSkill(i);
                 _skillDefs[i] = skillId != CtConstants.InvalidId ? gameData.GetSkillDef(skillId) : null;
             }
         }
@@ -345,26 +300,7 @@ namespace CreatureTime
                 _adrenaline[i] = 0;
         }
 
-        public void ApplyHeal(ushort instanceId, int heal, ushort identifier, CtEntity instigator)
-        {
-            // Calculate max heal so we don't over heal.
-            heal = Mathf.Min(EntityStats.MaxHealth - Health, heal);
-
-            // Update total healing stats.
-            instigator.HealingDealt += heal;
-            HealingTaken += heal;
-
-            // Apply heal.
-            Health += heal;
-
-            // Request serialization.
-            RequestSerialization();
-            instigator.RequestSerialization();
-
-            // TODO: Do same as damage notifications.
-        }
-
-        public void ApplyDamage(ushort instanceId, int damage, EDamageType damageType, EDamageSourceType damageSourceType, int identifier, 
+        public override void ApplyDamage(ushort instanceId, int damage, EDamageType damageType, EDamageSourceType damageSourceType, int identifier, 
             CtEntity instigator, bool isCritical)
         {
             // Pre-damage calculations.
@@ -430,14 +366,14 @@ namespace CreatureTime
 
         private void GainAdrenalineOnHit(CtEntity target, int roll)
         {
-            int adrenaline = (int)(roll / (float)target.EntityStats.MaxHealth * 100.0f);
+            int adrenaline = (int)(roll / (float)target.EntityDef.MaxHealth * 100.0f);
 
             for (int i = 0; i < MaxSkillCount; ++i)
             {
                 CtSkillDef skill = _skillDefs[i];
                 if (skill && skill.Type == ESkillType.Adrenaline)
                 {
-                    if (target.EntityStats.GetSkill(i) != CtConstants.InvalidId)
+                    if (target.EntityDef.GetSkill(i) != CtConstants.InvalidId)
                     {
                         target._adrenaline[i] = Mathf.Min(target._adrenaline[i] + adrenaline, skill.Value);
                         RequestSerialization();
@@ -448,8 +384,8 @@ namespace CreatureTime
 
         public void SetupEntityForBattle()
         {
-            Health = EntityStats.MaxHealth;
-            Energy = EntityStats.MaxEnergy;
+            Health = EntityDef.MaxHealth;
+            Energy = EntityDef.MaxEnergy;
             _ResetSkillInstanceData();
             _ResetStats();
 
@@ -458,7 +394,7 @@ namespace CreatureTime
 
         public void UpdateStatsAndSkills()
         {
-            Energy += EntityStats.EnergyRegeneration;
+            Energy += EntityDef.EnergyRegeneration;
 
             for (int i = 0; i < MaxSkillCount; ++i)
             {
@@ -474,6 +410,22 @@ namespace CreatureTime
         {
             if (!Networking.IsOwner(player, gameObject))
                 Networking.SetOwner(player, gameObject);
+        }
+
+        protected override void _OnEntityIdChanged()
+        {
+            // Do nothing?
+        }
+
+        protected int _skillIndex = -1;
+        protected int _targetId = -1;
+
+        public int SkillIndex => _skillIndex;
+        public int TargetId => _targetId;
+
+        public virtual bool TryGetAttack()
+        {
+            return false;
         }
     }
 }

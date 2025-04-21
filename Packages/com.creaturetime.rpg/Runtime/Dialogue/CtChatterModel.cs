@@ -53,7 +53,10 @@ namespace CreatureTime
             }
         }
 
+        public CtDialogueActor Actor => _entry.Actor;
+        public CtDialogueActor Conversant => _entry.Conversant;
         public string DialogueText => _entry.DialogueText;
+        public float Duration => _entry.Duration;
 
         public override void UpdateConversation()
         {

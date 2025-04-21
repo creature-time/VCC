@@ -20,8 +20,8 @@ namespace CreatureTime
     public enum ECharacterSignal
     {
         MovementSpeedChanged,
-        HasDialogueChanged,
-        HasSequenceChanged
+        DialogueChanged,
+        SequenceChanged
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
@@ -119,7 +119,7 @@ namespace CreatureTime
                     _flags |= CharacterFlagsHasSequence;
                 else
                     _flags &= ~CharacterFlagsHasSequence;
-                this.Emit(ECharacterSignal.HasSequenceChanged);
+                this.Emit(ECharacterSignal.SequenceChanged);
             }
         }
 
@@ -132,7 +132,7 @@ namespace CreatureTime
                     _flags |= CharacterFlagsHasDialogue;
                 else
                     _flags &= ~CharacterFlagsHasDialogue;                
-                this.Emit(ECharacterSignal.HasDialogueChanged);
+                this.Emit(ECharacterSignal.DialogueChanged);
             }
         }
 

@@ -90,10 +90,18 @@ crashlytics-build.properties
 /[Pp]ackages/**
 
 # Allow only our package to be added to git
+
+# Worlds
 !/[Pp]ackages/com.creaturetime.worlds
 !/[Pp]ackages/com.creaturetime.worlds/**
+!/[Pp]ackages/com.creaturetime.worlds.tests
+!/[Pp]ackages/com.creaturetime.worlds.tests/**
+
+# Rpg Game Core
 !/[Pp]ackages/com.creaturetime.rpg
 !/[Pp]ackages/com.creaturetime.rpg/**
+!/[Pp]ackages/com.creaturetime.rpg.tests
+!/[Pp]ackages/com.creaturetime.rpg.tests/**
 
 # Ignore special cases:
 

@@ -32,7 +32,9 @@ namespace CreatureTime
             if (_packet.Length > 4)
             {
                 int offset = 0;
-                int header = CtBinaryUtils.AsInt(_packet, ref offset);
+
+                int header = BitConverter.ToInt32(_packet, offset);
+                offset += 4;
 
                 ESendMessageFlags flags = (ESendMessageFlags)header;
                 switch (flags)

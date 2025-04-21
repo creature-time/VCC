@@ -67,8 +67,8 @@ namespace CreatureTime
 
         public void _OnIdentifierChangedRaw(CtEntity entity)
         {
-            Debug.Log($"entity.EntityStats {entity.EntityStats}");
-            if (!entity.EntityStats)
+            Debug.Log($"entity.EntityStats {entity.EntityDef}");
+            if (!entity.EntityDef)
                 return;
 
             if (!_partyPrefabs.TryGetValue(entity.Identifier, out var token))

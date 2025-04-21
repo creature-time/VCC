@@ -125,6 +125,8 @@ namespace CreatureTime
         Air,
         Water,
 
+        Healing,
+        Protection,
         Smiting,
         
         Bleeding,

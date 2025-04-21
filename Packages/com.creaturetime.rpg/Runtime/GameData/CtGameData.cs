@@ -14,14 +14,17 @@ namespace CreatureTime
         private DataDictionary _armorDefinitions = new DataDictionary();
         private DataDictionary _professionDefinitions = new DataDictionary();
 
+        public CtSkillDef[] Skills { get; private set; }
+        public CtProfessionDef[] Professions { get; private set; }
+
         public void Init()
         {
             CtNpcDef[] npcDefs = GetComponentsInChildren<CtNpcDef>(true);
-            CtSkillDef[] skillDefs = GetComponentsInChildren<CtSkillDef>(true);
+            Skills = GetComponentsInChildren<CtSkillDef>(true);
             CtWeaponDef[] weaponDefs = GetComponentsInChildren<CtWeaponDef>(true);
             CtOffHandDef[] offHandDefs = GetComponentsInChildren<CtOffHandDef>(true);
             CtArmorDef[] armorDefs = GetComponentsInChildren<CtArmorDef>(true);
-            CtProfessionDef[] professionDefs = GetComponentsInChildren<CtProfessionDef>(true);
+            Professions = GetComponentsInChildren<CtProfessionDef>(true);
 
             for (int i = 0; i < npcDefs.Length; i++)
             {
@@ -29,9 +32,9 @@ namespace CreatureTime
                 _npcDefinitions[npcDef.Identifier] = npcDef;
             }
 
-            for (int i = 0; i < skillDefs.Length; i++)
+            for (int i = 0; i < Skills.Length; i++)
             {
-                var skillDef = skillDefs[i];
+                var skillDef = Skills[i];
                 _skillDefinitions[skillDef.Identifier] = skillDef;
             }
 
@@ -53,9 +56,9 @@ namespace CreatureTime
                 _armorDefinitions[armorDef.Identifier] = armorDef;
             }
 
-            for (int i = 0; i < professionDefs.Length; i++)
+            for (int i = 0; i < Professions.Length; i++)
             {
-                var professionDef = professionDefs[i];
+                var professionDef = Professions[i];
                 _professionDefinitions[professionDef.Identifier] = professionDef;
             }
 

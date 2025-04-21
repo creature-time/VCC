@@ -25,7 +25,7 @@ namespace CreatureTime
             {
                 ushort id = (ushort)i;
                 var entity = playerEntities[i];
-                entity.Init(id);
+                entity.Init(this, id);
                 _entityLookup.Add(id, entity);
             }
 
@@ -33,7 +33,7 @@ namespace CreatureTime
             {
                 ushort id = (ushort)(i + 1000);
                 var entity = recruitEntities[i];
-                entity.Init(id);
+                entity.Init(this, id);
                 _entityLookup.Add(id, entity);
 
                 entity.Connect(EEntitySignal.IdentifierChanged, this, nameof(_OnIdentifierChanged));
@@ -43,7 +43,7 @@ namespace CreatureTime
             {
                 ushort id = (ushort)(i + 2000);
                 var entity = enemyEntities[i];
-                entity.Init(id);
+                entity.Init(this, id);
                 _entityLookup.Add(id, entity);
 
                 entity.Connect(EEntitySignal.IdentifierChanged, this, nameof(_OnIdentifierChanged));
@@ -96,8 +96,6 @@ namespace CreatureTime
         {
             var entity = playerEntities[index];
             entity.EntityId = CtConstants.InvalidId;
-            entity.PlayerDef = null;
-            entity.Reset();
         }
 
         public bool TryAcquireRecruit(CtNpcDef npcDef, out CtEntity entity)
@@ -118,9 +116,8 @@ namespace CreatureTime
 
         public void ReleaseRecruitEntity(int index)
         {
-            var entity = playerEntities[index];
+            var entity = recruitEntities[index];
             entity.EntityId = CtConstants.InvalidId;
-            entity.PlayerDef = null;
             entity.Reset();
         }
 
@@ -143,6 +140,11 @@ namespace CreatureTime
         public static bool IsPlayer(ushort memberId)
         {
             return (memberId & 0x00FF) != 0;
+        }
+
+        public static ushort GetIdentifier(ushort memberId)
+        {
+            return (ushort)((memberId & 0xFF00) >> 8);
         }
 
         public static ushort GeneratePartyId(CtPlayerDef playerDef)

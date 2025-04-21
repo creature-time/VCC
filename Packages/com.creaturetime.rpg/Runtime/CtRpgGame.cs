@@ -52,7 +52,6 @@ namespace CreatureTime
             if (playerDef.IsLocal)
                 LocalEntity = entity;
 
-            entity.PlayerDef = playerDef;
             entity.SetupEntityForBattle();
         }
 
@@ -81,15 +80,11 @@ namespace CreatureTime
 
             if (previousId != CtConstants.InvalidId)
             {
-                entity.NpcDef = null;
                 entity.Reset();
             }
 
             if (entityId != CtConstants.InvalidId)
             {
-                ushort npcId = (ushort)((entityId & 0xFF00) >> 8);
-                entity.NpcDef = gameData.GetNpcDef(npcId);
-
                 entity.SetupEntityForBattle();
             }
         }

@@ -1,4 +1,6 @@
 ﻿
+using System;
+using System.Text;
 using UnityEngine;
 using VRC.SDK3.Data;
 
@@ -6,31 +8,87 @@ namespace CreatureTime
 {
     public static class CtBinaryUtils
     {
+        public const int SizeOfBoolean = 1;
+        public const int SizeOfSByte = 1;
+        public const int SizeOfByte = 1;
+        public const int SizeOfShort = 2;
+        public const int SizeOfUShort = 2;
+        public const int SizeOfInt = 4;
+        public const int SizeOfUInt = 4;
+        public const int SizeOfLong = 8;
+        public const int SizeOfULong = 8;
+
+        public const int SizeOfFloat = 4;
+        public const int SizeOfDouble = 8;
+
         #region Reading
 
-        public static bool AsBoolean(byte[] data, ref int offset) => data[offset++] != 0;
+        public static bool AsBoolean(byte[] data, ref int offset)
+        {
+            var result = BitConverter.ToBoolean(data, offset);
+            offset += SizeOfBoolean;
+            return result;
+        }
 
-        public static sbyte As(byte[] data, ref int offset) => (sbyte)data[offset++];
+        public static sbyte AsSByte(byte[] data, ref int offset) => (sbyte)data[offset++];
 
         public static byte AsByte(byte[] data, ref int offset) => data[offset++];
 
-        public static short AsShort(byte[] data, ref int offset) => (short)((data[offset++] << 8) | data[offset++]);
+        public static short AsShort(byte[] data, ref int offset)
+        {
+            var result = BitConverter.ToInt16(data, offset);
+            offset += SizeOfShort;
+            return result;
+        }
 
-        public static ushort AsUShort(byte[] data, ref int offset) => (ushort)((data[offset++] << 8) | data[offset++]);
+        public static ushort AsUShort(byte[] data, ref int offset)
+        {
+            var result = BitConverter.ToUInt16(data, offset);
+            offset += SizeOfUShort;
+            return result;
+        }
 
-        public static int AsInt(byte[] data, ref int offset) => 
-            (data[offset++] << 24) | (data[offset++] << 16) | (data[offset++] << 8) | data[offset++];
+        public static int AsInt(byte[] data, ref int offset)
+        {
+            var result = BitConverter.ToInt32(data, offset);
+            offset += SizeOfInt;
+            return result;
+        }
 
-        public static uint AsUInt(byte[] data, ref int offset) => 
-            (uint)((data[offset++] << 24) | (data[offset++] << 16) | (data[offset++] << 8) | data[offset++]);
+        public static uint AsUInt(byte[] data, ref int offset)
+        {
+            var result = BitConverter.ToUInt32(data, offset);
+            offset += SizeOfUInt;
+            return result;
+        }
 
-        public static long AsLong(byte[] data, ref int offset) =>
-            ((long)data[offset++] << 56) | ((long)data[offset++] << 48) | ((long)data[offset++] << 40) | (long)data[offset++] << 32 | 
-            ((long)data[offset++] << 24) | ((long)data[offset++] << 16) | ((long)data[offset++] << 8) | data[offset++];
+        public static long AsLong(byte[] data, ref int offset)
+        {
+            var result = BitConverter.ToInt64(data, offset);
+            offset += SizeOfLong;
+            return result;
+        }
 
-        public static ulong AsULong(byte[] data, ref int offset) => 
-            ((ulong)data[offset++] << 56) | ((ulong)data[offset++] << 48) | ((ulong)data[offset++] << 40) | (ulong)data[offset++] << 32 | 
-            ((ulong)data[offset++] << 24) | ((ulong)data[offset++] << 16) | ((ulong)data[offset++] << 8) | data[offset++];
+        public static ulong AsULong(byte[] data, ref int offset)
+        {
+            var result = BitConverter.ToUInt64(data, offset);
+            offset += SizeOfULong;
+            return result;
+        } 
+
+        public static float AsFloat(byte[] data, ref int offset)
+        {
+            var result = BitConverter.ToSingle(data, offset);
+            offset += SizeOfFloat;
+            return result;
+        }
+
+        public static double AsDouble(byte[] data, ref int offset)
+        {
+            var result = BitConverter.ToDouble(data, offset);
+            offset += SizeOfDouble;
+            return result;
+        } 
 
         public static string AsString(byte[] data, ref int offset)
         {
@@ -41,6 +99,11 @@ namespace CreatureTime
                 str += (char)data[offset++];
             return str;
         }
+
+        public static T AsEnum<T>(byte[] data, ref int offset)
+        {
+            return (T)Enum.ToObject(typeof(T), AsInt(data, ref offset));
+        } 
 
         #endregion
 
@@ -55,40 +118,40 @@ namespace CreatureTime
                 switch (token.TokenType)
                 {
                     case TokenType.Boolean:
-                        dataSize += 1;
+                        dataSize += SizeOfBoolean;
                         break;
                     case TokenType.SByte:
-                        dataSize += 1;
+                        dataSize += SizeOfSByte;
                         break;
                     case TokenType.Byte:
-                        dataSize += 1;
+                        dataSize += SizeOfByte;
                         break;
                     case TokenType.Short:
-                        dataSize += 2;
+                        dataSize += SizeOfShort;
                         break;
                     case TokenType.UShort:
-                        dataSize += 2;
+                        dataSize += SizeOfUShort;
                         break;
                     case TokenType.Int:
-                        dataSize += 4;
+                        dataSize += SizeOfInt;
                         break;
                     case TokenType.UInt:
-                        dataSize += 4;
+                        dataSize += SizeOfUInt;
                         break;
                     case TokenType.Long:
-                        dataSize += 8;
+                        dataSize += SizeOfLong;
                         break;
                     case TokenType.ULong:
-                        dataSize += 8;
+                        dataSize += SizeOfULong;
                         break;
-                    // case TokenType.Float:
-                    //     dataSize += 4;
-                    //     break;
-                    // case TokenType.Double:
-                    //     dataSize += 8;
-                    //     break;
+                    case TokenType.Float:
+                        dataSize += SizeOfFloat;
+                        break;
+                    case TokenType.Double:
+                        dataSize += SizeOfDouble;
+                        break;
                     case TokenType.String:
-                        dataSize += token.String.Length + 4;
+                        dataSize += SizeOfInt + token.String.Length;
                         break;
                     case TokenType.DataList:
                         _CalculateDataSize(token.DataList);
@@ -110,80 +173,93 @@ namespace CreatureTime
 
         public static void ToBytes(bool value, ref byte[] data, ref int offset)
         {
-            data[offset++] = (byte)(value ? 1 : 0);
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfBoolean;
         }
 
         public static void ToBytes(sbyte value, ref byte[] data, ref int offset)
         {
-            data[offset++] = (byte)value;
+            byte[] bytes = { (byte)value };
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfSByte;
         }
 
         public static void ToBytes(byte value, ref byte[] data, ref int offset)
         {
-            data[offset++] = value;
+            byte[] bytes = { value };
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfByte;
         }
 
         public static void ToBytes(short value, ref byte[] data, ref int offset)
         {
-            data[offset++] = (byte)((value >> 8) & 0xff);
-            data[offset++] = (byte)(value & 0xff);
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfShort;
         }
 
         public static void ToBytes(ushort value, ref byte[] data, ref int offset)
         {
-            data[offset++] = (byte)((value >> 8) & 0xff);
-            data[offset++] = (byte)(value & 0xff);
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfUShort;
         }
 
         public static void ToBytes(int value, ref byte[] data, ref int offset)
         {
-            data[offset++] = (byte)((value >> 24) & 0xff);
-            data[offset++] = (byte)((value >> 16) & 0xff);
-            data[offset++] = (byte)((value >> 8) & 0xff);
-            data[offset++] = (byte)(value & 0xff);
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfInt;
         }
 
         public static void ToBytes(uint value, ref byte[] data, ref int offset)
         {
-            data[offset++] = (byte)((value >> 24) & 0xff);
-            data[offset++] = (byte)((value >> 16) & 0xff);
-            data[offset++] = (byte)((value >> 8) & 0xff);
-            data[offset++] = (byte)(value & 0xff);
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfUInt;
         }
 
         public static void ToBytes(long value, ref byte[] data, ref int offset)
         {
-            data[offset++] = (byte)((value >> 56) & 0xff);
-            data[offset++] = (byte)((value >> 48) & 0xff);
-            data[offset++] = (byte)((value >> 40) & 0xff);
-            data[offset++] = (byte)((value >> 32) & 0xff);
-            data[offset++] = (byte)((value >> 24) & 0xff);
-            data[offset++] = (byte)((value >> 16) & 0xff);
-            data[offset++] = (byte)((value >> 8) & 0xff);
-            data[offset++] = (byte)(value & 0xff);
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfLong;
         }
 
         public static void ToBytes(ulong value, ref byte[] data, ref int offset)
         {
-            data[offset++] = (byte)((value >> 56) & 0xff);
-            data[offset++] = (byte)((value >> 48) & 0xff);
-            data[offset++] = (byte)((value >> 40) & 0xff);
-            data[offset++] = (byte)((value >> 32) & 0xff);
-            data[offset++] = (byte)((value >> 24) & 0xff);
-            data[offset++] = (byte)((value >> 16) & 0xff);
-            data[offset++] = (byte)((value >> 8) & 0xff);
-            data[offset++] = (byte)(value & 0xff);
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfULong;
+        }
+
+        public static void ToBytes(float value, ref byte[] data, ref int offset)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfFloat;
+        }
+
+        public static void ToBytes(double value, ref byte[] data, ref int offset)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+            offset += SizeOfDouble;
         }
 
         public static void ToBytes(string value, ref byte[] data, ref int offset)
         {
-            var strLen = value.Length;
-            data[offset++] = (byte)((strLen >> 24) & 0xff);
-            data[offset++] = (byte)((strLen >> 16) & 0xff);
-            data[offset++] = (byte)((strLen >> 8) & 0xff);
-            data[offset++] = (byte)(strLen & 0xff);
-            for (int j = 0; j < value.Length; j++)
-                data[offset++] = (byte)value[j];
+            byte[] bytes = Encoding.UTF8.GetBytes(value);
+            ToBytes(bytes.Length, ref data, ref offset);
+            Buffer.BlockCopy(bytes, 0, data, offset, bytes.Length);
+        }
+
+        public static void ToBytes<T>(T value, ref byte[] data, ref int offset)
+            where T : Enum
+        {
+            var tmpValue = Convert.ToInt32(value);
+            ToBytes(tmpValue, ref data, ref offset);
         }
 
         private static void _WriteData(DataList dataList, ref byte[] data, ref int offset)

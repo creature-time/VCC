@@ -85,10 +85,15 @@ namespace CreatureTime
                 $"Adding packet (Data.Length={data.Length}, Identifier={identifier}, flags={flags}, " +
                 $"owner={Networking.IsOwner(LocalConnection.gameObject)}, object={gameObject})");
 
-            byte[] message = new byte[data.Length + 4];
+            byte[] header = BitConverter.GetBytes((int)flags);
+
+            byte[] message = new byte[header.Length + data.Length];
+
             int offset = 0;
-            CtBinaryUtils.ToBytes((int)flags, ref message, ref offset);
-            Array.Copy(data, 0, message, offset, data.Length);
+            Buffer.BlockCopy(header, 0, message, offset, header.Length);
+            offset += header.Length;
+
+            Buffer.BlockCopy(data, 0, message, offset, data.Length);
 
             _dataQueue[identifier] = message;
             _dataQueueHead = (identifier + 1) % MaxQueue;

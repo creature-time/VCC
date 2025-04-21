@@ -45233,7 +45233,7 @@ PrefabInstance:
     - target: {fileID: 6821253868491253057, guid: 7068ea6783e5d264c987ebd31bd43338, type: 3}
       propertyPath: children.Array.data[0]
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8985198443219019620}
     - target: {fileID: 6821253868491253057, guid: 7068ea6783e5d264c987ebd31bd43338, type: 3}
       propertyPath: serializationData.Prefab
       value: 

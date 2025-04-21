@@ -11,7 +11,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtDialogueResponse : UdonSharpBehaviour
+    public class CtDialogueResponse : CtBlackboard
     {
         [SerializeField] private ushort index;
         [SerializeField] private string displayText;
