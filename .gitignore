@@ -76,15 +76,13 @@ crashlytics-build.properties
 ##################################################
 # CreatureTime Ignore Settings
 
+/*/
+
 # Ignore IDE files
 .idea/**
 
 # GitHub recommends to submit .gitattributes
 !.gitattributes
-
-# Do not include anything in assets
-/[Aa]ssets
-/[Aa]ssets/**
 
 # Do not include any packages by accident
 /[Pp]ackages/**
@@ -102,6 +100,10 @@ crashlytics-build.properties
 !/[Pp]ackages/com.creaturetime.rpg/**
 !/[Pp]ackages/com.creaturetime.rpg.tests
 !/[Pp]ackages/com.creaturetime.rpg.tests/**
+
+# Allow only our package to be added to git
+!/[Pp]rojectSettings/
+!/[Pp]rojectSettings/**
 
 # Ignore special cases:
 
