@@ -82,10 +82,15 @@ crashlytics-build.properties
 # GitHub recommends to submit .gitattributes
 !.gitattributes
 
-# Do not include any packages by accident
+# Do not include any other extra by accident
+/[Aa]ssets/**
 /[Pp]ackages/**
 
 # Allow only our package to be added to git
+
+# Allow serialized udon programs
+!/[Aa]ssets/SerializedUdonPrograms
+!/[Aa]ssets/SerializedUdonPrograms/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].*
 
 # Worlds
 !/[Pp]ackages/com.creaturetime.worlds
@@ -99,7 +104,7 @@ crashlytics-build.properties
 !/[Pp]ackages/com.creaturetime.rpg.tests
 !/[Pp]ackages/com.creaturetime.rpg.tests/**
 
-# Allow only our package to be added to git
+# Allow only our project settings to be added to git
 !/[Pp]rojectSettings/
 !/[Pp]rojectSettings/**
 
