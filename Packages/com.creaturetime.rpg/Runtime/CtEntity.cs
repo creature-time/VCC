@@ -24,13 +24,12 @@ namespace CreatureTime
         ApplyDamage
     }
 
-    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtEntity : CtEntityBase
     {
-        private const int MaxSkillCount = 10;
+        public const int MaxSkillCount = 10;
 
         [Header("Global Variables")]
-        [SerializeField] private CtGameData gameData;
+        [SerializeField] protected CtGameData gameData;
 
         public ECombatState State
         {
@@ -93,16 +92,16 @@ namespace CreatureTime
         }
 
         [UdonSynced]
-        private int[] _recharge = new int[MaxSkillCount]
+        private float[] _recharge = new float[MaxSkillCount]
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
-        private int[] _rechargeCmp = new int[MaxSkillCount]
+        private float[] _rechargeCmp = new float[MaxSkillCount]
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
-        public int GetRecharge(int index)
+        public float GetRecharge(int index)
         {
             return _recharge[index];
         }
@@ -396,12 +395,18 @@ namespace CreatureTime
         {
             Energy += EntityDef.EnergyRegeneration;
 
+            float rechargeAmount = 1;
+
             for (int i = 0; i < MaxSkillCount; ++i)
             {
                 if (_recharge[i] > 0)
                 {
-                    _recharge[i] = Mathf.Max(_recharge[i] - 1, 0);
+                    _recharge[i] = Mathf.Max(_recharge[i] - rechargeAmount, 0);
                     RequestSerialization();
+                }
+                else
+                {
+                    _recharge[i] -= 1;
                 }
             }
         }
@@ -417,14 +422,18 @@ namespace CreatureTime
             // Do nothing?
         }
 
-        protected int _skillIndex = -1;
-        protected int _targetId = -1;
-
-        public int SkillIndex => _skillIndex;
-        public int TargetId => _targetId;
-
-        public virtual bool TryGetAttack()
+        public virtual CtBattleState BattleState
         {
+            set
+            {
+                // Do nothing?
+            }
+        }
+
+        public virtual bool TryGetAttack(out int skillIndex, out int targetId)
+        {
+            skillIndex = -1;
+            targetId = -1;
             return false;
         }
     }

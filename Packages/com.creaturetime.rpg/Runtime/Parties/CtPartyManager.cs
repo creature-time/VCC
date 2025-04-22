@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
@@ -16,32 +17,38 @@ namespace CreatureTime
         [SerializeField, HideInInspector] private CtParty[] playerParties;
         [SerializeField, HideInInspector] private CtParty[] enemyParties;
 
+        private DataDictionary _partyLookup = new DataDictionary();
+
         public void Init()
         {
-            for (int i = 0; i < playerParties.Length; i++)
+            ushort identifier = 0;
+            for (ushort i = 0; i < playerParties.Length; i++)
             {
                 var party = playerParties[i];
-                party.Init((ushort)i);
+                party.Init(identifier);
                 party.Connect(EPartySignal.Started, this, nameof(_OnPlayerPartyStarted));
                 party.Connect(EPartySignal.Disbanded, this, nameof(_OnPlayerPartyDisbanded));
+                _partyLookup.Add(identifier, party);
+                identifier++;
             }
 
-            for (int i = 0; i < enemyParties.Length; i++)
-                enemyParties[i].Init((ushort)i);
+            for (ushort i = 0; i < enemyParties.Length; i++)
+            {
+                var party = enemyParties[i];
+                party.Init(identifier);
+                _partyLookup.Add(identifier, party);
+                identifier++;
+            }
         }
 
         public bool TryGetParty(ushort identifier, out CtParty party)
         {
             party = null;
-            foreach (var other in playerParties)
+            if (_partyLookup.TryGetValue(identifier, out var token))
             {
-                if (other.Identifier == identifier)
-                {
-                    party = other;
-                    return true;
-                }
+                party = (CtParty)token.Reference;
+                return true;
             }
-
             return false;
         }
 
@@ -70,6 +77,20 @@ namespace CreatureTime
         {
             party = null;
             foreach (var other in playerParties)
+            {
+                if (other.IsEmpty)
+                {
+                    party = other;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool TryGetAvailableEnemyParty(out CtParty party)
+        {
+            party = null;
+            foreach (var other in enemyParties)
             {
                 if (other.IsEmpty)
                 {

@@ -1,4 +1,3 @@
-﻿
 using UdonSharp;
 using UnityEngine;
 

@@ -56,6 +56,8 @@ namespace CreatureTime
         public ushort Identifier {get; private set; }
         public bool IsEmpty => _memberCache.Count == 0;
         public bool IsFull => _memberCache.Count == members.Length;
+        public int Count => _memberCache.Count;
+        public int MaxCount => members.Length;
 
         private void Start()
         {
@@ -111,9 +113,9 @@ namespace CreatureTime
             }
         }
 
-        private void _SetMemberId(int index, ushort entityId)
+        private void _SetMemberId(int index, ushort identifier)
         {
-            members[index] = entityId;
+            members[index] = identifier;
             RequestSerialization();
             _OnPartyMemberChanged(index);
         }

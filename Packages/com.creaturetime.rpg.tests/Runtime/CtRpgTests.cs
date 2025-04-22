@@ -70,5 +70,16 @@ namespace CreatureTime
         {
             rpgGame.DialogueManager.StartChatter(1);
         }
+
+        public void _RunBattleStateTest0()
+        {
+            if (!rpgGame.PartyManager.TryGetEntityParty(rpgGame.LocalEntity, out var party))
+            {
+                LogWarning($"Failed to find party for recruit (identifier={rpgGame.LocalEntity.Identifier}).");
+                return;
+            }
+
+            rpgGame.StartBattle(party);
+        }
     }
 }

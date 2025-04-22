@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
@@ -15,6 +16,7 @@ namespace CreatureTime
         [SerializeField] private CtDialogueManager dialogueManager;
 
         [SerializeField] private CtAbstractQuest[] quests;
+        [SerializeField] private CtBattleState battleState;
 
         private DataDictionary _quests = new DataDictionary();
 
@@ -40,6 +42,32 @@ namespace CreatureTime
             playerManager.Connect(EPlayerManagerSignal.PlayerRemoved, this, nameof(_OnPlayerRemoved));
 
             entityManager.Connect(EEntityManagerSignal.NpcEntityChanged, this, nameof(_OnNpcEntityChanged));
+
+            // battleState.Connect(EBattleStateSignal.AllyAdded, this, nameof(_OnBattleAllyAdded));
+            // battleState.Connect(EBattleStateSignal.AllyRemoved, this, nameof(_OnBattleAllyRemoved));
+            //
+            // battleState.Connect(EBattleStateSignal.EnemyAdded, this, nameof(_OnBattleEnemyAdded));
+            // battleState.Connect(EBattleStateSignal.EnemyRemoved, this, nameof(_OnBattleEnemyRemoved));
+        }
+
+        public void _OnBattleAllyAdded()
+        {
+            
+        }
+
+        public void _OnBattleAllyRemoved()
+        {
+            
+        }
+
+        public void _OnBattleEnemyAdded()
+        {
+            
+        }
+
+        public void _OnBattleEnemyRemoved()
+        {
+            
         }
 
         public void _OnPlayerAdded()
@@ -198,6 +226,68 @@ namespace CreatureTime
         public void LeaveQuest(CtParty party)
         {
             party.Quest = CtConstants.InvalidId;
+        }
+
+        public void StartBattle(CtParty party)
+        {
+            battleState.AllyId = party.Identifier;
+
+            partyManager.TryGetAvailableEnemyParty(out var enemyParty);
+            battleState.EnemyId = enemyParty.Identifier;
+
+            entityManager.TryCreateEnemy(gameData.GetNpcDef(1), out var entity);
+            enemyParty.Join(entity);
+
+            int index = 0;
+            int count = party.Count + enemyParty.Count;
+            ushort[] temp = new ushort[count];
+
+            for (int i = 0; i < party.MaxCount; i++)
+            {
+                var identifier = party.GetMemberId(i);
+                if (identifier != (CtConstants.InvalidId))
+                    temp[index++] = identifier;
+            }
+
+            for (int i = 0; i < enemyParty.MaxCount; i++)
+            {
+                var identifier = enemyParty.GetMemberId(i);
+                if (identifier != (CtConstants.InvalidId))
+                    temp[index++] = identifier;
+            }
+
+            if (index != count)
+                LogCritical($"Index did not match count (index={index}, count={count}).");
+
+            battleState.Initiatives = temp;
+
+            battleState.ResetTurns();
+
+            var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
+            entityManager.TryGetEntity(entityIdentifier, out entity);
+            entity.EntityDef.GetComponent<CtPlayerTurn>().Submit(CTBattleInteractType.Attack, -1, 255);
+            entity.TryGetAttack(out var skillIndex, out var targetId);
+            LogDebug($"Testing (turnIndex={battleState.TurnIndex}, skillIndex={skillIndex}, targetId={targetId})");
+            battleState.NextTurn();
+
+            entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
+            entityManager.TryGetEntity(entityIdentifier, out entity);
+            entity.TryGetAttack(out skillIndex, out targetId);
+            LogDebug($"Testing (turnIndex={battleState.TurnIndex}, skillIndex={skillIndex}, targetId={targetId})");
+            battleState.NextTurn();
+
+            entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
+            entityManager.TryGetEntity(entityIdentifier, out entity);
+            entity.EntityDef.GetComponent<CtPlayerTurn>().Submit(CTBattleInteractType.Attack, -1, 255);
+            entity.TryGetAttack(out skillIndex, out targetId);
+            LogDebug($"Testing (turnIndex={battleState.TurnIndex}, skillIndex={skillIndex}, targetId={targetId})");
+            battleState.NextTurn();
+
+            entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
+            entityManager.TryGetEntity(entityIdentifier, out entity);
+            entity.TryGetAttack(out skillIndex, out targetId);
+            LogDebug($"Testing (turnIndex={battleState.TurnIndex}, skillIndex={skillIndex}, targetId={targetId})");
+            battleState.NextTurn();
         }
     }
 }

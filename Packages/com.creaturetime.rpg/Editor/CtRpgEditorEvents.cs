@@ -150,6 +150,12 @@ namespace CreatureTime
             xform = partyManager.transform.Find("EnemyParties/_Template");
             _UpdatePartyTemplate(xform, 4);
             _UpdateParties<CtPartyManager, CtParty>(partyManager, "enemyParty", "enemyParties", capacity, xform);
+
+            var battleStates = Object.FindObjectsOfType<CtBattleState>();
+            foreach (var battleState in battleStates)
+            {
+                _UpdatePartyTemplate(battleState.transform, 4);
+            }
         }
 
         private static void _UpdateParties<TManager, T>(TManager manager, string prefix, string targetPropertyName, int capacity, Transform partyTemplate)

@@ -8,9 +8,9 @@ namespace CreatureTime
     public class CtNpcDef : CtEntityDef
     {
         [SerializeField] private ushort identifier = CtConstants.InvalidId;
-        // [SerializeField] private CtNpcBehavior behavior;
+        [SerializeField] private CtNpcBehavior behavior;
 
         public ushort Identifier => identifier;
-        // public CtNpcBehavior Behavior => behavior;
+        public CtNpcBehavior Behavior => behavior;
     }
 }

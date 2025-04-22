@@ -396,10 +396,14 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 8803323804528863074}
+  npcManager: {fileID: 0}
   npcAgent: {fileID: 7835232945405659547}
   npcAnimator: {fileID: 3888339601178723072}
   forwardVelocityAnimParam: ForwardVelocity
   rightVelocityAnimParam: RightVelocity
+  packetsPerSecond: 10
+  maxSnapshotCount: 32
+  oldestSnapshotTimeInSeconds: 1
 --- !u!114 &8803323804528863074
 MonoBehaviour:
   m_ObjectHideFlags: 0

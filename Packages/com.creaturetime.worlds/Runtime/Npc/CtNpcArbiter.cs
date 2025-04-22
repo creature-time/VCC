@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿
+using UdonSharp;
 using UnityEngine;
 
 namespace CreatureTime

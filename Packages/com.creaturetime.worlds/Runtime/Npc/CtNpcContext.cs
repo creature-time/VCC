@@ -7,19 +7,14 @@ namespace CreatureTime
 {
     public abstract class CtNpcContext : CtBlackboard
     {
-        [SerializeField] private CtNpcBrain brain;
+        // [SerializeField] private CtNpcBrain brain;
         [SerializeField] private NavMeshAgent agent;
 
-        public CtNpcBrain Brain => brain;
+        // public CtNpcBrain Brain => brain;
         public NavMeshAgent Agent => agent;
         public Transform Transform => agent.transform;
 
         // TODO: Change node to actions that modify the blackboard with given information from the expert.
-        private DataList _actions = new DataList();
-        public void AddAction()
-        {
-        }
-
         public abstract CtBehaviorTreeNodeBase[] GetActions();
     }
 }

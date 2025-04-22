@@ -7,8 +7,8 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtNpcEntity : CtEntity
     {
-        [SerializeField] private CtGameData gameData;
-        [SerializeField] private CtBattleNpcController npcController;
+        [SerializeField] private CtBattleNpcBrain brain;
+        [SerializeField] private CtPlayerTurn npcTurn;
 
         [UdonSynced, FieldChangeCallback(nameof(HealingCoolDownCallback))]
         private int _healingCoolDown = 0;
@@ -70,12 +70,30 @@ namespace CreatureTime
         protected override void _OnEntityIdChanged()
         {
             var npcIdentifier = CtEntityManager.GetIdentifier(EntityId);
-            EntityDef = gameData.GetNpcDef(npcIdentifier);
+            if (npcIdentifier != CtConstants.InvalidId)
+            {
+                var npcDef = gameData.GetNpcDef(npcIdentifier);
+                EntityDef = npcDef;
+                brain.Behavior = npcDef.Behavior;
+            }
+            else
+            {
+                EntityDef = null;
+                brain.Behavior = null;
+            }
         }
 
-        public override bool TryGetAttack()
+        public override CtBattleState BattleState
         {
-            return npcController.TryGetAttack(out _skillIndex, out _targetId);
+            set => brain.BattleState = value;
+        }
+
+        public override bool TryGetAttack(out int skillIndex, out int targetId)
+        {
+            brain.Sense();
+            brain.Think();
+
+            return npcTurn.TryGetAttack(out skillIndex, out targetId);
         }
     }
 }

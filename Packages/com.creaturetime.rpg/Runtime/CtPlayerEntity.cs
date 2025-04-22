@@ -18,9 +18,9 @@ namespace CreatureTime
             SourceTransform = EntityDef.transform;
         }
 
-        public override bool TryGetAttack()
+        public override bool TryGetAttack(out int skillIndex, out int targetId)
         {
-            return playerTurn.TryGetAttack(out _skillIndex, out _targetId);
+            return playerTurn.TryGetAttack(out skillIndex, out targetId);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace CreatureTime
                 return ENodeStatus.Running;
 
             context.TryGetInt("Test", out var value);
-            Log($"Testing sequence node (testOutput={testOutput}, blackboardValue={value}).");
+            LogDebug($"Testing sequence node (testOutput={testOutput}, blackboardValue={value}).");
             return ENodeStatus.Success;
         }
     }

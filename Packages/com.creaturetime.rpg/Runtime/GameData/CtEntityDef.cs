@@ -29,7 +29,7 @@ namespace CreatureTime
     public class CtEntityDef : CtAbstractSignal
     {
         private const int MaxEquipmentCount = 5;
-        private const int MaxSkillCount = 10;
+        public const int MaxSkillCount = 10;
 
         [Header("Meta Data")]
 
