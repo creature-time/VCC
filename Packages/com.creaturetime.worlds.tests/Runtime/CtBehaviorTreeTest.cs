@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CreatureTime
 {
-    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtBehaviorTreeTest : CtBehaviorTreeNode
     {
         [SerializeField] private int testOutput;

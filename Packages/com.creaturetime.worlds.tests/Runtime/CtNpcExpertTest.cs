@@ -3,7 +3,7 @@ using UdonSharp;
 
 namespace CreatureTime
 {
-    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtNpcExpertTest : CtNpcExpert
     {
         public override int GetInsistence(CtNpcContext blackboard)

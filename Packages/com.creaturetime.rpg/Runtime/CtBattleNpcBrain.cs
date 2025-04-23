@@ -1,4 +1,5 @@
 ﻿
+using System.Runtime.Remoting.Contexts;
 using UdonSharp;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace CreatureTime
         [SerializeField] private CtNpcEntity entity;
         [SerializeField] private CtBehaviorTree behaviorTree;
         [SerializeField] private CtNpcContext npcContext;
+        [SerializeField] private CtPlayerTurn npcTurn;
 
         public CtNpcBehavior Behavior
         {
@@ -22,8 +24,8 @@ namespace CreatureTime
                     return;
 
                 npcContext.SetFloat("States/SelfHealingThreshold", value.selfHealingThreshold);
-                npcContext.SetFloat("Defensive/DefensiveWeight", value.defensiveWeight);
 
+                npcContext.SetFloat("Defensive/DefensiveWeight", value.defensiveWeight);
                 npcContext.SetFloat("Defensive/SupportWeight", value.supportWeight);
                 npcContext.SetFloat("Defensive/SupportCoolDownWeight", value.supportCoolDownWeight);
                 npcContext.SetFloat("Defensive/HealingWeight", value.healingWeight);
@@ -33,10 +35,10 @@ namespace CreatureTime
                 npcContext.SetFloat("Offensive/UseSkillWeight", value.useSkillWeight);
                 npcContext.SetFloat("Offensive/UseSkillCoolDownWeight", value.useSkillCoolDownWeight);
 
-                npcContext.SetFloat("SkillFocus/buffingWeight", value.buffingWeight);
+                npcContext.SetFloat("SkillFocus/BuffingWeight", value.buffingWeight);
                 npcContext.SetFloat("SkillFocus/DeBuffingWeight", value.deBuffingWeight);
-                npcContext.SetFloat("SkillFocus/conditionsWeight", value.conditionsWeight);
-                npcContext.SetFloat("SkillFocus/damageWeight", value.damageWeight);
+                npcContext.SetFloat("SkillFocus/ConditionsWeight", value.conditionsWeight);
+                npcContext.SetFloat("SkillFocus/DamageWeight", value.damageWeight);
 
                 npcContext.SetFloat("Attacking/AttackWeight", value.attackWeight);
                 npcContext.SetFloat("Attacking/AttackCoolDownWeight", value.attackCoolDownWeight);
@@ -57,10 +59,14 @@ namespace CreatureTime
             npcContext.SetInt("Enemies/Identifiers.Count", allyParty.MaxCount);
             npcContext.SetInt("Enemies/Health.Count", allyParty.MaxCount);
 
-            npcContext.SetUShort("Npc/Identifier", entity.Identifier);
-            npcContext.SetFloat("Npc/Party", allyParty.HasMember(entity) ? 1.0f : -1.0f);
-            npcContext.SetFloat("Npc/Health", entity.NormalizedHealth);
+            npcContext.SetUShort("Self/Identifier", entity.Identifier);
+            npcContext.SetFloat("Self/Party", allyParty.HasMember(entity) ? 1.0f : -1.0f);
+            npcContext.SetFloat("Self/Health", entity.NormalizedHealth);
 
+            npcContext.SetFloat("Self/AttackCoolDown", entity.AttackCoolDown);
+            npcContext.SetFloat("Self/HealingCoolDown", entity.HealingCoolDown);
+
+            npcContext.SetInt("Allies.Count", allyParty.MaxCount);
             for (int i = 0; i < allyParty.MaxCount; ++i)
             {
                 ushort identifier = allyParty.GetMemberId(i);
@@ -71,10 +77,11 @@ namespace CreatureTime
                 if (entity.State == ECombatState.None)
                     continue;
 
-                npcContext.SetUShort($"Allies/Identifiers.Values[{i}]", entity.Identifier);
-                npcContext.SetFloat($"Allies/Health.Values[{i}]", entity.NormalizedHealth);
+                npcContext.SetUShort($"Allies.Values[{i}]/Identifier", entity.Identifier);
+                npcContext.SetFloat($"Allies.Values[{i}]/Health", entity.NormalizedHealth);
             }
 
+            npcContext.SetInt("Enemies.Count", enemyParty.MaxCount);
             for (int i = 0; i < enemyParty.MaxCount; ++i)
             {
                 ushort identifier = enemyParty.GetMemberId(i);
@@ -85,8 +92,8 @@ namespace CreatureTime
                 if (entity.State == ECombatState.None)
                     continue;
 
-                npcContext.SetUShort($"Enemies/Identifiers.Values[{i}]", entity.Identifier);
-                npcContext.SetFloat($"Enemies/Health.Values[{i}]", entity.NormalizedHealth);
+                npcContext.SetUShort($"Enemies.Values[{i}]/Identifier", entity.Identifier);
+                npcContext.SetFloat($"Enemies.Values[{i}]/Health", entity.NormalizedHealth);
             }
 
             npcContext.SetInt("Skills.Count", CtEntityDef.MaxSkillCount);
@@ -191,7 +198,14 @@ namespace CreatureTime
 
         public override void Think()
         {
+            npcContext.SetInt("Result/SkillIndex", -1);
+            npcContext.SetUShort("Result/TargetId", CtConstants.InvalidId);
+
             behaviorTree.Process();
+
+            npcContext.TryGetInt("Result/SkillIndex", out var skillIndex);
+            npcContext.TryGetUShort("Result/TargetId", out var targetId);
+            npcTurn.Submit(CTBattleInteractType.Attack, skillIndex, targetId);
         }
     }
 }

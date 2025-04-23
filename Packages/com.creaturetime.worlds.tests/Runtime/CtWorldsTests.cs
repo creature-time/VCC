@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CreatureTime
 {
-    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtWorldsTests : UdonSharpBehaviour
     {
         [Header("State Machine Tests")]

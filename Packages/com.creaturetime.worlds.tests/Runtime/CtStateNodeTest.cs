@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace CreatureTime
 {
-    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtStateNodeTest : CtStateBase
     {
         [SerializeField] private int testOutput;

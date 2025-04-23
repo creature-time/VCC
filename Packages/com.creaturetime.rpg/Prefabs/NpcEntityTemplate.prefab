@@ -196,6 +196,7 @@ MonoBehaviour:
   entity: {fileID: 9153725628680974074}
   behaviorTree: {fileID: 912925278985565736}
   npcContext: {fileID: 7469274330281804358}
+  npcTurn: {fileID: 325444583149656307}
 --- !u!114 &912925278985565736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,7 +293,6 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 369657631130541074}
-  brain: {fileID: 2973451649418103587}
   agent: {fileID: 0}
 --- !u!114 &369657631130541074
 MonoBehaviour:

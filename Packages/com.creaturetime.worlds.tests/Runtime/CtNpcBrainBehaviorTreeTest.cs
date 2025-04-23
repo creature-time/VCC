@@ -1,9 +1,10 @@
+
 using UdonSharp;
 using UnityEngine;
 
 namespace CreatureTime
 {
-    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtNpcBrainBehaviorTreeTest : CtNpcBrain
     {
         [SerializeField] private CtBlackboardEntryData entryData;
