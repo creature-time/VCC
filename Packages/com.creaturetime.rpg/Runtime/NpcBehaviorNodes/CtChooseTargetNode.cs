@@ -33,9 +33,6 @@ namespace CreatureTime
 
             context.TryGetFloat("Self/Party", out var isAllyTeam);
 
-            int[] targetIndexes;
-            float[] targetWeights;
-            float[] targetHealth;
             if (isTargetEnemy)
             {
                 if (isAllyTeam < 0)
