@@ -2,6 +2,8 @@
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.AI;
+using VRC.SDKBase;
+using Random = UnityEngine.Random;
 
 namespace CreatureTime
 {
@@ -24,7 +26,7 @@ namespace CreatureTime
         SequenceChanged
     }
 
-    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtNpcController : CtAbstractSignal
     {
         private const int CharacterFlagsHasDialogue = 1 << 0;
@@ -207,6 +209,11 @@ namespace CreatureTime
                 BabbleSource.Play();
                 BabbleSource.pitch = Random.Range(0.75f, 1.25f);
             }
+        }
+
+        public override void OnPlayerTriggerEnter(VRCPlayerApi player)
+        {
+            animator.SetTrigger("IsPushed");
         }
     }
 }

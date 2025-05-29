@@ -78,10 +78,5 @@ namespace CreatureTime
                 _hexDisplay.value = $"0x{value:x16}";
             });
         }
-
-        public void Bind(SerializedObject serializedObject)
-        {
-            _dataBlock.Bind(serializedObject);
-        }
     }
 }

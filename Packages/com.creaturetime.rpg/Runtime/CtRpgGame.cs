@@ -1,11 +1,11 @@
 ﻿
-using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
+    [DefaultExecutionOrder(-1)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtRpgGame : CtAbstractSignal
     {
@@ -30,6 +30,8 @@ namespace CreatureTime
 
         private void Start()
         {
+            LogDebug("Initializing Rpg Game...");
+
             gameData.Init();
             playerManager.Init();
             partyManager.Init();

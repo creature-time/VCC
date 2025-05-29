@@ -20,6 +20,8 @@ namespace CreatureTime
             set => _dataBlock.BindingPath = value;
         }
 
+        public CtDataBlockElement DataBlock => _dataBlock;
+
         public CtAbstractItemStatsElement()
         {
             StyleColor borderColor = new StyleColor(Color.black);

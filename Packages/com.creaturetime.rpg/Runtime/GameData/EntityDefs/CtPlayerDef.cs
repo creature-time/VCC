@@ -2,6 +2,7 @@
 using System;
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VRC.SDKBase;
 
 namespace CreatureTime
@@ -41,7 +42,7 @@ namespace CreatureTime
         public bool IsLocal { get; set; } = false;
         public ushort PlayerId { get; set; } = CtConstants.InvalidId;
 
-        [UdonSynced] public ulong[] _inventory = new ulong[MaxInventoryCount]
+        [HideInInspector, SerializeField, UdonSynced] private ulong[] inventory = new ulong[MaxInventoryCount]
         {
             CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
             CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
@@ -57,32 +58,32 @@ namespace CreatureTime
             CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData
         };
 
-        // public int InvCountOf(ushort identifier)
-        // {
-        //     int count = 0;
-        //     for (int i = 0; i < _inventory.Length; ++i)
-        //     {
-        //         if ((_inventory[i] & 0x0000FFFF) == identifier)
-        //             count++;
-        //     }
-        //
-        //     return count;
-        // }
-        //
-        // public int InvIndexOf(ushort identifier, int start = 0)
-        // {
-        //     for (int i = start; i < _inventory.Length; ++i)
-        //     {
-        //         if ((_inventory[i] & 0x0000FFFF) == identifier)
-        //             return i;
-        //     }
-        //
-        //     return -1;
-        // }
+        public int InvCountOf(ushort identifier)
+        {
+            int count = 0;
+            for (int i = 0; i < inventory.Length; ++i)
+            {
+                if ((inventory[i] & 0x0000FFFF) == identifier)
+                    count++;
+            }
+        
+            return count;
+        }
+
+        public int InvIndexOf(ushort identifier, int start = 0)
+        {
+            for (int i = start; i < inventory.Length; ++i)
+            {
+                if ((inventory[i] & 0x0000FFFF) == identifier)
+                    return i;
+            }
+        
+            return -1;
+        }
 
         public int InvIndexOfEmpty()
         {
-            return Array.IndexOf(_inventory, CtDataBlock.InvalidData);
+            return Array.IndexOf(inventory, CtDataBlock.InvalidData);
         }
 
         public void InvAddTo(int index, ulong data)
@@ -92,7 +93,7 @@ namespace CreatureTime
 
         public ulong InvDataAtSlot(int index)
         {
-            return _inventory[index];
+            return inventory[index];
         }
 
         public void InvRemoveFrom(int index)
@@ -102,14 +103,14 @@ namespace CreatureTime
 
         private void SetInventoryData(int index, ulong data)
         {
-            _inventory[index] = data;
+            inventory[index] = data;
             RequestSerialization();
             OnDeserialization();
         }
 
         private void _OnInventoryChanged(int index)
         {
-            _cmpInventory[index] = _inventory[index];
+            _cmpInventory[index] = inventory[index];
             this.Emit(EEntityStatsSignal.InventoryChanged);
         }
 
@@ -117,9 +118,9 @@ namespace CreatureTime
         {
             base.OnDeserialization();
 
-            for (int i = 0; i < _inventory.Length; ++i)
+            for (int i = 0; i < inventory.Length; ++i)
             {
-                if (_cmpInventory[i] != _inventory[i])
+                if (_cmpInventory[i] != inventory[i])
                     _OnInventoryChanged(i);
             }
         }
@@ -140,10 +141,10 @@ namespace CreatureTime
                 playerManager.Client_OnPlayerAdded(this);
             }
 
-            if (!player.isLocal || !Networking.IsOwner(gameObject))
-                return;
-
-            playerManager.SetupPlayer(player, this);
+            // if (!player.isLocal || !Networking.IsOwner(gameObject))
+            //     return;
+            //
+            // playerManager.SetupPlayer(player, this);
         }
 
         private void OnDestroy()

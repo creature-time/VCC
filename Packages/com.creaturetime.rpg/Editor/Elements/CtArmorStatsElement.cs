@@ -167,18 +167,14 @@ namespace CreatureTime
                 return;
             }
 
-            ushort identifier = armorDefinition.Identifier;
-            if (armorDefinition.ArmorSlot != AllowedArmorSlot)
+            if (AllowedArmorSlot != EArmorSlot.None && armorDefinition.ArmorSlot != AllowedArmorSlot)
             {
                 _dataBlock.Value = CtDataBlock.InvalidData;
                 return;
             }
 
-            ulong data = CtDataBlock.CreateEquipmentData(
-                identifier);
+            ulong data = CtDataBlock.CreateEquipmentData(armorDefinition.Identifier);
             _dataBlock.Value = data;
-            // _serializedObject.ApplyModifiedProperties();
-            // Debug.Log($"data {_dataBlock.Value:x16}");
         }
 
         public void Bind(SerializedObject serializedObject)

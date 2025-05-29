@@ -3,9 +3,10 @@ namespace CreatureTime
 {
     public enum EDataType
     {
-        Weapon,
-        Equipment,
-        OffHand
+        None = 0,
+        Weapon = 1,
+        Equipment = 2,
+        OffHand = 3
     }
 
     public static class CtDataBlock

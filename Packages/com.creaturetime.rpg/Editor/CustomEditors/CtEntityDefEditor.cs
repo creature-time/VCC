@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -7,10 +8,9 @@ using UnityEngine.UIElements;
 namespace CreatureTime
 {
     [CustomEditor(typeof(CtEntityDef), true)]
-    public class CtEntityDefEditorEditor : CtEditor
+    public class CtEntityDefEditor : CtEditor
     {
-        // private ObjectField _npcBehavior;
-        private DropdownField _npcBehaviors;
+        private ObjectField _npcBehavior;
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -130,37 +130,17 @@ namespace CreatureTime
                 bindingPath = "icon"
             };
             icon.objectType = typeof(Texture);
-            // icon.AddToClassList("unity-base-field__aligned");
             rootVisualElement.Add(icon);
 
             if (serializedObject.targetObject.GetType() == typeof(CtNpcDef))
             {
-                // _npcBehavior = new ObjectField
-                // {
-                //     objectType = typeof(CtNpcBehavior),
-                //     bindingPath = "behavior"
-                // };
-                // _npcBehavior.SetVisible(false);
-                // rootVisualElement.Add(_npcBehavior);
-                //
-                // _npcBehavior.RegisterValueChangedCallback(OnNpcBehaviorChanged);
-
-                // _npcBehaviorOptions = Object.FindObjectsOfType<CtNpcBehavior>().ToList();
-                // // _npcBehaviors.Sort((a, b) => a.Identifier);
-                //
-                // List<string> choices = new List<string>();
-                // choices.Add("None");
-                // foreach (CtNpcBehavior npcBehavior in _npcBehaviorOptions)
-                //     choices.Add(npcBehavior.gameObject.name);
-                //
-                // _npcBehaviors = new DropdownField
-                // {
-                //     label = "Npc Behavior",
-                //     choices = choices
-                // };
-                // rootVisualElement.Add(_npcBehaviors);
-                //
-                // _npcBehaviors.RegisterValueChangedCallback(OnNPCBehaviorsChanged);
+                _npcBehavior = new ObjectField
+                {
+                    label = "Npc Behavior",
+                    objectType = typeof(CtNpcBehavior),
+                    bindingPath = "behavior"
+                };
+                rootVisualElement.Add(_npcBehavior);
             }
 
             icon.RegisterValueChangedCallback(evt =>
@@ -305,24 +285,22 @@ namespace CreatureTime
                 skills.Add(skill);
             }
 
+            if (serializedObject.targetObject.GetType() == typeof(CtPlayerDef))
+            {
+                var inventory = serializedObject.FindProperty("inventory");
+                for (int i = 0; i < inventory.arraySize; i++)
+                {
+                    var elementProperty = inventory.GetArrayElementAtIndex(i);
+                    CtInventoryElement invItem = new CtInventoryElement
+                    {
+                        BindingPath = elementProperty.propertyPath
+                    };
+                    invItem.Bind(serializedObject);
+                    rootVisualElement.Add(invItem);
+                }
+            }
+
             return rootVisualElement;
         }
-
-        // private void OnNpcBehaviorChanged(ChangeEvent<Object> evt)
-        // {
-        //     CtNpcBehavior value = (CtNpcBehavior)evt.newValue;
-        //     _npcBehaviors.index = _npcBehaviorOptions.IndexOf(value) + 1;
-        // }
-        //
-        // private void OnNPCBehaviorsChanged(ChangeEvent<string> evt)
-        // {
-        //     int index = _npcBehaviors.index;
-        //     if (index != -1)
-        //     {
-        //         if (index > 0)
-        //             index -= 1;
-        //         _npcBehavior.value = _npcBehaviorOptions[index];
-        //     }
-        // }
     }
 }

@@ -18,7 +18,6 @@ namespace CreatureTime
     public class CtPlayerManager : CtAbstractSignal
     {
         [SerializeField, HideInInspector] private CtPlayerDef[] playerDefs;
-        [SerializeField] private CtEntityDef playerDefaultDef;
         [SerializeField] private CtAvatarSnapshot avatarSnapshot;
 
         public CtPlayerDef LocalPlayerDef { get; private set; }
@@ -51,29 +50,6 @@ namespace CreatureTime
         public CtPlayerDef GetPlayerDefByIndex(int index)
         {
             return playerDefs[index];
-        }
-
-        public void SetupPlayer(VRCPlayerApi player, CtPlayerDef playerDef)
-        {
-            if (playerDef.CharacterLevel == 0)
-            {
-                playerDef.Copy(playerDefaultDef);
-
-                // Testing
-                playerDef.InvAddTo(0, 18446744024585911168);
-                playerDef.InvAddTo(1, 18446744024585863200);
-                playerDef.InvAddTo(2, 18446744024585863216);
-
-                playerDef.InvAddTo(3, 18446744073708503057);
-                playerDef.InvAddTo(4, 18446744073708503073);
-                playerDef.InvAddTo(5, 18446744073708503089);
-                playerDef.InvAddTo(6, 18446744073708503105);
-                playerDef.InvAddTo(7, 18446744073708503121);
-            }
-
-            CtLogger.LogDebug("Player Manager",
-                "Player joined " +
-                $"(displayName={playerDef.DisplayName}, playerId={player.playerId})");
         }
 
         public void OnPlayerDestroyed(CtPlayerDef playerDef)

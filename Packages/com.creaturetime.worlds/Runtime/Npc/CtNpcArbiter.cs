@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 
@@ -9,10 +10,12 @@ namespace CreatureTime
     {
         [SerializeField] private CtNpcExpert[] experts;
 
-        public CtBehaviorTreeNodeBase[] BlackboardIteration(CtNpcContext blackboard)
+        public CtNpcExpert BestExpert { get; private set; }
+
+        public bool ValidateExpert(CtNpcContext blackboard)
         {
             CtNpcExpert bestExpert = null;
-            int heighestInsistence = 0;
+            int heighestInsistence = Int32.MinValue;
             foreach (var expert in experts)
             {
                 int insistence = expert.GetInsistence(blackboard);
@@ -28,7 +31,13 @@ namespace CreatureTime
                 bestExpert.Execute(blackboard);
             }
 
-            return blackboard.GetActions();
+            if (bestExpert != BestExpert)
+            {
+                BestExpert = bestExpert;
+                return true;
+            }
+
+            return false;
         }
     }
 }

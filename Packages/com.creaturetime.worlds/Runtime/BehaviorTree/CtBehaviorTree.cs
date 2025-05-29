@@ -13,6 +13,15 @@ namespace CreatureTime
 
         public CtNpcContext Context => context;
 
+        public void UpdateChildren(CtBehaviorTreeNodeBase[] nodes)
+        {
+            foreach (var child in children)
+                child.OnExit(context);
+            children = nodes;
+            foreach (var child in children)
+                child.OnEnter(context);
+        }
+
         public ENodeStatus Process()
         {
             foreach (var child in children)

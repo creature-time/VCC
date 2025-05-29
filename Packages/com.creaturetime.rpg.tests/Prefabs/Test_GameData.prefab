@@ -67,6 +67,8 @@ MonoBehaviour:
   userData: {fileID: 0}
   armorLevel: 40
   identifier: 3
+  behavior: {fileID: 0}
+  isRecruitable: 0
 --- !u!114 &8168071723842724940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -352,97 +354,6 @@ MonoBehaviour:
   serializedPublicVariablesBytesString: Ai8AAAAAATIAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAFQAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AAAAAAAYBAAAAAAAAACcBBAAAAHQAeQBwAGUAAWgAAABTAHkAcwB0AGUAbQAuAEMAbwBsAGwAZQBjAHQAaQBvAG4AcwAuAEcAZQBuAGUAcgBpAGMALgBMAGkAcwB0AGAAMQBbAFsAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4ALgBJAG4AdABlAHIAZgBhAGMAZQBzAC4ASQBVAGQAbwBuAFYAYQByAGkAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AXQBdACwAIABtAHMAYwBvAHIAbABpAGIAAQEJAAAAVgBhAHIAaQBhAGIAbABlAHMALwEAAAABaAAAAFMAeQBzAHQAZQBtAC4AQwBvAGwAbABlAGMAdABpAG8AbgBzAC4ARwBlAG4AZQByAGkAYwAuAEwAaQBzAHQAYAAxAFsAWwBWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAEkAbgB0AGUAcgBmAGEAYwBlAHMALgBJAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlACwAIABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgBdAF0ALAAgAG0AcwBjAG8AcgBsAGkAYgABAAAABgEAAAAAAAAAAi8CAAAAAUkAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAGAAMQBbAFsAUwB5AHMAdABlAG0ALgBJAG4AdAAzADIALAAgAG0AcwBjAG8AcgBsAGkAYgBdAF0ALAAgAFYAUgBDAC4AVQBkAG8AbgAuAEMAbwBtAG0AbwBuAAIAAAAGAgAAAAAAAAAnAQQAAAB0AHkAcABlAAEXAAAAUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwAsACAAbQBzAGMAbwByAGwAaQBiACcBCgAAAFMAeQBtAGIAbwBsAE4AYQBtAGUAAR8AAABfAF8AXwBVAGQAbwBuAFMAaABhAHIAcABCAGUAaABhAHYAaQBvAHUAcgBWAGUAcgBzAGkAbwBuAF8AXwBfACcBBAAAAHQAeQBwAGUAARYAAABTAHkAcwB0AGUAbQAuAEkAbgB0ADMAMgAsACAAbQBzAGMAbwByAGwAaQBiABcBBQAAAFYAYQBsAHUAZQACAAAABwUHBQcF
   publicVariablesUnityEngineObjects: []
   publicVariablesSerializationDataFormat: 0
---- !u!1 &2301793042719897032
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6527102276992015284}
-  - component: {fileID: 5424164892654848814}
-  - component: {fileID: 4672716647337422236}
-  m_Layer: 0
-  m_Name: Test Axe
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6527102276992015284
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2301793042719897032}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 6161666029554265883}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5424164892654848814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2301793042719897032}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59e189437a78c7e43b156c96c4a5b955, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  serializationData:
-    SerializedFormat: 2
-    SerializedBytes: 
-    ReferencedUnityObjects: []
-    SerializedBytesString: 
-    Prefab: {fileID: 0}
-    PrefabModificationsReferencedUnityObjects: []
-    PrefabModifications: []
-    SerializationNodes: []
-  _udonSharpBackingUdonBehaviour: {fileID: 4672716647337422236}
-  identifier: 1
-  displayName: Test Axe
-  icon: {fileID: 0}
-  weaponType: 1
-  attributeType: 1
-  attributeRequirement: 1
-  damageType: 0
-  damageMin: 2
-  damageMax: 4
-  rarity: 1
-  userData: {fileID: 0}
---- !u!114 &4672716647337422236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2301793042719897032}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45115577ef41a5b4ca741ed302693907, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interactTextPlacement: {fileID: 0}
-  interactText: Use
-  interactTextGO: {fileID: 0}
-  proximity: 2
-  SynchronizePosition: 0
-  AllowCollisionOwnershipTransfer: 0
-  Reliable: 0
-  _syncMethod: 2
-  serializedProgramAsset: {fileID: 11400000, guid: 8ec5b22a0f304da48a81e4a540b54ec6, type: 2}
-  programSource: {fileID: 11400000, guid: 71bbd4047e13263469182e2f5ba4ba92, type: 2}
-  serializedPublicVariablesBytesString: Ai8AAAAAATIAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAFQAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AAAAAAAYBAAAAAAAAACcBBAAAAHQAeQBwAGUAAWgAAABTAHkAcwB0AGUAbQAuAEMAbwBsAGwAZQBjAHQAaQBvAG4AcwAuAEcAZQBuAGUAcgBpAGMALgBMAGkAcwB0AGAAMQBbAFsAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4ALgBJAG4AdABlAHIAZgBhAGMAZQBzAC4ASQBVAGQAbwBuAFYAYQByAGkAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AXQBdACwAIABtAHMAYwBvAHIAbABpAGIAAQEJAAAAVgBhAHIAaQBhAGIAbABlAHMALwEAAAABaAAAAFMAeQBzAHQAZQBtAC4AQwBvAGwAbABlAGMAdABpAG8AbgBzAC4ARwBlAG4AZQByAGkAYwAuAEwAaQBzAHQAYAAxAFsAWwBWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAEkAbgB0AGUAcgBmAGEAYwBlAHMALgBJAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlACwAIABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgBdAF0ALAAgAG0AcwBjAG8AcgBsAGkAYgABAAAABgEAAAAAAAAAAi8CAAAAAUkAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAGAAMQBbAFsAUwB5AHMAdABlAG0ALgBJAG4AdAAzADIALAAgAG0AcwBjAG8AcgBsAGkAYgBdAF0ALAAgAFYAUgBDAC4AVQBkAG8AbgAuAEMAbwBtAG0AbwBuAAIAAAAGAgAAAAAAAAAnAQQAAAB0AHkAcABlAAEXAAAAUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwAsACAAbQBzAGMAbwByAGwAaQBiACcBCgAAAFMAeQBtAGIAbwBsAE4AYQBtAGUAAR8AAABfAF8AXwBVAGQAbwBuAFMAaABhAHIAcABCAGUAaABhAHYAaQBvAHUAcgBWAGUAcgBzAGkAbwBuAF8AXwBfACcBBAAAAHQAeQBwAGUAARYAAABTAHkAcwB0AGUAbQAuAEkAbgB0ADMAMgAsACAAbQBzAGMAbwByAGwAaQBiABcBBQAAAFYAYQBsAHUAZQACAAAABwUHBQcF
-  publicVariablesUnityEngineObjects: []
-  publicVariablesSerializationDataFormat: 0
 --- !u!1 &2379515814721857232
 GameObject:
   m_ObjectHideFlags: 0
@@ -595,6 +506,8 @@ MonoBehaviour:
   userData: {fileID: 0}
   armorLevel: 40
   identifier: 2
+  behavior: {fileID: 0}
+  isRecruitable: 0
 --- !u!114 &6133193778021656284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -720,7 +633,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2215568250271484282
 Transform:
   m_ObjectHideFlags: 0
@@ -888,6 +801,8 @@ MonoBehaviour:
   userData: {fileID: 0}
   armorLevel: 40
   identifier: 1
+  behavior: {fileID: 0}
+  isRecruitable: 0
 --- !u!114 &5875947022290447013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -949,6 +864,148 @@ Transform:
   - {fileID: 6775034693229164496}
   m_Father: {fileID: 6810829515859795863}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &3840900761094220955
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6161666029554265883}
+    m_Modifications:
+    - target: {fileID: 318911128070920367, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Size.x
+      value: 0.3414294
+      objectReference: {fileID: 0}
+    - target: {fileID: 318911128070920367, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Size.y
+      value: 0.3264745
+      objectReference: {fileID: 0}
+    - target: {fileID: 318911128070920367, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Size.z
+      value: 0.08442062
+      objectReference: {fileID: 0}
+    - target: {fileID: 318911128070920367, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Center.x
+      value: -0.2596586
+      objectReference: {fileID: 0}
+    - target: {fileID: 318911128070920367, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Center.y
+      value: 0.03878939
+      objectReference: {fileID: 0}
+    - target: {fileID: 1426812246759306935, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Size.x
+      value: 0.6510195
+      objectReference: {fileID: 0}
+    - target: {fileID: 1426812246759306935, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Size.y
+      value: 0.3264745
+      objectReference: {fileID: 0}
+    - target: {fileID: 1426812246759306935, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Size.z
+      value: 0.08442062
+      objectReference: {fileID: 0}
+    - target: {fileID: 1426812246759306935, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Center.x
+      value: -0.1048635
+      objectReference: {fileID: 0}
+    - target: {fileID: 1426812246759306935, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Center.y
+      value: 0.0387894
+      objectReference: {fileID: 0}
+    - target: {fileID: 3079338959017646419, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Name
+      value: Test Axe
+      objectReference: {fileID: 0}
+    - target: {fileID: 3175495374616215171, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 3175495374616215171, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+    - target: {fileID: 4812294238731329600, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -7391377110201350002, guid: 3e29440ac2c72694a9a2e2e250d819dd, type: 3}
+    - target: {fileID: 5971228523453554794, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 98bac0b7f8c11f041b602cb6976a7db2, type: 2}
+    - target: {fileID: 6663067504967219403, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 6663067504967219403, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9082388117626431413, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: identifier
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9082388117626431413, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: weaponType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9082388117626431413, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: displayName
+      value: Test Axe
+      objectReference: {fileID: 0}
+    - target: {fileID: 9082388117626431413, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: attributeType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9082388117626431413, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: attributeRequirement
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9082388117626431413, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 9082388117626431413, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+--- !u!4 &6527102276992015284 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8059598439225030447, guid: 25166001cc361f9479a4324da4fa89ee, type: 3}
+  m_PrefabInstance: {fileID: 3840900761094220955}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4506605872012243884
 PrefabInstance:
   m_ObjectHideFlags: 0

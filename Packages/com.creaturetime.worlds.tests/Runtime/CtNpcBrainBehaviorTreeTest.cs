@@ -14,11 +14,8 @@ namespace CreatureTime
         // Translate game state to world state.
         public override void Sense()
         {
-            foreach (var action in arbiter.BlackboardIteration(behaviorTree.Context))
-            {
-                // Blackboard actions to set up blackboard.
-                // action.Execute(behaviorTree.Context);
-            }
+            if (arbiter.ValidateExpert(behaviorTree.Context))
+                behaviorTree.UpdateChildren(arbiter.BestExpert.GetActions());
         }
 
         public override void Think()
