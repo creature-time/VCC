@@ -1,0 +1,38 @@
+{
+    "name":"Lastation Asset Packages",
+    "id":"com.creaturetime.worlds",
+    "url":"https://github.com/creature-time/VCC/index.json",
+    "author":{
+        "name": "CreatureTime Developers",
+        "email": "vcc@creaturetime.com",
+        "url": "https://vcc.creaturetime.com/"
+    },
+    "description":"List of the VPM Repositories",
+    "infoLink":{
+        "url":"https://github.com/creature-time/VCC",
+        "text":"View on GitHub"
+    },
+    "bannerUrl":"banner.png",
+    "packages": [
+        {
+            "name": "com.creaturetime.worlds",
+            "releases": [
+            ]
+        },
+        {
+            "name": "com.creaturetime.worlds.tests",
+            "releases": [
+            ]
+        },
+        {
+            "name": "com.creaturetime.rpg",
+            "releases": [
+            ]
+        },
+        {
+            "name": "com.creaturetime.rpg.tests",
+            "releases": [
+            ]
+        }
+    ]
+}

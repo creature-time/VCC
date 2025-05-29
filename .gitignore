@@ -94,6 +94,11 @@ crashlytics-build.properties
 !/[Aa]ssets/SerializedUdonPrograms
 !/[Aa]ssets/SerializedUdonPrograms/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].*
 
+# Vmp
+!/.github/**
+!/Website/**
+!/source.json
+
 # Worlds
 !/[Pp]ackages/com.creaturetime.worlds
 !/[Pp]ackages/com.creaturetime.worlds/**
