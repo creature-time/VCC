@@ -55,14 +55,14 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
+      - name: Remove .lock files  # ✅ New step to fix deployment issue
+        run: find public/ -name ".lock" -type f -delete
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: 'github-pages'
           path: ${{env.listPublishDirectory}}
-
-      - name: List files
-        run: tree .
 
       - name: Deploy to GitHub Pages
         # if: github.repository == main
