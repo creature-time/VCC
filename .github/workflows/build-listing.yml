@@ -85,7 +85,7 @@ jobs:
       - name: Set Environment Variables
         if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
         run: |
-          echo "zipFile=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}".zip >> $GITHUB_ENV
+          echo "zipFile=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}.zip" >> $GITHUB_ENV
           echo "unityPackage=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}.unitypackage" >> $GITHUB_ENV
 
       - name: Create Zip
@@ -122,6 +122,7 @@ jobs:
             ${{ env.zipFile }}
             ${{ env.unityPackage }}
             Packages/${{ matrix.packageID }}/package.json
+          body: "TODO"
 #          body: |
 #            ${{ steps.ReleaseTemplateContents.outputs.content }}
           prerelease: true
