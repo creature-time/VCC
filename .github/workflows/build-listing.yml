@@ -57,7 +57,7 @@ jobs:
 
       - name: Verify build output
         run: |
-          echo "Verifying build output" find ./dist -type l -exec echo "Symlink found: {}" \; ls -la ./Website
+          echo "Verifying build output" find ./dist -type l -exec echo "Symlink found: {}" \; ls -la ./${{env.listPublishDirectory}}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
