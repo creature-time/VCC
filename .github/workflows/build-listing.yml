@@ -1,12 +1,5 @@
-name: Build Repo Listing
-
-on: 
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-      - 'actions'
-#    paths: * # source.json
+name: 'Deploy'
+on: push
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -63,5 +56,6 @@ jobs:
           path: ${{env.listPublishDirectory}}
           
       - name: Deploy to GitHub Pages
+        if: github.repository == main
         id: deployment
         uses: actions/deploy-pages@v2
