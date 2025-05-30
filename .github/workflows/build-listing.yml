@@ -41,7 +41,7 @@ jobs:
         #Multiline string for dumb reasons
         run: |
           TEMP=""
-          for package in $(find Packages -maxdepth 1 -mindepth 1 -type d -name "${{ env.packagePrefix }}.${{ steps.getRepoOwner.outputs.prop }}*"); do
+          for package in $(find Packages -maxdepth 1 -mindepth 1 -type d -name "com.creaturetime.*"); do
             packageID=${package##*/}
             TEMP="$TEMP\"$packageID\", "
           done
