@@ -87,36 +87,36 @@ jobs:
         id: tag
         run: echo prop="${{ steps.sanitize-name.outputs.prop }}-${{ steps.version.outputs.prop }}" >> $GITHUB_OUTPUT
 
-#      - name: Check if Release Tag Exists
-#        id: check-release-tag
-#        uses: mukunku/tag-exists-action@v1.2.0
-#        with:
-#          tag: ${{ steps.tag.outputs.prop }}
-#
-#      - name: Set Environment Variables
-#        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
-#        run: |
-#          echo "zipFile=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}".zip >> $GITHUB_ENV
-#          echo "unityPackage=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}.unitypackage" >> $GITHUB_ENV
-#
-#      - name: Create Zip
-#        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
-#        uses: thedoctor0/zip-release@09336613be18a8208dfa66bd57efafd9e2685657
-#        with:
-#          type: "zip"
-#          directory: "Packages/${{matrix.packageID}}/"
-#          filename: "../../${{env.zipFile}}" # make the zip file two directories up, since we start two directories in above
-#
-#      - run: find "Packages/${{matrix.packageID}}/" -name \*.meta >> metaList
-#        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
-#
-#      - name: Create UnityPackage
-#        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
-#        uses: pCYSl5EDgo/create-unitypackage@cfcd3cf0391a5ef1306342794866a9897c32af0b
-#        with:
-#          package-path: ${{ env.unityPackage }}
-#          include-files: metaList
-#
+      - name: Check if Release Tag Exists
+        id: check-release-tag
+        uses: mukunku/tag-exists-action@v1.2.0
+        with:
+          tag: ${{ steps.tag.outputs.prop }}
+
+      - name: Set Environment Variables
+        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+        run: |
+          echo "zipFile=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}".zip >> $GITHUB_ENV
+          echo "unityPackage=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}.unitypackage" >> $GITHUB_ENV
+
+      - name: Create Zip
+        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+        uses: thedoctor0/zip-release@09336613be18a8208dfa66bd57efafd9e2685657
+        with:
+          type: "zip"
+          directory: "Packages/${{matrix.packageID}}/"
+          filename: "../../${{env.zipFile}}" # make the zip file two directories up, since we start two directories in above
+
+      - run: find "Packages/${{matrix.packageID}}/" -name \*.meta >> metaList
+        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+
+      - name: Create UnityPackage
+        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+        uses: pCYSl5EDgo/create-unitypackage@cfcd3cf0391a5ef1306342794866a9897c32af0b
+        with:
+          package-path: ${{ env.unityPackage }}
+          include-files: metaList
+
 #      - name: Read Release Template
 #        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
 #        id: ReleaseTemplateContents
