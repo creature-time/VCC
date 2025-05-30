@@ -1,11 +1,15 @@
 name: 'Deploy'
 on:
   workflow_dispatch:
+    inputs:
+      dryRun:
+        type: boolean
+        description: 'Will Dry Run the workflow, skipping the release step, but showing you what would be released.'
+        required: false
   push:
     branches:
       - main
       - 'actions'
-#    paths: * # source.json
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -50,6 +54,104 @@ jobs:
           echo "matrix=[$TEMP]" >> $GITHUB_OUTPUT
       - name: Output Matrix
         run: echo ${{ steps.generateMatrix.outputs.matrix }}
+
+  build:
+    name: Build ${{ matrix.packageID }}
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        packageID: ${{ fromJSON(needs.generateMatrix.outputs.matrix) }}
+    env:
+      ACTIONS_RUNNER_DEBUG: false #This prevents set-output warnings for now
+      #TODO: Remove this once all actions are updated to use the new output format
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: get version
+        id: version
+        uses: notiz-dev/github-action-json-property@v0.2.0
+        with:
+          path: "Packages/${{matrix.packageID}}/package.json"
+          prop_path: "version"
+
+      - name: get name
+        id: name
+        uses: notiz-dev/github-action-json-property@v0.2.0
+        with:
+          path: "Packages/${{matrix.packageID}}/package.json"
+          prop_path: "displayName"
+
+      - name: sanitize name
+        id: sanitizeName
+        run: echo prop=$(echo '${{ steps.name.outputs.prop }}' | tr ' ' '_') >> $GITHUB_OUTPUT
+
+      - name: generate tag
+        id: tag
+        run: echo prop="${{ steps.sanitizeName.outputs.prop }}-${{ steps.version.outputs.prop }}" >> $GITHUB_OUTPUT
+
+      - name: Check if Release Tag Exists
+        id: checkReleaseTag
+        uses: mukunku/tag-exists-action@v1.2.0
+        with:
+          tag: ${{ steps.tag.outputs.prop }}
+
+      - name: Set Environment Variables
+        if: ${{ steps.checkReleaseTag.outputs.exists == 'false' }}
+        run: |
+          echo "zipFile=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}".zip >> $GITHUB_ENV
+          echo "unityPackage=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}.unitypackage" >> $GITHUB_ENV
+
+      - name: Create Zip
+        if: ${{ steps.checkReleaseTag.outputs.exists == 'false' }}
+        uses: thedoctor0/zip-release@09336613be18a8208dfa66bd57efafd9e2685657
+        with:
+          type: "zip"
+          directory: "Packages/${{matrix.packageID}}/"
+          filename: "../../${{env.zipFile}}" # make the zip file two directories up, since we start two directories in above
+
+      - run: find "Packages/${{matrix.packageID}}/" -name \*.meta >> metaList
+        if: ${{ steps.checkReleaseTag.outputs.exists == 'false' }}
+
+      - name: Create UnityPackage
+        if: ${{ steps.checkReleaseTag.outputs.exists == 'false' }}
+        uses: pCYSl5EDgo/create-unitypackage@cfcd3cf0391a5ef1306342794866a9897c32af0b
+        with:
+          package-path: ${{ env.unityPackage }}
+          include-files: metaList
+
+      - name: Read Release Template
+        if: ${{ steps.checkReleaseTag.outputs.exists == 'false' }}
+        id: ReleaseTemplateContents
+        uses: juliangruber/read-file-action@v1.1.6
+        with:
+          path: "./${{ env.releaseTemplate }}"
+
+      - name: Make Release
+        if: ${{ steps.checkReleaseTag.outputs.exists == 'false' && github.event.inputs.dryRun == 'false' }}
+        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        with:
+          tag_name: ${{ steps.tag.outputs.prop }}
+          files: |
+            ${{ env.zipFile }}
+            ${{ env.unityPackage }}
+            Packages/${{ matrix.packageID }}/package.json
+          body: |
+            ${{ steps.ReleaseTemplateContents.outputs.content }}
+          prerelease: true
+
+      # Output for matrices workaround
+      - name: Build Status
+        uses: cloudposse/github-action-matrix-outputs-write@0.3.1
+        with:
+          matrix-step-name: ${{ github.job }}
+          matrix-key: ${{ matrix.packageID }}
+          outputs: |-
+            name: ${{ steps.name.outputs.prop }}
+            version: ${{ steps.version.outputs.prop }}
+            tag: ${{ steps.tag.outputs.prop }}
+            releaseCandidateCreated: ${{ steps.checkReleaseTag.outputs.exists == 'false' }}
 
   build-listing:
     name: build-listing
