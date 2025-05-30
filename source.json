@@ -1,7 +1,7 @@
 {
     "name":"CreatureTime Asset Packages",
     "id":"com.creaturetime.worlds.repro",
-    "url":"https://github.com/creature-time/VCC/index.json",
+    "url":"https://creature-time.github.io/VCC/index.json",
     "author":{
         "name": "CreatureTime Developers",
         "email": "vcc@creaturetime.com",
