@@ -1,6 +1,6 @@
 {
     "name":"CreatureTime Asset Packages",
-    "id":"com.creaturetime.worlds",
+    "id":"com.creaturetime.worlds.repro",
     "url":"https://github.com/creature-time/VCC/index.json",
     "author":{
         "name": "CreatureTime Developers",
@@ -17,25 +17,21 @@
         {
             "name": "com.creaturetime.worlds",
             "releases": [
-                "https://github.com/LastationVRChat/Lastation-Player-Tracker/releases/download/1.3.0/tech.lastation.playertracker-1.3.0.zip"
             ]
         },
         {
             "name": "com.creaturetime.worlds.tests",
             "releases": [
-                "https://vcc.vrcfury.com/download/1.1229.0"
             ]
         },
         {
             "name": "com.creaturetime.rpg",
             "releases": [
-                "https://github.com/LastationVRChat/Lastation-Player-Tracker/releases/download/1.3.0/tech.lastation.playertracker-1.3.0.zip"
             ]
         },
         {
             "name": "com.creaturetime.rpg.tests",
             "releases": [
-                "https://github.com/LastationVRChat/Lastation-Player-Tracker/releases/download/1.3.0/tech.lastation.playertracker-1.3.0.zip"
             ]
         }
     ]
