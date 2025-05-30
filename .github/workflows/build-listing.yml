@@ -55,9 +55,8 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
-      - name: Verify build output
-        run: |
-          echo "Verifying build output" find ./dist -type l -exec echo "Symlink found: {}" \; ls -la ./${{env.listPublishDirectory}}
+      - name: List files
+        run: tree .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
