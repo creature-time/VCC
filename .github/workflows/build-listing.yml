@@ -106,12 +106,12 @@ jobs:
           package-path: ${{ env.unityPackage }}
           include-files: metaList
 
-      - name: Read Release Template
-        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
-        id: ReleaseTemplateContents
-        uses: juliangruber/read-file-action@v1.1.6
-        with:
-          path: "./${{ env.releaseTemplate }}"
+#      - name: Read Release Template
+#        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+#        id: ReleaseTemplateContents
+#        uses: juliangruber/read-file-action@v1.1.6
+#        with:
+#          path: "./${{ env.releaseTemplate }}"
 
       - name: Make Release
         if: ${{ steps.check-release-tag.outputs.exists == 'false' && github.event.inputs.dryRun == 'false' }}
@@ -122,8 +122,8 @@ jobs:
             ${{ env.zipFile }}
             ${{ env.unityPackage }}
             Packages/${{ matrix.packageID }}/package.json
-          body: |
-            ${{ steps.ReleaseTemplateContents.outputs.content }}
+#          body: |
+#            ${{ steps.ReleaseTemplateContents.outputs.content }}
           prerelease: true
 
 #      # Output for matrices workaround
