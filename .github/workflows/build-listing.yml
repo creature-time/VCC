@@ -37,7 +37,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Set Matrix
-        id: generateMatrix
+        id: generate-matrix
         #Multiline string for dumb reasons
         run: |
           TEMP=""
