@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - 'actions'
+      - 'origin/actions'
     paths: source.json
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
