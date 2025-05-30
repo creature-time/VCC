@@ -126,17 +126,17 @@ jobs:
 #            ${{ steps.ReleaseTemplateContents.outputs.content }}
           prerelease: true
 
-#      # Output for matrices workaround
-#      - name: Build Status
-#        uses: cloudposse/github-action-matrix-outputs-write@0.3.1
-#        with:
-#          matrix-step-name: ${{ github.job }}
-#          matrix-key: ${{ matrix.packageID }}
-#          outputs: |-
-#            name: ${{ steps.name.outputs.prop }}
-#            version: ${{ steps.version.outputs.prop }}
-#            tag: ${{ steps.tag.outputs.prop }}
-#            releaseCandidateCreated: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+      # Output for matrices workaround
+      - name: Build Status
+        uses: cloudposse/github-action-matrix-outputs-write@0.3.1
+        with:
+          matrix-step-name: ${{ github.job }}
+          matrix-key: ${{ matrix.packageID }}
+          outputs: |-
+            name: ${{ steps.name.outputs.prop }}
+            version: ${{ steps.version.outputs.prop }}
+            tag: ${{ steps.tag.outputs.prop }}
+            releaseCandidateCreated: ${{ steps.check-release-tag.outputs.exists == 'false' }}
 
   build-listing:
     name: build-listing
