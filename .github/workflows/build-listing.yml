@@ -57,9 +57,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{env.listPublishDirectory}}-${{ matrix.runs-on }}
+          name: Website
           path: ${{env.listPublishDirectory}}
           
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
