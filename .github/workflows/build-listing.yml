@@ -23,7 +23,7 @@ env:
   pathToCi: ci
 
 jobs:
-  
+
   build-listing:
     name: build-listing
     environment:
