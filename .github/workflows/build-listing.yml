@@ -68,4 +68,3 @@ jobs:
         # if: github.repository == main
         id: deployment
         uses: actions/deploy-pages@v4
-        token: ${{ github.token }}
