@@ -32,14 +32,10 @@ jobs:
     name: Generate Package Matrix
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.generateMatrix.outputs.matrix }}
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Get Repo Owner
-        id: getRepoOwner
-        #run: echo prop=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]') >> $GITHUB_OUTPUT #grab the repo owner and make it lowercase
-        run: echo prop=$(echo '${{ env.overrideOwnerString }}' | tr '[:upper:]' '[:lower:]') >> $GITHUB_OUTPUT #grab the repo owner and make it lowercase
       - name: Set Matrix
         id: generateMatrix
         #Multiline string for dumb reasons
@@ -53,44 +49,44 @@ jobs:
           TEMP="$TEMP"
           echo "matrix=[$TEMP]" >> $GITHUB_OUTPUT
       - name: Output Matrix
-        run: echo ${{ steps.generateMatrix.outputs.matrix }}
+        run: echo ${{ steps.generate-matrix.outputs.matrix }}
 
-#  build:
-#    name: Build ${{ matrix.packageID }}
-#    needs: generate-matrix
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        packageID: ${{ fromJSON(needs.generateMatrix.outputs.matrix) }}
-#    env:
-#      ACTIONS_RUNNER_DEBUG: false #This prevents set-output warnings for now
-#      #TODO: Remove this once all actions are updated to use the new output format
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#
-#      - name: get version
-#        id: version
-#        uses: notiz-dev/github-action-json-property@v0.2.0
-#        with:
-#          path: "Packages/${{matrix.packageID}}/package.json"
-#          prop_path: "version"
-#
-#      - name: get name
-#        id: name
-#        uses: notiz-dev/github-action-json-property@v0.2.0
-#        with:
-#          path: "Packages/${{matrix.packageID}}/package.json"
-#          prop_path: "displayName"
-#
-#      - name: sanitize name
-#        id: sanitizeName
-#        run: echo prop=$(echo '${{ steps.name.outputs.prop }}' | tr ' ' '_') >> $GITHUB_OUTPUT
-#
-#      - name: generate tag
-#        id: tag
-#        run: echo prop="${{ steps.sanitizeName.outputs.prop }}-${{ steps.version.outputs.prop }}" >> $GITHUB_OUTPUT
-#
+  build:
+    name: Build ${{ matrix.packageID }}
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        packageID: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    env:
+      ACTIONS_RUNNER_DEBUG: false #This prevents set-output warnings for now
+      #TODO: Remove this once all actions are updated to use the new output format
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: get version
+        id: version
+        uses: notiz-dev/github-action-json-property@v0.2.0
+        with:
+          path: "Packages/${{matrix.packageID}}/package.json"
+          prop_path: "version"
+
+      - name: get name
+        id: name
+        uses: notiz-dev/github-action-json-property@v0.2.0
+        with:
+          path: "Packages/${{matrix.packageID}}/package.json"
+          prop_path: "displayName"
+
+      - name: sanitize name
+        id: sanitizeName
+        run: echo prop=$(echo '${{ steps.name.outputs.prop }}' | tr ' ' '_') >> $GITHUB_OUTPUT
+
+      - name: generate tag
+        id: tag
+        run: echo prop="${{ steps.sanitizeName.outputs.prop }}-${{ steps.version.outputs.prop }}" >> $GITHUB_OUTPUT
+
 #      - name: Check if Release Tag Exists
 #        id: checkReleaseTag
 #        uses: mukunku/tag-exists-action@v1.2.0
