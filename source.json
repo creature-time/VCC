@@ -17,21 +17,25 @@
         {
             "name": "com.creaturetime.worlds",
             "releases": [
+                "https://github.com/LastationVRChat/Lastation-Player-Tracker/releases/download/1.3.0/tech.lastation.playertracker-1.3.0.zip"
             ]
         },
         {
             "name": "com.creaturetime.worlds.tests",
             "releases": [
+                "https://github.com/LastationVRChat/Lastation-Player-Tracker/releases/download/1.3.0/tech.lastation.playertracker-1.3.0.zip"
             ]
         },
         {
             "name": "com.creaturetime.rpg",
             "releases": [
+                "https://github.com/LastationVRChat/Lastation-Player-Tracker/releases/download/1.3.0/tech.lastation.playertracker-1.3.0.zip"
             ]
         },
         {
             "name": "com.creaturetime.rpg.tests",
             "releases": [
+                "https://github.com/LastationVRChat/Lastation-Player-Tracker/releases/download/1.3.0/tech.lastation.playertracker-1.3.0.zip"
             ]
         }
     ]
