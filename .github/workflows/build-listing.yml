@@ -55,6 +55,10 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
+      - name: Verify build output
+        run: |
+          echo "Verifying build output" find ./dist -type l -exec echo "Symlink found: {}" \; ls -la ./Website
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -65,3 +69,4 @@ jobs:
         # if: github.repository == main
         id: deployment
         uses: actions/deploy-pages@v4
+        token: ${{ github.token }}
