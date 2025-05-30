@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  listPublishDirectory: Website
+  listPublishDirectory: 'Website'
   pathToCi: ci
 
 jobs:
@@ -64,4 +64,4 @@ jobs:
       - name: Deploy to GitHub Pages
         # if: github.repository == main
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
