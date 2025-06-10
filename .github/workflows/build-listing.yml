@@ -178,6 +178,5 @@ jobs:
           path: ${{env.listPublishDirectory}}
 
       - name: Deploy to GitHub Pages
-        # if: github.repository == main
         id: deployment
         uses: actions/deploy-pages@v4
