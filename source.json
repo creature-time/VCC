@@ -1,7 +1,7 @@
 {
     "name":"CreatureTime Asset Packages",
-    "id":"com.creaturetime.worlds",
-    "url":"https://github.com/creature-time/VCC/index.json",
+    "id":"com.creaturetime.worlds.repro",
+    "url":"https://creature-time.github.io/VCC/index.json",
     "author":{
         "name": "CreatureTime Developers",
         "email": "vcc@creaturetime.com",
@@ -13,26 +13,7 @@
         "text":"View on GitHub"
     },
     "bannerUrl":"banner.png",
-    "packages": [
-        {
-            "name": "com.creaturetime.worlds",
-            "releases": [
-            ]
-        },
-        {
-            "name": "com.creaturetime.worlds.tests",
-            "releases": [
-            ]
-        },
-        {
-            "name": "com.creaturetime.rpg",
-            "releases": [
-            ]
-        },
-        {
-            "name": "com.creaturetime.rpg.tests",
-            "releases": [
-            ]
-        }
+    "githubRepos": [
+        "creature-time/VCC"
     ]
 }

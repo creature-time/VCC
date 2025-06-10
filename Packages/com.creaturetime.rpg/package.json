@@ -1,6 +1,6 @@
 {
   "name": "com.creaturetime.rpg",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "displayName": "CreatureTime-Rpg",
   "description": "Code for Turn-based RPG game",
   "unity": "2022.3",

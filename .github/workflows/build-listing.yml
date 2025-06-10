@@ -1,43 +1,160 @@
-name: Build Repo Listing
-
-on: 
+name: 'Deploy'
+on:
   workflow_dispatch:
+    inputs:
+      dryRun:
+        type: boolean
+        description: 'Will Dry Run the workflow, skipping the release step, but showing you what would be released.'
+        required: false
   push:
-    branches: main
-    paths: source.json
+    branches:
+      - main
+      - 'actions'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
-  
+
 # Allow one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: true
-  
+
 env:
-  listPublishDirectory: Website
+  listPublishDirectory: 'Website'
   pathToCi: ci
 
 jobs:
-  
+
+  generate-matrix:
+    name: Generate Package Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set Matrix
+        id: generate-matrix
+        #Multiline string for dumb reasons
+        run: |
+          TEMP=""
+          for package in $(find Packages -maxdepth 1 -mindepth 1 -type d -name "com.creaturetime.*"); do
+            packageID=${package##*/}
+            TEMP="$TEMP\"$packageID\", "
+          done
+          TEMP=${TEMP::-2}
+          TEMP="$TEMP"
+          echo "matrix=[$TEMP]" >> $GITHUB_OUTPUT
+      - name: Output Matrix
+        run: echo ${{ steps.generate-matrix.outputs.matrix }}
+
+  build:
+    name: Build ${{ matrix.packageID }}
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        packageID: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    env:
+      ACTIONS_RUNNER_DEBUG: false #This prevents set-output warnings for now
+      #TODO: Remove this once all actions are updated to use the new output format
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: get version
+        id: version
+        uses: notiz-dev/github-action-json-property@v0.2.0
+        with:
+          path: "Packages/${{matrix.packageID}}/package.json"
+          prop_path: "version"
+
+      - name: generate tag
+        id: tag
+        run: echo prop="${{ matrix.packageID }}-${{ steps.version.outputs.prop }}" >> $GITHUB_OUTPUT
+
+      - name: Check if Release Tag Exists
+        id: check-release-tag
+        uses: mukunku/tag-exists-action@v1.2.0
+        with:
+          tag: ${{ steps.tag.outputs.prop }}
+
+      - name: Set Environment Variables
+        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+        run: |
+          echo "zipFile=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}.zip" >> $GITHUB_ENV
+          echo "unityPackage=${{ matrix.packageID }}-${{ steps.tag.outputs.prop }}.unitypackage" >> $GITHUB_ENV
+
+      - name: Create Zip
+        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+        uses: thedoctor0/zip-release@09336613be18a8208dfa66bd57efafd9e2685657
+        with:
+          type: "zip"
+          directory: "Packages/${{matrix.packageID}}/"
+          filename: "../../${{env.zipFile}}" # make the zip file two directories up, since we start two directories in above
+
+      - run: find "Packages/${{matrix.packageID}}/" -name \*.meta >> metaList
+        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+
+      - name: Create UnityPackage
+        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+        uses: pCYSl5EDgo/create-unitypackage@cfcd3cf0391a5ef1306342794866a9897c32af0b
+        with:
+          package-path: ${{ env.unityPackage }}
+          include-files: metaList
+
+#      - name: Read Release Template
+#        if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+#        id: ReleaseTemplateContents
+#        uses: juliangruber/read-file-action@v1.1.6
+#        with:
+#          path: "./${{ env.releaseTemplate }}"
+
+      - name: Make Release
+        if: ${{ steps.check-release-tag.outputs.exists == 'false' && github.event.inputs.dryRun == 'false' }}
+        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        with:
+          tag_name: ${{ steps.tag.outputs.prop }}
+          files: |
+            ${{ env.zipFile }}
+            ${{ env.unityPackage }}
+            Packages/${{ matrix.packageID }}/package.json
+          body: "TODO"
+#          body: |
+#            ${{ steps.ReleaseTemplateContents.outputs.content }}
+          prerelease: true
+
+#      # Output for matrices workaround
+#      - name: Build Status
+#        uses: cloudposse/github-action-matrix-outputs-write@0.3.1
+#        with:
+#          matrix-step-name: ${{ github.job }}
+#          matrix-key: ${{ matrix.packageID }}
+#          outputs: |-
+#            name: ${{ steps.name.outputs.prop }}
+#            version: ${{ steps.version.outputs.prop }}
+#            tag: ${{ steps.tag.outputs.prop }}
+#            releaseCandidateCreated: ${{ steps.check-release-tag.outputs.exists == 'false' }}
+
   build-listing:
     name: build-listing
+    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      
-      - uses: actions/checkout@v3 # check out this repo
-      - uses: actions/checkout@v3 # check out automation repo
+
+      - uses: actions/checkout@v4 # check out this repo
+      - uses: actions/checkout@v4 # check out automation repo
         with:
           repository: vrchat-community/package-list-action
           path: ${{env.pathToCi}}
           clean: false # otherwise the local repo will no longer be checked out
-          
+
       - name: Restore Cache
         uses: actions/cache@v3
         with:
@@ -45,21 +162,21 @@ jobs:
             ${{env.pathToCi}}/.nuke/temp
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
-          
+
       - name: Build Package Version Listing
         run: ${{env.pathToCi}}/build.cmd BuildMultiPackageListing --root ${{env.pathToCi}} --list-publish-directory $GITHUB_WORKSPACE/${{env.listPublishDirectory}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
- 
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
-        
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: ${{env.listPublishDirectory}}
+          name: 'github-pages'
           path: ${{env.listPublishDirectory}}
-          
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
