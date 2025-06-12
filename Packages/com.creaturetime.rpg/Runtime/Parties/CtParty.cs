@@ -125,7 +125,7 @@ namespace CreatureTime
             int index = Array.IndexOf(members, CtConstants.InvalidId);
             if (index == -1)
             {
-                CtLogger.LogCritical("Party", "Cannot add anymore members to party.");
+                LogCritical("Cannot add anymore members to party.");
                 return;
             }
 
@@ -149,7 +149,7 @@ namespace CreatureTime
             int index = Array.IndexOf(members, entity.Identifier);
             if (index == -1)
             {
-                CtLogger.LogCritical("Party", "Cannot find member to remove from party.");
+                LogCritical("Cannot find member to remove from party.");
                 return;
             }
 

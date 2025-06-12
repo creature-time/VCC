@@ -230,7 +230,7 @@ namespace CreatureTime
         public float NormalizedHealth => Health / (float)_entityDef.MaxHealth;
         public string DisplayName => _entityDef.DisplayName;
         public Texture Icon => _entityDef.Icon;
-        public bool IsPlayer { get; private set; }
+        public bool IsPlayer { get; protected set; }
 
         private CtEntityDef _entityDef;
 

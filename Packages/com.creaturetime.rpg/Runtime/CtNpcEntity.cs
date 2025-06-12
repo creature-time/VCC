@@ -10,6 +10,8 @@ namespace CreatureTime
         [SerializeField] private CtBattleNpcBrain brain;
         [SerializeField] private CtPlayerTurn npcTurn;
 
+        public CtBattleNpcBrain Brain => brain;
+
         [UdonSynced, FieldChangeCallback(nameof(HealingCoolDownCallback))]
         private int _healingCoolDown = 0;
 
@@ -69,9 +71,9 @@ namespace CreatureTime
 
         protected override void _OnEntityIdChanged()
         {
-            var npcIdentifier = CtEntityManager.GetIdentifier(EntityId);
-            if (npcIdentifier != CtConstants.InvalidId)
+            if (EntityId != CtConstants.InvalidId)
             {
+                var npcIdentifier = CtEntityManager.GetIdentifier(EntityId);
                 var npcDef = gameData.GetNpcDef(npcIdentifier);
                 EntityDef = npcDef;
                 brain.Behavior = npcDef.Behavior;

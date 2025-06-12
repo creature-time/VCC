@@ -12,6 +12,8 @@ namespace CreatureTime
 
         protected override void _OnEntityIdChanged()
         {
+            IsPlayer = true;
+
             var playerId = CtEntityManager.GetIdentifier(EntityId);
             EntityDef = playerManager.GetPlayerDefById(playerId);
             playerTurn = EntityDef.GetComponent<CtPlayerTurn>();

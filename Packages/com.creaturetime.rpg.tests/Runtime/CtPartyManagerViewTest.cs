@@ -59,18 +59,20 @@ namespace CreatureTime
             }
 
             _partyPrefabs.Add(identifier, prefab);
+            _Debug_PrintPrefabs();
 
             _OnIdentifierChangedRaw(entity);
 
-            entity.Connect(EEntitySignal.EntityStatsChanged, this, nameof(_OnIdentifierChanged));
+            entity.Connect(EEntitySignal.IdentifierChanged, this, nameof(_OnIdentifierChanged));
         }
 
         public void _OnIdentifierChangedRaw(CtEntity entity)
         {
-            Debug.Log($"entity.EntityStats {entity.EntityDef}");
+            Debug.Log($"entity.EntityStats {entity.Identifier} {entity.EntityDef}");
             if (!entity.EntityDef)
                 return;
 
+            _Debug_PrintPrefabs();
             if (!_partyPrefabs.TryGetValue(entity.Identifier, out var token))
             {
                 LogCritical($"[_OnIdentifierChangedRaw] Failed to find entity (identifier={entity.Identifier}).");
@@ -116,6 +118,17 @@ namespace CreatureTime
             Destroy(prefab);
 
             _partyPrefabs.Remove(identifier);
+            _Debug_PrintPrefabs();
+        }
+
+        private void _Debug_PrintPrefabs()
+        {
+            Debug.Log("Prefab Keys");
+            var keys = _partyPrefabs.GetKeys();
+            for (int i = 0; i < keys.Count; i++)
+            {
+                Debug.Log($"Prefab Key {keys[i].UShort}");
+            }
         }
     }
 }
