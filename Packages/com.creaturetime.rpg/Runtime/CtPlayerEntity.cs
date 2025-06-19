@@ -20,9 +20,26 @@ namespace CreatureTime
             SourceTransform = EntityDef.transform;
         }
 
-        public override bool TryGetAttack(out int skillIndex, out int targetId)
+        public override void OnStartBattle()
+        {
+            playerTurn.ResetToWait();
+            base.OnStartBattle();
+        }
+
+        public override bool IsReady()
+        {
+            return playerTurn.InteractType != CTBattleInteractType.None;
+        }
+
+        public override bool TryGetAttack(out int skillIndex, out ushort targetId)
         {
             return playerTurn.TryGetAttack(out skillIndex, out targetId);
+        }
+
+        public override void OnEndBattle()
+        {
+            playerTurn.Reset();
+            base.OnEndBattle();
         }
     }
 }

@@ -114,11 +114,9 @@ namespace CreatureTime
             return false;
         }
 
-        public void ReleaseRecruitEntity(int index)
+        public void ReleaseRecruitEntity(CtEntity entity)
         {
-            var entity = recruitEntities[index];
             entity.EntityId = CtConstants.InvalidId;
-            entity.Reset();
         }
 
         public bool TryCreateEnemy(CtNpcDef npcDef, out CtEntity entity)

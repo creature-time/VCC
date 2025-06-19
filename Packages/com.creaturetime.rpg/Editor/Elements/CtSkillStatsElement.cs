@@ -69,7 +69,7 @@ namespace CreatureTime
             int identifier = _skillInternal.value;
 
             List<CtSkillDef> armorDefinitions =
-                GameObject.FindObjectsOfType<CtSkillDef>().ToList();
+                GameObject.FindObjectsOfType<CtSkillDef>(true).ToList();
             CtSkillDef found = armorDefinitions.Find(definition => definition.Identifier == identifier);
             _skill.value = found;
 

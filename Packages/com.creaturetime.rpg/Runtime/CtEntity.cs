@@ -381,7 +381,7 @@ namespace CreatureTime
             }
         }
 
-        public void SetupEntityForBattle()
+        public virtual void OnStartBattle()
         {
             Health = EntityDef.MaxHealth;
             Energy = EntityDef.MaxEnergy;
@@ -430,11 +430,18 @@ namespace CreatureTime
             }
         }
 
-        public virtual bool TryGetAttack(out int skillIndex, out int targetId)
+        public virtual bool IsReady()
+        {
+            return true;
+        }
+
+        public virtual bool TryGetAttack(out int skillIndex, out ushort targetId)
         {
             skillIndex = -1;
-            targetId = -1;
+            targetId = CtConstants.InvalidId;
             return false;
         }
+
+        public virtual void OnEndBattle() {}
     }
 }

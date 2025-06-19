@@ -5,6 +5,7 @@ namespace CreatureTime
 {
     public enum CTBattleInteractType
     {
+        None = 0,
         Waiting = 1,
         Attack = 2,
         Leave = 3
@@ -13,15 +14,15 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtPlayerTurn : UdonSharpBehaviour
     {
-        [UdonSynced] private CTBattleInteractType _interactType = CTBattleInteractType.Waiting;
+        [UdonSynced] private CTBattleInteractType _interactType = CTBattleInteractType.None;
         [UdonSynced] private int _skillIndex = -1;
-        [UdonSynced] private int _targetIndex = -1;
+        [UdonSynced] private ushort _targetIndex = CtConstants.InvalidId;
 
         public CTBattleInteractType InteractType => _interactType;
         // public int SkillIndex => _skillIndex;
         // public int TargetIndex => _targetIndex;
 
-        public void Submit(CTBattleInteractType interactType, int skillIndex, int targetIndex)
+        public void Submit(CTBattleInteractType interactType, int skillIndex, ushort targetIndex)
         {
             CtLogger.LogDebug("Player Turn", 
                 $"(interactType={interactType}, skillIndex={skillIndex}, targetIndex={targetIndex})");
@@ -34,13 +35,23 @@ namespace CreatureTime
             OnDeserialization();
         }
 
-        public void Reset()
+        public void ResetToWait()
         {
             CtLogger.LogDebug("Player Turn", "Reset");
 
             _interactType = CTBattleInteractType.Waiting;
             _skillIndex = -1;
-            _targetIndex = -1;
+            _targetIndex = CtConstants.InvalidId;
+            RequestSerialization();
+
+            OnDeserialization();
+        }
+
+        public void Reset()
+        {
+            _interactType = CTBattleInteractType.None;
+            _skillIndex = -1;
+            _targetIndex = CtConstants.InvalidId;
             RequestSerialization();
 
             OnDeserialization();
@@ -53,10 +64,10 @@ namespace CreatureTime
                 $"(interactType={InteractType}, skillIndex={_skillIndex}, targetIndex={_targetIndex}).");
         }
 
-        public bool TryGetAttack(out int skillIndex, out int targetId)
+        public bool TryGetAttack(out int skillIndex, out ushort targetId)
         {
             skillIndex = -1;
-            targetId = -1;
+            targetId = CtConstants.InvalidId;;
             if (InteractType == CTBattleInteractType.Waiting)
                 return false;
 

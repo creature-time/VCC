@@ -16,7 +16,8 @@ namespace CreatureTime
         [SerializeField] private CtDialogueManager dialogueManager;
 
         [SerializeField] private CtAbstractQuest[] quests;
-        [SerializeField] private CtBattleState battleState;
+        [SerializeField] private CtBattleStateManager battleStateManager;
+        [SerializeField] private CtStateMachine stateMachine;
 
         private DataDictionary _quests = new DataDictionary();
 
@@ -52,25 +53,25 @@ namespace CreatureTime
             // battleState.Connect(EBattleStateSignal.EnemyRemoved, this, nameof(_OnBattleEnemyRemoved));
         }
 
-        public void _OnBattleAllyAdded()
-        {
-            
-        }
-
-        public void _OnBattleAllyRemoved()
-        {
-            
-        }
-
-        public void _OnBattleEnemyAdded()
-        {
-            
-        }
-
-        public void _OnBattleEnemyRemoved()
-        {
-            
-        }
+        // public void _OnBattleAllyAdded()
+        // {
+        //     
+        // }
+        //
+        // public void _OnBattleAllyRemoved()
+        // {
+        //     
+        // }
+        //
+        // public void _OnBattleEnemyAdded()
+        // {
+        //     
+        // }
+        //
+        // public void _OnBattleEnemyRemoved()
+        // {
+        //     
+        // }
 
         public void _OnPlayerAdded()
         {
@@ -82,7 +83,7 @@ namespace CreatureTime
             if (playerDef.IsLocal)
                 LocalEntity = entity;
 
-            entity.SetupEntityForBattle();
+            entity.OnStartBattle();
         }
 
         public void _OnPlayerRemoved()
@@ -115,7 +116,7 @@ namespace CreatureTime
 
             if (entityId != CtConstants.InvalidId)
             {
-                entity.SetupEntityForBattle();
+                entity.OnStartBattle();
             }
         }
 
@@ -224,7 +225,7 @@ namespace CreatureTime
 
             party.Leave(recruit);
 
-            recruit.EntityId = CtConstants.InvalidId;
+            entityManager.ReleaseRecruitEntity(recruit);
 
             if (!_HasPlayers(party))
                 party.Clear();
@@ -240,59 +241,80 @@ namespace CreatureTime
             party.Quest = CtConstants.InvalidId;
         }
 
+        private void _PopulateEnemyParty(CtParty party)
+        {
+            entityManager.TryCreateEnemy(gameData.GetNpcDef(1), out var entity);
+            entity.OnStartBattle();
+            party.Join(entity);
+            entityManager.TryCreateEnemy(gameData.GetNpcDef(2), out entity);
+            entity.OnStartBattle();
+            party.Join(entity);
+            entityManager.TryCreateEnemy(gameData.GetNpcDef(3), out entity);
+            entity.OnStartBattle();
+            party.Join(entity);
+        }
+
         public void StartBattle(CtParty party)
         {
-            battleState.AllyId = party.Identifier;
+            if (!partyManager.TryGetAvailableEnemyParty(out var enemyParty))
+            {
+                LogCritical("Failed to get available enemy party.");
+                return;
+            }
 
-            partyManager.TryGetAvailableEnemyParty(out var enemyParty);
-            battleState.EnemyId = enemyParty.Identifier;
+            _PopulateEnemyParty(enemyParty);
 
-            entityManager.TryCreateEnemy(gameData.GetNpcDef(1), out var entity);
-            enemyParty.Join(entity);
+            if (!battleStateManager.TryCreateBattleState(party, enemyParty, out var battleState))
+            {
+                LogCritical("Could not find available battle state to start battle.");
+                _ReleaseEnemyParty(battleState.EnemyParty);
+                return;
+            }
 
-            int index = 0;
-            int count = party.Count + enemyParty.Count;
-            ushort[] temp = new ushort[count];
+            for (int i = 0; i < party.MaxCount; ++i)
+            {
+                var identifer = party.GetMemberId(i);
+                if (identifer == CtConstants.InvalidId)
+                    continue;
+                entityManager.TryGetEntity(identifer, out var entity);
+                entity.OnStartBattle();
+            }
 
-            for (int i = 0; i < party.MaxCount; i++)
+            stateMachine.Process(battleState.GetState());
+        }
+
+        private void _ReleaseEnemyParty(CtParty party)
+        {
+            for (int i = 0; i < party.MaxCount; ++i)
             {
                 var identifier = party.GetMemberId(i);
                 if (identifier == CtConstants.InvalidId)
                     continue;
-
-                temp[index++] = identifier;
-                entityManager.TryGetEntity(identifier, out var ent);
-                ent.BattleState = battleState;
+                entityManager.TryGetEntity(identifier, out var entity);
+                entity.OnEndBattle();
+                entityManager.ReleaseRecruitEntity(entity);
+                party.Leave(entity);
             }
 
-            for (int i = 0; i < enemyParty.MaxCount; i++)
+            if (party.Count > 0)
             {
-                var identifier = enemyParty.GetMemberId(i);
-                if (identifier == CtConstants.InvalidId)
+                LogWarning("Enemy party was not empty.");
+            }
+        }
+
+        public void EndBattle(CtBattleState battleState)
+        {
+            for (int i = 0; i < battleState.AllyParty.MaxCount; ++i)
+            {
+                var identifer = battleState.AllyParty.GetMemberId(i);
+                if (identifer == CtConstants.InvalidId)
                     continue;
-
-                temp[index++] = identifier;
-                entityManager.TryGetEntity(identifier, out var ent);
-                ent.BattleState = battleState;
+                entityManager.TryGetEntity(identifer, out var entity);
+                entity.OnEndBattle();
             }
 
-            if (index != count)
-                LogCritical($"Index did not match count (index={index}, count={count}).");
-
-            battleState.Initiatives = temp;
-
-            battleState.ResetTurns();
-
-            for (int i = 0; i < battleState.Initiatives.Length * 2; ++i)
-            {
-                var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
-                entityManager.TryGetEntity(entityIdentifier, out entity);
-                if (entity.IsPlayer)
-                    entity.EntityDef.GetComponent<CtPlayerTurn>().Submit(CTBattleInteractType.Attack, -1, 255);
-                entity.TryGetAttack(out var skillIndex, out var targetId);
-                LogDebug($"Testing {i} (turnIndex={battleState.TurnIndex}, skillIndex={skillIndex}, targetId={targetId})");
-                battleState.NextTurn();
-            }
+            _ReleaseEnemyParty(battleState.EnemyParty);
+            battleStateManager.ReleaseBattleState(battleState);
         }
     }
 }

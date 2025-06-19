@@ -145,7 +145,7 @@ namespace CreatureTime
                 {
                     ushort identifier = CtDataBlock.GetOffHandIdentifier(data);
                     List<CtOffHandDef> offHandDefinitions =
-                        GameObject.FindObjectsOfType<CtOffHandDef>().ToList();
+                        GameObject.FindObjectsOfType<CtOffHandDef>(true).ToList();
                     found = offHandDefinitions.Find(definition => definition.Identifier == identifier);
                     if (found)
                     {

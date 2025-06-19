@@ -42,10 +42,13 @@ namespace CreatureTime
         {
             StyleColor alternatingColor = new StyleColor(new Color(0, 0, 0, 0.1f));
 
-            _professionDefinitions = Object.FindObjectsOfType<CtProfessionDef>().ToList();
+            _professionDefinitions = Object.FindObjectsOfType<CtProfessionDef>(true).ToList();
             _professionDefinitions.Sort((a, b) => a.Identifier);
 
             List<string> choices = new List<string>();
+            Debug.Log(_professionDefinitions.Count);
+            foreach (CtProfessionDef definition in _professionDefinitions)
+                Debug.Log(definition.gameObject.name);
             foreach (CtProfessionDef definition in _professionDefinitions)
                 choices.Add(definition.DisplayName);
 

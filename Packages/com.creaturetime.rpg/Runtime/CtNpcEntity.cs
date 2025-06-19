@@ -90,7 +90,7 @@ namespace CreatureTime
             set => brain.BattleState = value;
         }
 
-        public override bool TryGetAttack(out int skillIndex, out int targetId)
+        public override bool TryGetAttack(out int skillIndex, out ushort targetId)
         {
             brain.Sense();
             brain.Think();

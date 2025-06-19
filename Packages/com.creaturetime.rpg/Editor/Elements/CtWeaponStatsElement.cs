@@ -131,7 +131,7 @@ namespace CreatureTime
                 {
                     ushort identifier = CtDataBlock.GetWeaponIdentifier(data);
                     List<CtWeaponDef> weaponDefinitions =
-                        GameObject.FindObjectsOfType<CtWeaponDef>().ToList();
+                        GameObject.FindObjectsOfType<CtWeaponDef>(true).ToList();
                     found = weaponDefinitions.Find(definition => definition.Identifier == identifier);
                     if (found)
                     {

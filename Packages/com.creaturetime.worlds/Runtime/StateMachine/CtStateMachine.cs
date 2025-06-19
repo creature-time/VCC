@@ -16,7 +16,7 @@ namespace CreatureTime
     {
         [SerializeField] private CtBlackboard[] contexts;
         [SerializeField] private CtBlackboardEntryData entryData;
-        
+
         private CtStateBase[] _states;
         private int _processing;
 

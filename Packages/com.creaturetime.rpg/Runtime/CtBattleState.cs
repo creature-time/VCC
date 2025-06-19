@@ -1,6 +1,8 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CreatureTime
 {
@@ -14,15 +16,70 @@ namespace CreatureTime
         EnemyRemoved
     }
 
+    public enum EBattleState
+    {
+        Start,
+        Wait,
+        Attack,
+        NextTurn,
+        End,
+    }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtBattleState : CtAbstractSignal
     {
+        [SerializeField] private ushort identifier;
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
 
+        [SerializeField] private CtBattleStartState startState;
+        [SerializeField] private CtBattleWaitState waitState;
+        [SerializeField] private CtBattleAttackState attackState;
+        [SerializeField] private CtBattleNextTurnState nextTurnState;
+        [SerializeField] private CtBattleEndState endState;
+
+        public ushort Identifier => identifier;
+
         #region Synced Variables
 
-        [SerializeField]
+        [UdonSynced, FieldChangeCallback(nameof(StateCallback))]
+        private EBattleState _state = EBattleState.Start;
+
+        public EBattleState StateCallback
+        {
+            get => _state;
+            set => _state = value;
+        }
+
+        public EBattleState State
+        {
+            get => StateCallback;
+            set
+            {
+                StateCallback = value;
+                RequestSerialization();
+            }
+        }
+
+        [UdonSynced, FieldChangeCallback(nameof(InProgressCallback))]
+        private bool _inProgress;
+
+        public bool InProgressCallback
+        {
+            get => _inProgress;
+            set => _inProgress = value;
+        }
+
+        public bool InProgress
+        {
+            get => InProgressCallback;
+            set
+            {
+                InProgressCallback = value;
+                RequestSerialization();
+            }
+        }
+
         [UdonSynced, FieldChangeCallback(nameof(InitiativesCallback))]
         private ushort[] _initiatives = { };
 
@@ -46,7 +103,6 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField]
         [UdonSynced, FieldChangeCallback(nameof(TurnIndexCallback))]
         private int _turnIndex = -1;
 
@@ -64,7 +120,7 @@ namespace CreatureTime
 
         public int TurnIndex
         {
-            get { return TurnIndexCallback; }
+            get => TurnIndexCallback;
             private set
             {
                 TurnIndexCallback = value;
@@ -72,7 +128,6 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField]
         [UdonSynced, FieldChangeCallback(nameof(AllyIdCallback))]
         private ushort _allyId = CtConstants.InvalidId;
 
@@ -90,7 +145,7 @@ namespace CreatureTime
                 }
 
                 _allyId = value;
-        
+
                 if (_allyId != CtConstants.InvalidId)
                 {
                     if (!partyManager.TryGetParty(_allyId, out _allyParty))
@@ -98,7 +153,9 @@ namespace CreatureTime
                         LogCritical($"Failed to find valid party by identifier (partyId={_allyId}).");
                         return;
                     }
-        
+
+                    _AssignBattleStateToParty(_allyParty);
+
                     if (_allyParty)
                     {
                         _allyParty.Connect(EPartySignal.MemberAdded, this, nameof(_OnAllyPartyAdded));
@@ -118,7 +175,6 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField]
         [UdonSynced, FieldChangeCallback(nameof(EnemyIdCallback))]
         private ushort _enemyId = CtConstants.InvalidId;
 
@@ -144,6 +200,8 @@ namespace CreatureTime
                         LogCritical($"Failed to find valid party by identifier (partyId={_enemyId}).");
                         return;
                     }
+
+                    _AssignBattleStateToParty(_enemyParty);
 
                     if (_enemyParty)
                     {
@@ -171,6 +229,38 @@ namespace CreatureTime
 
         public CtParty AllyParty => _allyParty;
         public CtParty EnemyParty => _enemyParty;
+
+        public CtStateBase GetState()
+        {
+            switch (_state)
+            {
+                case EBattleState.Start:
+                    return startState;
+                case EBattleState.Wait:
+                    return waitState;
+                case EBattleState.Attack:
+                    return attackState;
+                case EBattleState.NextTurn:
+                    return nextTurnState;
+                case EBattleState.End:
+                    return endState;
+                default:
+                    return null;
+            }
+        }
+
+        private void _AssignBattleStateToParty(CtParty party)
+        {
+            for (int i = 0; i < party.MaxCount; i++)
+            {
+                var id = party.GetMemberId(i);
+                if (id == CtConstants.InvalidId)
+                    continue;
+
+                entityManager.TryGetEntity(id, out var entity);
+                entity.BattleState = this;
+            }
+        }
 
         public void _OnAllyPartyAdded()
         {
@@ -261,6 +351,46 @@ namespace CreatureTime
             }
 
             TurnIndex = turn;
+        }
+
+        public bool ArePlayersLoaded()
+        {
+            for (int i = 0; i < _allyParty.MaxCount; i++)
+            {
+                var memberId = _allyParty.GetMemberId(i);
+                if (memberId == CtConstants.InvalidId)
+                    continue;
+                entityManager.TryGetEntity(memberId, out var entity);
+                if (!entity.IsReady())
+                    return false;
+            }
+
+            return true;
+        }
+
+        private bool _IsPartyDead(CtParty party)
+        {
+            for (int i = 0; i < party.MaxCount; i++)
+            {
+                var memberId = party.GetMemberId(i);
+                if (memberId == CtConstants.InvalidId)
+                    continue;
+                entityManager.TryGetEntity(memberId, out var entity);
+                if (entity.State == ECombatState.Alive)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool IsAllyTeamDead()
+        {
+            return _IsPartyDead(_allyParty);
+        }
+
+        public bool IsEnemyTeamDead()
+        {
+            return _IsPartyDead(_enemyParty);
         }
     }
 }

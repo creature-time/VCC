@@ -106,7 +106,7 @@ namespace CreatureTime
                     string color = "#000000";
                     ushort identifier = CtDataBlock.GetEquipmentIdentifier(data);
                     List<CtArmorDef> armorDefinitions =
-                        GameObject.FindObjectsOfType<CtArmorDef>().ToList();
+                        GameObject.FindObjectsOfType<CtArmorDef>(true).ToList();
                     found = armorDefinitions.Find(definition => definition.Identifier == identifier);
                     if (found)
                     {
