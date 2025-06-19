@@ -38,7 +38,6 @@ namespace CreatureTime
                 ushort weaponId = CtDataBlock.GetWeaponIdentifier(entityDef.MainHandWeapon);
                 CtWeaponDef weaponDef = data.GetWeaponDef(weaponId);
                 var userData = weaponDef.UserData;
-                Debug.Log($"weaponId {userData}");
                 if (userData)
                 {
                     playerWeapon.InteractionText = weaponDef.DisplayName;

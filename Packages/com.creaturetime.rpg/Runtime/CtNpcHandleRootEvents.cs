@@ -7,7 +7,9 @@ namespace CreatureTime
     {
         public override void OnControllerColliderHitPlayer(ControllerColliderPlayerHit hit)
         {
+#if DEBUG_LOGS
             LogDebug($"Collided with {hit.player.displayName}");
+#endif
         }
     }
 }

@@ -25,10 +25,12 @@ namespace CreatureTime
             {
                 _headBone = controller.HeadBone;
             }
+#if DEBUG_LOGS
             else
             {
                 CtLogger.LogWarning("Dialogue Character", "Head transform was null.");
             }
+#endif
         }
 
         public override void ExecuteLateUpdate(CtNpcController controller)

@@ -46,9 +46,6 @@ namespace CreatureTime
             _professionDefinitions.Sort((a, b) => a.Identifier);
 
             List<string> choices = new List<string>();
-            Debug.Log(_professionDefinitions.Count);
-            foreach (CtProfessionDef definition in _professionDefinitions)
-                Debug.Log(definition.gameObject.name);
             foreach (CtProfessionDef definition in _professionDefinitions)
                 choices.Add(definition.DisplayName);
 

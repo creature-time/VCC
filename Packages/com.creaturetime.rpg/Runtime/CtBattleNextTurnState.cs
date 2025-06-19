@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.Udon.Common.Interfaces;
 
 namespace CreatureTime
 {
@@ -28,7 +29,7 @@ namespace CreatureTime
             var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
             battleState.TryGetEntity(entityIdentifier, out var entity);
             if (entity.IsPlayer)
-                entity.EntityDef.GetComponent<CtPlayerTurn>().ResetToWait();
+                entity.EntityDef.GetComponent<CtPlayerTurn>().SendCustomNetworkEvent(NetworkEventTarget.Owner, "ResetToWait");
             battleState.NextTurn();
 
             return ENodeStatus.Success;

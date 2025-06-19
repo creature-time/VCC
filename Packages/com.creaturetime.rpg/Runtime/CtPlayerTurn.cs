@@ -12,7 +12,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-    public class CtPlayerTurn : UdonSharpBehaviour
+    public class CtPlayerTurn : CtLoggerUdonScript
     {
         [UdonSynced] private CTBattleInteractType _interactType = CTBattleInteractType.None;
         [UdonSynced] private int _skillIndex = -1;
@@ -24,8 +24,9 @@ namespace CreatureTime
 
         public void Submit(CTBattleInteractType interactType, int skillIndex, ushort targetIndex)
         {
-            CtLogger.LogDebug("Player Turn", 
-                $"(interactType={interactType}, skillIndex={skillIndex}, targetIndex={targetIndex})");
+#if DEBUG_LOGS
+            LogDebug($"(interactType={interactType}, skillIndex={skillIndex}, targetIndex={targetIndex})");
+#endif
 
             _interactType = interactType;
             _skillIndex = skillIndex;
@@ -37,7 +38,9 @@ namespace CreatureTime
 
         public void ResetToWait()
         {
-            CtLogger.LogDebug("Player Turn", "Reset");
+#if DEBUG_LOGS
+            LogDebug("Reset");
+#endif
 
             _interactType = CTBattleInteractType.Waiting;
             _skillIndex = -1;
@@ -59,9 +62,10 @@ namespace CreatureTime
 
         public override void OnDeserialization()
         {
-            CtLogger.LogDebug("Player Turn",
-                "OnDeserialization " +
+#if DEBUG_LOGS
+            LogDebug("OnDeserialization " +
                 $"(interactType={InteractType}, skillIndex={_skillIndex}, targetIndex={_targetIndex}).");
+#endif
         }
 
         public bool TryGetAttack(out int skillIndex, out ushort targetId)
@@ -69,6 +73,9 @@ namespace CreatureTime
             skillIndex = -1;
             targetId = CtConstants.InvalidId;;
             if (InteractType == CTBattleInteractType.Waiting)
+                return false;
+
+            if (InteractType == CTBattleInteractType.None)
                 return false;
 
             skillIndex = _skillIndex;

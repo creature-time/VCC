@@ -62,14 +62,18 @@ namespace CreatureTime
                 _professionDefinitions[professionDef.Identifier] = professionDef;
             }
 
-            CtLogger.LogDebug("Rpg Data", "Data Initialized.");
+#if DEBUG_LOGS
+            LogDebug("Rpg Data", "Data Initialized.");
+#endif
         }
 
         public CtNpcDef GetNpcDef(ushort identifier)
         {
             if (!_npcDefinitions.TryGetValue(identifier, out var dataToken))
             {
-                CtLogger.LogWarning("Rpg Data", $"Failed to find npc by identifier (identifier={identifier}).");
+#if DEBUG_LOGS
+                LogWarning($"Failed to find npc by identifier (identifier={identifier}).");
+#endif
                 return null;
             }
             return (CtNpcDef)dataToken.Reference;
@@ -79,7 +83,9 @@ namespace CreatureTime
         {
             if (!_skillDefinitions.TryGetValue(identifier, out var dataToken))
             {
-                CtLogger.LogWarning("Rpg Data", $"Failed to find skill by identifier (identifier={identifier}).");
+#if DEBUG_LOGS
+                LogWarning($"Failed to find skill by identifier (identifier={identifier}).");
+#endif
                 return null;
             }
             return (CtSkillDef)dataToken.Reference;
@@ -89,7 +95,9 @@ namespace CreatureTime
         {
             if (!_weaponDefinitions.TryGetValue(identifier, out var dataToken))
             {
-                CtLogger.LogWarning("Rpg Data", $"Failed to find main-hand weapon by identifier (identifier={identifier}).");
+#if DEBUG_LOGS
+                LogWarning($"Failed to find main-hand weapon by identifier (identifier={identifier}).");
+#endif
                 return null;
             }
             return (CtWeaponDef)dataToken.Reference;
@@ -99,7 +107,9 @@ namespace CreatureTime
         {
             if (!_offHandDefinitions.TryGetValue(identifier, out var dataToken))
             {
-                CtLogger.LogWarning("Rpg Data", $"Failed to find off-hand weapon by identifier (identifier={identifier}).");
+#if DEBUG_LOGS
+                LogWarning($"Failed to find off-hand weapon by identifier (identifier={identifier}).");
+#endif
                 return null;
             }
             return (CtOffHandDef)dataToken.Reference;
@@ -109,7 +119,9 @@ namespace CreatureTime
         {
             if (!_armorDefinitions.TryGetValue(identifier, out var dataToken))
             {
-                CtLogger.LogWarning("Rpg Data", $"Failed to find armor by identifier (identifier={identifier}).");
+#if DEBUG_LOGS
+                LogWarning($"Failed to find armor by identifier (identifier={identifier}).");
+#endif
                 return null;
             }
             return (CtArmorDef)dataToken.Reference;
@@ -119,7 +131,9 @@ namespace CreatureTime
         {
             if (!_professionDefinitions.TryGetValue(identifier, out var dataToken))
             {
-                CtLogger.LogWarning("Rpg Data", $"Failed to find profession by identifier (identifier={identifier}).");
+#if DEBUG_LOGS
+                LogWarning($"Failed to find profession by identifier (identifier={identifier}).");
+#endif
                 return null;
             }
             return (CtProfessionDef)dataToken.Reference;

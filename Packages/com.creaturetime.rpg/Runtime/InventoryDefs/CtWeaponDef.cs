@@ -43,8 +43,10 @@ namespace CreatureTime
                 case EWeaponPrefix.Icy:
                     return "Icy";
                 default:
+#if DEBUG_LOGS
                     CtLogger.LogCritical("Weapon Definition", 
                         $"Prefix display name was not defined (prefix={prefix}).");
+#endif
                     return "<Invalid>";
             }
         }
@@ -64,8 +66,10 @@ namespace CreatureTime
                 case EWeaponSuffix.Enchanting:
                     return "Enchanting";
                 default:
+#if DEBUG_LOGS
                     CtLogger.LogCritical("Weapon Definition",
                         $"Suffix display name was not defined (suffix={suffix}).");
+#endif
                     return "<Invalid>";
             }
         }
@@ -180,7 +184,9 @@ namespace CreatureTime
                     color = RarityRareColor;
                     break;
                 default:
+#if DEBUG_LOGS
                     CtLogger.LogCritical("Weapon Definition", $"Item rarity not supported (rarity={rarity}).");
+#endif
                     break;
             }
 
@@ -221,8 +227,10 @@ namespace CreatureTime
                     damageTypeName = "Holy";
                     break;
                 default:
+#if DEBUG_LOGS
                     CtLogger.LogCritical("Weapon Definition", 
                         $"Not supported weapon damage type (damageType={damageType}).");
+#endif
                     break;
             }
 

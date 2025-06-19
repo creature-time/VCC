@@ -41,8 +41,10 @@ namespace CreatureTime
                     temp[index++] = identifier;
                 }
 
+#if DEBUG_LOGS
                 if (index != count)
                     LogCritical($"Index did not match count (index={index}, count={count}).");
+#endif
 
                 bs.Initiatives = temp;
 

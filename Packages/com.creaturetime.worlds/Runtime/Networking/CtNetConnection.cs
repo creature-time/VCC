@@ -6,7 +6,7 @@ using VRC.SDKBase;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-    public class CtNetConnection : UdonSharpBehaviour
+    public class CtNetConnection : CtLoggerUdonScript
     {
         [UdonSynced] private byte[] _packet = { };
 
@@ -19,8 +19,10 @@ namespace CreatureTime
 
         public void SendNextPacket(byte[] data)
         {
+#if DEBUG_LOGS
             if (!Networking.IsOwner(gameObject))
-                CtLogger.LogCritical("Net Connection", "Packet sender was not owner of connection.");
+                LogCritical("Net Connection", "Packet sender was not owner of connection.");
+#endif
 
             _packet = data;
             RequestSerialization();
@@ -56,16 +58,20 @@ namespace CreatureTime
 
         public override void OnDeserialization()
         {
-            CtLogger.LogDebug("Net Connection",
+#if DEBUG_LOGS
+            LogDebug("Net Connection",
                 $"OnDeserialization (Data.Length={_packet.Length}, IsOwner={Networking.IsOwner(gameObject)})");
+#endif
 
             _HandlePacket();
         }
 
         public override void OnPlayerRestored(VRCPlayerApi player)
         {
-            CtLogger.LogDebug("Net Connection",
+#if DEBUG_LOGS
+            LogDebug("Net Connection",
                 $"Player Restored (displayName={player.displayName}, playerId={player.playerId})");
+#endif
 
             if (!player.isLocal || !Networking.IsOwner(gameObject))
                 return;

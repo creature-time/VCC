@@ -249,7 +249,9 @@ namespace CreatureTime
 
         private void _OnSkillChanged(int index)
         {
+#if DEBUG_LOGS
             CtLogger.LogDebug("Entity Stats", $"Skill changed (index={index}, value={skills[index]})");
+#endif
 
             _cmpSkills[index] = skills[index];
             this.Emit(EEntityStatsSignal.SkillChanged);
@@ -257,7 +259,9 @@ namespace CreatureTime
 
         private void _OnEquipmentChanged(int index)
         {
+#if DEBUG_LOGS
             CtLogger.LogDebug("Entity Stats", $"Equipment changed (index={index}, value={equipmentData[index]})");
+#endif
 
             _cmpEquipmentData[index] = equipmentData[index];
             this.Emit(EEntityStatsSignal.EquipmentChanged);

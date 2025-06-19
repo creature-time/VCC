@@ -27,7 +27,9 @@ namespace CreatureTime
                     _timer = timer;
 
                     context.TryGetInt("Test", out var value);
+#if DEBUG_LOGS
                     Log($"Testing behavior tree node (testOutput={testOutput}, blackboardValue={value}).");
+#endif
                     return ENodeStatus.Success;
                 }
             }

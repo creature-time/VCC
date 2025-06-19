@@ -133,8 +133,9 @@ namespace CreatureTime
                             continue;
                         break;
                     default:
-                        CtLogger.LogCritical("Battle Sequencer",
-                            $"Skill type not supported (skillType={skillDef.Type}).");
+#if DEBUG_LOGS
+                        LogCritical($"Skill type not supported (skillType={skillDef.Type}).");
+#endif
                         continue;
                 }
 

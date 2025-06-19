@@ -17,7 +17,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtBlackboardEntryDataType : UdonSharpBehaviour
+    public class CtBlackboardEntryDataType : CtLoggerUdonScript
     {
         [SerializeField] private string key;
         [SerializeField] private EBlackboardEntryDataType type;
@@ -57,8 +57,10 @@ namespace CreatureTime
                     case EBlackboardEntryDataType.Float:
                         return valueFloat != 0;
                     default:
-                        CtLogger.LogCritical("Blackboard Entry Date Type",
+#if DEBUG_LOGS
+                        LogCritical("Blackboard Entry Date Type",
                             $"Unknown blackboard entry data type (type={type}).");
+#endif
                         return false;
                 }
             }
@@ -92,8 +94,10 @@ namespace CreatureTime
                     case EBlackboardEntryDataType.Float:
                         return (short)valueFloat;
                     default:
-                        CtLogger.LogCritical("Blackboard Entry Date Type",
+#if DEBUG_LOGS
+                        LogCritical("Blackboard Entry Date Type",
                             $"Unknown blackboard entry data type (type={type}).");
+#endif
                         return 0;
                 }
             }
@@ -127,8 +131,10 @@ namespace CreatureTime
                     case EBlackboardEntryDataType.Float:
                         return (ushort)valueFloat;
                     default:
-                        CtLogger.LogCritical("Blackboard Entry Date Type",
+#if DEBUG_LOGS
+                        LogCritical("Blackboard Entry Date Type",
                             $"Unknown blackboard entry data type (type={type}).");
+#endif
                         return 0;
                 }
             }
@@ -162,8 +168,10 @@ namespace CreatureTime
                     case EBlackboardEntryDataType.Float:
                         return (int)valueFloat;
                     default:
-                        CtLogger.LogCritical("Blackboard Entry Date Type",
+#if DEBUG_LOGS
+                        LogCritical("Blackboard Entry Date Type",
                             $"Unknown blackboard entry data type (type={type}).");
+#endif
                         return 0;
                 }
             }
@@ -197,8 +205,10 @@ namespace CreatureTime
                     case EBlackboardEntryDataType.Float:
                         return (uint)valueFloat;
                     default:
-                        CtLogger.LogCritical("Blackboard Entry Date Type",
+#if DEBUG_LOGS
+                        LogCritical("Blackboard Entry Date Type",
                             $"Unknown blackboard entry data type (type={type}).");
+#endif
                         return 0;
                 }
             }
@@ -232,8 +242,10 @@ namespace CreatureTime
                     case EBlackboardEntryDataType.Float:
                         return (long)valueFloat;
                     default:
-                        CtLogger.LogCritical("Blackboard Entry Date Type",
+#if DEBUG_LOGS
+                        LogCritical("Blackboard Entry Date Type",
                             $"Unknown blackboard entry data type (type={type}).");
+#endif
                         return 0;
                 }
             }
@@ -267,8 +279,10 @@ namespace CreatureTime
                     case EBlackboardEntryDataType.Float:
                         return (ulong)valueFloat;
                     default:
-                        CtLogger.LogCritical("Blackboard Entry Date Type",
+#if DEBUG_LOGS
+                        LogCritical("Blackboard Entry Date Type",
                             $"Unknown blackboard entry data type (type={type}).");
+#endif
                         return 0;
                 }
             }
@@ -302,8 +316,10 @@ namespace CreatureTime
                     case EBlackboardEntryDataType.Float:
                         return valueFloat;
                     default:
-                        CtLogger.LogCritical("Blackboard Entry Date Type",
+#if DEBUG_LOGS
+                        LogCritical("Blackboard Entry Date Type",
                             $"Unknown blackboard entry data type (type={type}).");
+#endif
                         return 0;
                 }
             }
@@ -331,8 +347,10 @@ namespace CreatureTime
                     blackboard.SetValue(Key, Float);
                     break;
                 default:
-                    CtLogger.LogCritical("Blackboard Entry Date Type",
+#if DEBUG_LOGS
+                    LogCritical("Blackboard Entry Date Type",
                         $"Unknown blackboard entry data type (type={type}).");
+#endif
                     break;
             }
         }

@@ -57,7 +57,9 @@ namespace CreatureTime
             party = null;
             if (!entity)
             {
+#if DEBUG_LOGS
                 LogWarning("Entity is null");
+#endif
                 return false;
             }
 

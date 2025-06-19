@@ -33,7 +33,9 @@ namespace CreatureTime
             int identifier = Array.IndexOf(_states, null);
             if (identifier == -1)
             {
+#if DEBUG_LOGS
                 LogWarning("Failed to find an available sequence.");
+#endif
                 return -1;
             }
 
@@ -47,7 +49,9 @@ namespace CreatureTime
             var prevState = _states[identifier];
             if (prevState)
             {
+#if DEBUG_LOGS
                 LogDebug($"Leaving state (identifier={identifier}, prevState={prevState})");
+#endif
                 prevState.OnExit(context);
             }
             else if (nextState)
@@ -64,7 +68,9 @@ namespace CreatureTime
             _states[identifier] = nextState;
             if (nextState)
             {
+#if DEBUG_LOGS
                 LogDebug($"Entering state (identifier={identifier}, prevState={prevState})");
+#endif
                 nextState.OnEnter(context);
             }
             else
@@ -72,7 +78,9 @@ namespace CreatureTime
                 this.Emit(EStateMachineSignal.Finished);
                 context.Clear();
 
+#if DEBUG_LOGS
                 LogDebug($"Stopping (identifier={identifier})");
+#endif
 
                 _processing--;
                 if (_processing == 0)

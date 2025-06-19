@@ -54,12 +54,14 @@ namespace CreatureTime
             ushort identifier = party.GetMemberId(index);
             if (!entityManager.TryGetEntity(identifier, out var entity))
             {
+#if DEBUG_LOGS
                 LogCritical($"[_OnMemberAdded] Failed to find entity (identifier={identifier}).");
+#endif
                 return;
             }
 
             _partyPrefabs.Add(identifier, prefab);
-            _Debug_PrintPrefabs();
+            // _Debug_PrintPrefabs();
 
             _OnIdentifierChangedRaw(entity);
 
@@ -68,14 +70,15 @@ namespace CreatureTime
 
         public void _OnIdentifierChangedRaw(CtEntity entity)
         {
-            Debug.Log($"entity.EntityStats {entity.Identifier} {entity.EntityDef}");
             if (!entity.EntityDef)
                 return;
 
-            _Debug_PrintPrefabs();
+            // _Debug_PrintPrefabs();
             if (!_partyPrefabs.TryGetValue(entity.Identifier, out var token))
             {
+#if DEBUG_LOGS
                 LogCritical($"[_OnIdentifierChangedRaw] Failed to find entity (identifier={entity.Identifier}).");
+#endif
                 return;
             }
 
@@ -102,7 +105,9 @@ namespace CreatureTime
             ushort identifier = party.GetMemberId(index);
             if (!entityManager.TryGetEntity(identifier, out var entity))
             {
+#if DEBUG_LOGS
                 LogCritical($"[_OnMemberRemoved] Failed to find entity (identifier={identifier}).");
+#endif
                 return;
             }
 
@@ -110,7 +115,9 @@ namespace CreatureTime
 
             if (!_partyPrefabs.TryGetValue(identifier, out var token))
             {
+#if DEBUG_LOGS
                 LogCritical($"[_OnMemberRemoved] Failed to find prefab (identifier={identifier}).");
+#endif
                 return;
             }
 
@@ -118,17 +125,17 @@ namespace CreatureTime
             Destroy(prefab);
 
             _partyPrefabs.Remove(identifier);
-            _Debug_PrintPrefabs();
+            // _Debug_PrintPrefabs();
         }
 
-        private void _Debug_PrintPrefabs()
-        {
-            Debug.Log("Prefab Keys");
-            var keys = _partyPrefabs.GetKeys();
-            for (int i = 0; i < keys.Count; i++)
-            {
-                Debug.Log($"Prefab Key {keys[i].UShort}");
-            }
-        }
+        // private void _Debug_PrintPrefabs()
+        // {
+        //     Debug.Log("Prefab Keys");
+        //     var keys = _partyPrefabs.GetKeys();
+        //     for (int i = 0; i < keys.Count; i++)
+        //     {
+        //         Debug.Log($"Prefab Key {keys[i].UShort}");
+        //     }
+        // }
     }
 }

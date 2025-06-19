@@ -39,9 +39,6 @@ namespace CreatureTime
                 skillDef.OnUse(gameData, 0, targetEntity, entity);
             }
 
-            LogDebug(
-                $"Testing (turnIndex={battleState.TurnIndex}, skillIndex={skillIndex}, targetId={targetId}, targetHealth={targetEntity.Health})");
-
             return ENodeStatus.Success;
         }
     }

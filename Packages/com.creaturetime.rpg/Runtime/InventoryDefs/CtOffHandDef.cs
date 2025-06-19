@@ -40,8 +40,10 @@ namespace CreatureTime
                 case EWeaponPrefix.Icy:
                     return "Icy";
                 default:
+#if DEBUG_LOGS
                     CtLogger.LogCritical("Off-Hand Definition", 
                         $"Prefix display name was not defined (prefix={prefix}).");
+#endif
                     return "<Invalid>";
             }
         }
@@ -61,8 +63,10 @@ namespace CreatureTime
                 case EWeaponSuffix.Enchanting:
                     return "Enchanting";
                 default:
+#if DEBUG_LOGS
                     CtLogger.LogCritical("Off-Hand Definition", 
                         $"Suffix display name was not defined (suffix={suffix}).");
+#endif
                     return "<Invalid>";
             }
         }
@@ -134,7 +138,9 @@ namespace CreatureTime
                     color = RarityRareColor;
                     break;
                 default:
+#if DEBUG_LOGS
                     CtLogger.LogCritical("Off-Hand Definition", $"Item rarity not supported (rarity={rarity}).");
+#endif
                     break;
             }
 

@@ -127,8 +127,10 @@ namespace CreatureTime
 
         public override void OnPlayerRestored(VRCPlayerApi player)
         {
+#if DEBUG_LOGS
             CtLogger.LogDebug("Player Stats",
                 $"Player Restored (displayName={player.displayName}, playerId={player.playerId})");
+#endif
 
             if (PlayerId != CtConstants.InvalidId)
                 return;

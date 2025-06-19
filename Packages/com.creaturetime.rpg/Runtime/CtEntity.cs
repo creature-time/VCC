@@ -223,7 +223,18 @@ namespace CreatureTime
 
         // public int ArmorRating { get; set; }
         public int ArmorRatingReduction { get; set; }
-        public float DamageReduction { get; set; }
+
+        public float SlashReduction { get; set; }
+        public float BluntReduction { get; set; }
+        public float PierceReduction { get; set; }
+
+        public float EarthReduction { get; set; }
+        public float AirReduction { get; set; }
+        public float FireReduction { get; set; }
+        public float WaterReduction { get; set; }
+
+        public float SmiteReduction { get; set; }
+
         public bool IsDazed { get; set; }
         public bool IsBlind { get; set; }
 
@@ -311,26 +322,53 @@ namespace CreatureTime
             switch (damageType)
             {
                 case EDamageType.Slashing:
+                    resistedDamage = (int)(damage * SlashReduction);
+                    damage -= resistedDamage;
+                    break;
                 case EDamageType.Blunt:
+                    resistedDamage = (int)(damage * BluntReduction);
+                    damage -= resistedDamage;
+                    break;
                 case EDamageType.Piercing:
+                    resistedDamage = (int)(damage * PierceReduction);
+                    damage -= resistedDamage;
+                    break;
                 case EDamageType.Earth:
+                    resistedDamage = (int)(damage * EarthReduction);
+                    damage -= resistedDamage;
+                    break;
                 case EDamageType.Fire:
+                    resistedDamage = (int)(damage * FireReduction);
+                    damage -= resistedDamage;
+                    break;
                 case EDamageType.Air:
+                    resistedDamage = (int)(damage * AirReduction);
+                    damage -= resistedDamage;
+                    break;
                 case EDamageType.Water:
+                    resistedDamage = (int)(damage * WaterReduction);
+                    damage -= resistedDamage;
+                    break;
                 case EDamageType.Smiting:
-                    // CtLogger.LogDebug("Entity", $"Damage reduction was {DamageReduction}.");
-                    // resistedDamage = (int)(damage * DamageReduction);
-                    // damage -= resistedDamage;
-                    // break;
+                    resistedDamage = (int)(damage * SmiteReduction);
+                    damage -= resistedDamage;
+                    break;
                 case EDamageType.Bleeding:
                 case EDamageType.Burning:
+                    resistedDamage = (int)(damage * FireReduction);
+                    damage -= resistedDamage;
+                    break;
                 case EDamageType.Disease:
                 case EDamageType.Poison:
                     break;
                 default:
+#if DEBUG_LOGS
                     CtLogger.LogCritical("Entity", $"Damage type not supported (damageType={damageType}.");
+#endif
                     break;
             }
+
+            damage = Mathf.Max(0, damage);
 
             // Calculate damage so we don't over kill.
             damage = Mathf.Min(Health, damage);

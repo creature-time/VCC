@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.Udon.Common.Interfaces;
 
 namespace CreatureTime
 {
@@ -22,7 +23,7 @@ namespace CreatureTime
 
         public override void OnStartBattle()
         {
-            playerTurn.ResetToWait();
+            playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, "ResetToWait");
             base.OnStartBattle();
         }
 
@@ -38,7 +39,7 @@ namespace CreatureTime
 
         public override void OnEndBattle()
         {
-            playerTurn.Reset();
+            playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, "Reset");
             base.OnEndBattle();
         }
     }

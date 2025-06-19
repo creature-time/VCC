@@ -33,7 +33,9 @@ namespace CreatureTime
             int identifier = Array.IndexOf(_nodes, null);
             if (identifier == -1)
             {
+#if DEBUG_LOGS
                 CtLogger.LogWarning("Sequence Manager", "Failed to find an available sequence.");
+#endif
                 return -1;
             }
 
@@ -47,7 +49,9 @@ namespace CreatureTime
             var prevNode = _nodes[identifier];
             if (prevNode)
             {
+#if DEBUG_LOGS
                 LogDebug($"Leaving node (identifier={identifier}, prevNode={prevNode})");
+#endif
                 prevNode.OnExit(context);
             }
 
@@ -67,7 +71,9 @@ namespace CreatureTime
                 this.Emit(ESequencerSignal.Finished);
                 context.Clear();
 
+#if DEBUG_LOGS
                 LogDebug($"Stopping (identifier={identifier})");
+#endif
 
                 _processing--;
                 if (_processing == 0)

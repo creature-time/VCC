@@ -38,7 +38,9 @@ namespace CreatureTime
                 if (!playerDef)
                     continue;
 
+#if DEBUG_LOGS
                 LogDebug($"[GetPlayerDefById] PlayerDef (playerId={playerDef.PlayerId}).");
+#endif
 
                 if (playerDef.PlayerId == playerId)
                     return playerDef;
@@ -59,19 +61,25 @@ namespace CreatureTime
             int index = Array.IndexOf(playerDefs, playerDef);
             playerDefs[index] = null;
 
-            CtLogger.LogDebug("Player Manager",
+#if DEBUG_LOGS
+            LogDebug("Player Manager",
                 $"Player destroyed (displayName={playerDef.DisplayName}, playerId={playerDef.PlayerId})");
+#endif
         }
 
         public void Client_OnPlayerAdded(CtPlayerDef playerDef)
         {
-            CtLogger.LogDebug("Player Manager",
+#if DEBUG_LOGS
+            LogDebug("Player Manager",
                 $"Player added (displayName={playerDef.DisplayName}).");
+#endif
 
             int index = Array.IndexOf(playerDefs, null);
             if (index == -1)
             {
-                CtLogger.LogCritical("Player Manager", "Could not find available player definition.");
+#if DEBUG_LOGS
+                LogCritical("Player Manager", "Could not find available player definition.");
+#endif
                 return;
             }
 
@@ -106,8 +114,10 @@ namespace CreatureTime
 
             playerRenderTextures[index].Release();
 
-            CtLogger.LogDebug("Player Manager",
+#if DEBUG_LOGS
+            LogDebug("Player Manager",
                 $"Player removed (displayName={playerDef.DisplayName}).");
+#endif
         }
 
         public void UpdatePlayerAvatar()

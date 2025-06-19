@@ -69,7 +69,9 @@ namespace CreatureTime
             int index = Array.IndexOf(_activeChatterModels, null);
             if (index == -1)
             {
+#if DEBUG_LOGS
                 LogWarning("Could not create another chatter.");
+#endif
                 return;
             }
 

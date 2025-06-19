@@ -32,7 +32,9 @@ namespace CreatureTime
             }
 
             _callbacks[typeId].DataDictionary[receiver].DataList.Add(method);
+#if DEBUG_LOGS
             LogDebug($"Connected (typeId={typeId}, receiver={receiver}, method={method}).");
+#endif
         }
 
         public void Disconnect(int typeId, CtAbstractSignal receiver, string method)
@@ -60,7 +62,9 @@ namespace CreatureTime
                 return;
 
             _callbacks.Remove(receiver);
+#if DEBUG_LOGS
             LogDebug($"Disconnected (typeId={typeId}, receiver={receiver}, method={method}).");
+#endif
         }
 
         public void Emit(int typeId)
@@ -87,9 +91,11 @@ namespace CreatureTime
                     for (int j = 0; j < methods.Count; ++j)
                     {
                         string method = methods[j].String;
+#if DEBUG_LOGS
                         LogDebug(
                             "Emitting " +
                             $"(typeId={typeId}, sender={reference.Sender}, receiver={receiver}, method={method}).");
+#endif
                         reference.SendCustomEvent(method);
                     }
 

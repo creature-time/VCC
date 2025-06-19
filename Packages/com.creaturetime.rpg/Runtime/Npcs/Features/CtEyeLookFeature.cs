@@ -33,20 +33,24 @@ namespace CreatureTime
                 _eyeLeft = controller.EyeBoneL;
                 _eyeRotationLeft = _eyeLeft.localRotation;
             }
+#if DEBUG_LOGS
             else
             {
                 CtLogger.LogWarning("Dialogue Character", "Left eye transform was null.");
             }
+#endif
 
             if (controller.EyeBoneR)
             {
                 _eyeRight = controller.EyeBoneR;
                 _eyeRotationRight = _eyeRight.localRotation;
             }
+#if DEBUG_LOGS
             else
             {
                 CtLogger.LogWarning("Dialogue Character", "Right eye transform was null.");
             }
+#endif
         }
 
         public override void ExecuteLateUpdate(CtNpcController controller)

@@ -98,9 +98,11 @@ namespace CreatureTime
             int head = (_head + 1) % maxSnapshotCount;
             if (head == _tail)
             {
+#if DEBUG_LOGS
                 LogWarning(
                     "Could not add snapshot since we hit limit for the number of snapshots " +
                     $"(maxSnapshotCount={maxSnapshotCount}).");
+#endif
                 return;
             }
 

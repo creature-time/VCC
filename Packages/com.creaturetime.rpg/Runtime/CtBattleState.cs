@@ -150,7 +150,9 @@ namespace CreatureTime
                 {
                     if (!partyManager.TryGetParty(_allyId, out _allyParty))
                     {
+#if DEBUG_LOGS
                         LogCritical($"Failed to find valid party by identifier (partyId={_allyId}).");
+#endif
                         return;
                     }
 
@@ -197,7 +199,9 @@ namespace CreatureTime
                 {
                     if (!partyManager.TryGetParty(_enemyId, out _enemyParty))
                     {
+#if DEBUG_LOGS
                         LogCritical($"Failed to find valid party by identifier (partyId={_enemyId}).");
+#endif
                         return;
                     }
 

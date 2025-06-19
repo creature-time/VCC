@@ -105,11 +105,13 @@ namespace CreatureTime
                 {
                     armorRating = armorDefinition.ArmorRating;
                 }
+#if DEBUG_LOGS
                 else
                 {
                     CtLogger.LogCritical("Skill Definition", 
                         $"Armor identifier was not found (identifier={armorIdentifier}).");
                 }
+#endif
             }
 
             ulong offHandWeaponData = target.EntityDef.OffHandWeapon;
@@ -141,9 +143,11 @@ namespace CreatureTime
             armorRating -= target.ArmorRatingReduction;
             armorRating = Mathf.Max(0, armorRating);
 
+#if DEBUG_LOGS
             CtLogger.LogDebug("Skill Definition", 
                 "[Armor Rating] Additional armor rating " +
                 $"(displayName=({target.DisplayName}), armorRating={armorRating}).");
+#endif
 
             return armorRating;
         }
@@ -153,8 +157,10 @@ namespace CreatureTime
         {
             ushort identifier = CtDataBlock.GetWeaponIdentifier(source.EntityDef.MainHandWeapon);
             weaponDefinition = gameData.GetWeaponDef(identifier);
+#if DEBUG_LOGS
             if (!weaponDefinition)
                 CtLogger.LogCritical("Skill Definition", $"Weapon could not be found (identifier={identifier})");
+#endif
 
             attributeRank =
                 TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, weaponDefinition.AttributeType);

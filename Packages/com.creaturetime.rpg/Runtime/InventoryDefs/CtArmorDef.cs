@@ -36,7 +36,9 @@ namespace CreatureTime
                 case EArmorSlot.Feet:
                     return 4;
                 default:
+#if DEBUG_LOGS
                     CtLogger.LogError("Armor Definition", $"Unknown armor slot (armorSlot={armorSlot}).");
+#endif
                     return -1;
             }
         }

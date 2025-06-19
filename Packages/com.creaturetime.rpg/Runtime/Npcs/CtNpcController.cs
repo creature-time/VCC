@@ -104,7 +104,9 @@ namespace CreatureTime
                         // animator.SetTrigger("Speak");
                         break;
                     default:
+#if DEBUG_LOGS
                         LogWarning($"Unknown expression (expression={_expression}).");
+#endif
                         break;
                 }
             }
@@ -165,8 +167,10 @@ namespace CreatureTime
 
         private void Start()
         {
+#if DEBUG_LOGS
             if (!headBone)
                 LogWarning("Head transform was null.");
+#endif
 
             NpcMovementSpeed = ENpcMovementSpeed.Walk;
 

@@ -42,17 +42,23 @@ namespace CreatureTime
 
         public void Connect(CtNetConnection localConnection)
         {
-            CtLogger.LogDebug("Net Socket", "Connecting local connection.");
+#if DEBUG_LOGS
+            LogDebug("Net Socket", "Connecting local connection.");
+#endif
 
             if (!Networking.IsOwner(localConnection.gameObject))
             {
-                CtLogger.LogCritical("Net Socket", "Local player must be the owner of the local connection.");
+#if DEBUG_LOGS
+                LogCritical("Net Socket", "Local player must be the owner of the local connection.");
+#endif
                 return;
             }
 
             if (LocalConnection)
             {
-                CtLogger.LogCritical("Net Socket", "Local connection already connected.");
+#if DEBUG_LOGS
+                LogCritical("Net Socket", "Local connection already connected.");
+#endif
                 return;
             }
 
@@ -62,7 +68,9 @@ namespace CreatureTime
 
         public void Disconnect()
         {
-            CtLogger.LogDebug("Net Socket", "Disconnecting local connection.");
+#if DEBUG_LOGS
+            LogDebug("Net Socket", "Disconnecting local connection.");
+#endif
 
             enabled = false;
             LocalConnection = null;
@@ -81,9 +89,11 @@ namespace CreatureTime
         private void _SendMessage(byte[] data, ESendMessageFlags flags)
         {
             int identifier = _dataQueueHead;
-            CtLogger.LogDebug("Net Socket",
+#if DEBUG_LOGS
+            LogDebug("Net Socket",
                 $"Adding packet (Data.Length={data.Length}, Identifier={identifier}, flags={flags}, " +
                 $"owner={Networking.IsOwner(LocalConnection.gameObject)}, object={gameObject})");
+#endif
 
             byte[] header = BitConverter.GetBytes((int)flags);
 
@@ -115,8 +125,10 @@ namespace CreatureTime
             {
                 int identifier = _dataQueueTail;
                 byte[] data = _dataQueue[identifier];
-                CtLogger.LogDebug("Net Socket",
+#if DEBUG_LOGS
+                LogDebug("Net Socket",
                     $"Sending next packet (Data.Length={data.Length}, Identifier={identifier})");
+#endif
                 _dataQueue[identifier] = null;
                 _dataQueueTail = (identifier + 1) % MaxQueue;
                 return data;

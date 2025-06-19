@@ -24,7 +24,9 @@ namespace CreatureTime
                 return ENodeStatus.Running;
 
             context.TryGetInt("Test", out var value);
+#if DEBUG_LOGS
             Log($"Testing state (testOutput={testOutput}, blackboardValue={value}).");
+#endif
             return ENodeStatus.Success;
         }
     }

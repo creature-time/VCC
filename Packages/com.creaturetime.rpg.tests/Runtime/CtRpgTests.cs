@@ -14,7 +14,9 @@ namespace CreatureTime
             for (ushort i = 1; i <= 3; ++i)
             {
                 var npcDef = rpgGame.GameData.GetNpcDef(i);
+#if DEBUG_LOGS
                 Log($"{npcDef.DisplayName} (identifier={npcDef.Identifier}, level={npcDef.CharacterLevel})");
+#endif
             }
         }
 
@@ -37,7 +39,9 @@ namespace CreatureTime
         {
             if (!rpgGame.PartyManager.TryGetEntityParty(rpgGame.LocalEntity, out var party))
             {
+#if DEBUG_LOGS
                 LogWarning($"Failed to find party for recruit (identifier={rpgGame.LocalEntity.Identifier}).");
+#endif
                 return;
             }
 
@@ -49,7 +53,9 @@ namespace CreatureTime
                 {
                     if (!rpgGame.EntityManager.TryGetEntity(identifier, out var entity))
                     {
+#if DEBUG_LOGS
                         LogCritical($"[_RunPartyMemberTest3] Failed to find entity (identifier={identifier}).");
+#endif
                         continue;
                     }
 
@@ -75,7 +81,9 @@ namespace CreatureTime
         {
             if (!rpgGame.PartyManager.TryGetEntityParty(rpgGame.LocalEntity, out var party))
             {
+#if DEBUG_LOGS
                 LogWarning($"Failed to find party for recruit (identifier={rpgGame.LocalEntity.Identifier}).");
+#endif
                 return;
             }
 

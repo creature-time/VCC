@@ -31,7 +31,9 @@ namespace CreatureTime
 
         private void Start()
         {
+#if DEBUG_LOGS
             LogDebug("Initializing Rpg Game...");
+#endif
 
             gameData.Init();
             playerManager.Init();
@@ -124,13 +126,17 @@ namespace CreatureTime
         {
             if (partyManager.TryGetEntityParty(playerEntity, out var party))
             {
+#if DEBUG_LOGS
                 LogWarning($"Entity already joined party  (identifier={party.Identifier})");
+#endif
                 return;
             }
 
             if (!partyManager.TryGetAvailablePlayerParty(out party))
             {
+#if DEBUG_LOGS
                 LogWarning($"Failed to find empty party (identifier={party.Identifier})");
+#endif
                 return;
             }
 
@@ -154,7 +160,9 @@ namespace CreatureTime
         {
             if (!partyManager.TryGetEntityParty(playerEntity, out var party))
             {
+#if DEBUG_LOGS
                 LogWarning("Entity was not in a party)");
+#endif
                 return;
             }
 
@@ -170,7 +178,9 @@ namespace CreatureTime
                 {
                     if (!entityManager.TryGetEntity(identifier, out var entity))
                     {
+#if DEBUG_LOGS
                         LogCritical($"[_HasPlayers] Failed to find entity (identifier={identifier}).");
+#endif
                         continue;
                     }
 
@@ -189,20 +199,26 @@ namespace CreatureTime
                 JoinParty(playerEntity);
                 if (!partyManager.TryGetEntityParty(playerEntity, out party))
                 {
+#if DEBUG_LOGS
                     LogCritical($"Failed to find party for entity (identifier={playerEntity.Identifier}).");
+#endif
                     return;
                 }
             }
 
             if (party.IsFull)
             {
+#if DEBUG_LOGS
                 LogCritical("Cannot add anymore members to party.");
+#endif
                 return;
             }
 
             if (!entityManager.TryAcquireRecruit(npcDef, out var recruit))
             {
+#if DEBUG_LOGS
                 LogWarning("No recruit available.");
+#endif
                 return;
             }
 
@@ -213,13 +229,17 @@ namespace CreatureTime
         {
             if (!recruit)
             {
+#if DEBUG_LOGS
                 LogWarning("No recruit found");
+#endif
                 return;
             }
 
             if (!partyManager.TryGetEntityParty(recruit, out var party))
             {
+#if DEBUG_LOGS
                 LogWarning($"Failed to find party for recruit (identifier={recruit.Identifier}).");
+#endif
                 return;
             }
 
@@ -258,7 +278,9 @@ namespace CreatureTime
         {
             if (!partyManager.TryGetAvailableEnemyParty(out var enemyParty))
             {
+#if DEBUG_LOGS
                 LogCritical("Failed to get available enemy party.");
+#endif
                 return;
             }
 
@@ -266,7 +288,9 @@ namespace CreatureTime
 
             if (!battleStateManager.TryCreateBattleState(party, enemyParty, out var battleState))
             {
+#if DEBUG_LOGS
                 LogCritical("Could not find available battle state to start battle.");
+#endif
                 _ReleaseEnemyParty(battleState.EnemyParty);
                 return;
             }
@@ -298,7 +322,9 @@ namespace CreatureTime
 
             if (party.Count > 0)
             {
+#if DEBUG_LOGS
                 LogWarning("Enemy party was not empty.");
+#endif
             }
         }
 
