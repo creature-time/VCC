@@ -1,33 +1,36 @@
 
 using UdonSharp;
+using UnityEngine;
 
 namespace CreatureTime
 {
     public class CtLoggerUdonScript : UdonSharpBehaviour
     {
+        [SerializeField] private CtLogger logger;
+
         protected void LogDebug(string message)
         {
-            CtLogger.LogDebug(gameObject.name, message);
+            logger.LogDebug(gameObject.name, message);
         }
 
         protected void Log(string message)
         {
-            CtLogger.Log(gameObject.name, message);
+            logger.Log(gameObject.name, message);
         }
 
         protected void LogWarning(string message)
         {
-            CtLogger.LogWarning(gameObject.name, message);
+            logger.LogWarning(gameObject.name, message);
         }
 
         protected void LogError(string message)
         {
-            CtLogger.LogError(gameObject.name, message);
+            logger.LogError(gameObject.name, message);
         }
 
         protected void LogCritical(string message)
         {
-            CtLogger.LogCritical(gameObject.name, message);
+            logger.LogCritical(gameObject.name, message);
         }
     }
 }

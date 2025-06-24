@@ -9,37 +9,41 @@ namespace CreatureTime
     public class CtPlayerEntity : CtEntity
     {
         [SerializeField] private CtPlayerManager playerManager;
-        private CtPlayerTurn playerTurn;
 
-        protected override void _OnEntityIdChanged()
+        private CtPlayerTurn _playerTurn;
+
+        public override ushort EntityId => PlayerDef.PlayerId;
+        public override bool IsPlayer => true;
+
+        public CtPlayerDef PlayerDef
         {
-            IsPlayer = true;
-
-            var playerId = CtEntityManager.GetIdentifier(EntityId);
-            EntityDef = playerManager.GetPlayerDefById(playerId);
-            playerTurn = EntityDef.GetComponent<CtPlayerTurn>();
-            SourceTransform = EntityDef.transform;
+            private get => (CtPlayerDef)EntityDef;
+            set
+            {
+                EntityDef = value;
+                _playerTurn = value ? value.PlayerTurn : null;
+            }
         }
 
         public override void OnStartBattle()
         {
-            playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, "ResetToWait");
+            _playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, "ResetToWait");
             base.OnStartBattle();
         }
 
         public override bool IsReady()
         {
-            return playerTurn.InteractType != CTBattleInteractType.None;
+            return _playerTurn.InteractType != CTBattleInteractType.None;
         }
 
         public override bool TryGetAttack(out int skillIndex, out ushort targetId)
         {
-            return playerTurn.TryGetAttack(out skillIndex, out targetId);
+            return _playerTurn.TryGetAttack(out skillIndex, out targetId);
         }
 
         public override void OnEndBattle()
         {
-            playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, "Reset");
+            _playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, "Reset");
             base.OnEndBattle();
         }
     }

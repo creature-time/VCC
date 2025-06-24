@@ -9,10 +9,18 @@ namespace CreatureTime
     {
         [SerializeField] private CtBattleState battleState;
         [SerializeField] private CtBattleAttackState attackState;
+        [SerializeField] private CtBattleEndState endState;
 
         public override CtStateBase GetNext(CtBlackboard context)
         {
-            return attackState;
+            var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
+            if (!battleState.TryGetEntity(entityIdentifier, out var entity))
+                return endState;
+
+            if (entity.TryGetAttack(out var skillIndex, out var targetId))
+                return attackState;
+
+            return endState;
         }
 
         public override void OnEnter(CtBlackboard context)
@@ -22,12 +30,17 @@ namespace CreatureTime
 
         public override ENodeStatus Process(CtBlackboard context)
         {
+            if (!battleState.InProgress)
+                return ENodeStatus.Failure;
+
             var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
-            battleState.TryGetEntity(entityIdentifier, out var entity);
-            if (entity.IsPlayer)
-                entity.EntityDef.GetComponent<CtPlayerTurn>().Submit(CTBattleInteractType.Attack, -1, battleState.EnemyParty.GetMemberId(0));
-            return 
-                entity.TryGetAttack(out var skillIndex, out var targetId) ? ENodeStatus.Success : ENodeStatus.Running;
+            if (!battleState.TryGetEntity(entityIdentifier, out var entity))
+                return ENodeStatus.Success;
+
+            if (entity.TryGetAttack(out var skillIndex, out var targetId))
+                return ENodeStatus.Success;
+
+            return ENodeStatus.Running;
         }
     }
 }

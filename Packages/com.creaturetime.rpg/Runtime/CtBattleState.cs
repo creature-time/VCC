@@ -1,13 +1,13 @@
 ﻿
-using System;
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace CreatureTime
 {
     public enum EBattleStateSignal
     {
+        StateChanged,
+        InProgressChanged,
         InitiativesChanged,
         TurnIndexChanged,
         AllyAdded,
@@ -28,7 +28,7 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtBattleState : CtAbstractSignal
     {
-        [SerializeField] private ushort identifier;
+        [SerializeField] private ushort identifier = CtConstants.InvalidId;
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
 
@@ -48,7 +48,11 @@ namespace CreatureTime
         public EBattleState StateCallback
         {
             get => _state;
-            set => _state = value;
+            set
+            {
+                _state = value;
+                this.Emit(EBattleStateSignal.StateChanged);
+            }
         }
 
         public EBattleState State
@@ -67,7 +71,11 @@ namespace CreatureTime
         public bool InProgressCallback
         {
             get => _inProgress;
-            set => _inProgress = value;
+            set
+            {
+                _inProgress = value;
+                this.Emit(EBattleStateSignal.InProgressChanged);
+            }
         }
 
         public bool InProgress
@@ -169,7 +177,7 @@ namespace CreatureTime
 
         public ushort AllyId
         {
-            get { return AllyIdCallback; }
+            get => AllyIdCallback;
             set
             {
                 AllyIdCallback = value;
@@ -297,9 +305,9 @@ namespace CreatureTime
             var party = (CtParty)Sender;
             var index = GetArgs[0].Int;
 
-            TryGetEntity(party.GetMemberId(index), out var entity);
+            entityManager.TryGetEntity(party.GetMemberId(index), out var entity);
             entity.BattleState = this;
-            
+
             SetArgs.Add(party.Identifier);
             SetArgs.Add(index);
             this.Emit(EBattleStateSignal.EnemyAdded);
@@ -337,13 +345,11 @@ namespace CreatureTime
         {
             int turn = reset ? -1 : TurnIndex;
 
-            ushort identifier;
             CtEntity entity;
             for (int i = 0; i < _initiatives.Length; ++i)
             {
                 turn = (turn + 1) % _initiatives.Length;
-                identifier = _initiatives[turn];
-                if (!entityManager.TryGetEntity(identifier, out entity))
+                if (!entityManager.TryGetEntity(_initiatives[turn], out entity))
                 {
                     continue;
                 }

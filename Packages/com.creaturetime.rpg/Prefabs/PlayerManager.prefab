@@ -247,6 +247,14 @@ PrefabInstance:
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 1460415148445695, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
+    - target: {fileID: 2996973844841115684, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
+      propertyPath: playerManager
+      value: 
+      objectReference: {fileID: 2222617540897900664}
+    - target: {fileID: 2996973844841115684, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 2996973844841115684, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
     - target: {fileID: 3774883459576060856, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
       propertyPath: playerManager
       value: 
@@ -303,6 +311,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerDefTemplate
       objectReference: {fileID: 0}
+    - target: {fileID: 8643617009290205713, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 8643617009290205713, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
+    - target: {fileID: 9210175904081999149, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 9210175904081999149, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

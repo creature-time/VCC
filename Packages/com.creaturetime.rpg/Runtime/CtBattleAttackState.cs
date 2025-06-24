@@ -10,9 +10,18 @@ namespace CreatureTime
         [SerializeField] private CtGameData gameData;
         [SerializeField] private CtBattleState battleState;
         [SerializeField] private CtBattleNextTurnState nextTurnState;
+        [SerializeField] private CtBattleEndState endState;
 
         public override CtStateBase GetNext(CtBlackboard context)
         {
+            var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
+            if (!battleState.TryGetEntity(entityIdentifier, out var entity))
+                return endState;
+
+            entity.TryGetAttack(out var skillIndex, out var targetId);
+            if (!battleState.TryGetEntity(targetId, out var targetEntity))
+                return endState;
+
             return nextTurnState;
         }
 
@@ -23,10 +32,16 @@ namespace CreatureTime
 
         public override ENodeStatus Process(CtBlackboard context)
         {
+            if (!battleState.InProgress)
+                return ENodeStatus.Failure;
+
             var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
-            battleState.TryGetEntity(entityIdentifier, out var entity);
+            if (!battleState.TryGetEntity(entityIdentifier, out var entity))
+                return ENodeStatus.Success;
+
             entity.TryGetAttack(out var skillIndex, out var targetId);
-            battleState.TryGetEntity(targetId, out var targetEntity);
+            if (!battleState.TryGetEntity(targetId, out var targetEntity))
+                return ENodeStatus.Success;
 
             if (skillIndex == -1)
             {

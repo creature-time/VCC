@@ -564,8 +564,8 @@ namespace CreatureTime
             //     Debug.LogError("Attribute data masks did not match expected " +
             //                    $"(given={data:x16}, expected={UtMaskValidationExpected:x16})");
 
-            ulong attributeBitMask = AttributeTypeBitMask | AttributeRankBitMask;
 #if DEBUG_LOGS
+            ulong attributeBitMask = AttributeTypeBitMask | AttributeRankBitMask;
             if (attributeBitMask != AttributeBitMask)
                 CtLogger.LogError("Data Mangle", "Attribute masks are not masking correctly " +
                                                  $"(given={attributeBitMask}, expected={AttributeBitMask})");

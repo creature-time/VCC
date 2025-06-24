@@ -49,7 +49,7 @@ namespace CreatureTime
 
             var prefab = Instantiate(partyPrefab, partyPrefab.transform.parent);
             prefab.SetActive(true);
-            prefab.transform.position = new Vector3(party.Identifier * 3, 7 + -index, 10);
+            prefab.transform.position = new Vector3((party.Identifier % 100) * 3, 7 + -index, 10);
 
             ushort identifier = party.GetMemberId(index);
             if (!entityManager.TryGetEntity(identifier, out var entity))
@@ -61,7 +61,9 @@ namespace CreatureTime
             }
 
             _partyPrefabs.Add(identifier, prefab);
-            // _Debug_PrintPrefabs();
+#if DEBUG_LOGS
+            _Debug_PrintPrefabs();
+#endif
 
             _OnIdentifierChangedRaw(entity);
 
@@ -73,7 +75,10 @@ namespace CreatureTime
             if (!entity.EntityDef)
                 return;
 
-            // _Debug_PrintPrefabs();
+#if DEBUG_LOGS
+            _Debug_PrintPrefabs();
+#endif
+
             if (!_partyPrefabs.TryGetValue(entity.Identifier, out var token))
             {
 #if DEBUG_LOGS
@@ -125,17 +130,21 @@ namespace CreatureTime
             Destroy(prefab);
 
             _partyPrefabs.Remove(identifier);
-            // _Debug_PrintPrefabs();
+#if DEBUG_LOGS
+            _Debug_PrintPrefabs();
+#endif
         }
 
-        // private void _Debug_PrintPrefabs()
-        // {
-        //     Debug.Log("Prefab Keys");
-        //     var keys = _partyPrefabs.GetKeys();
-        //     for (int i = 0; i < keys.Count; i++)
-        //     {
-        //         Debug.Log($"Prefab Key {keys[i].UShort}");
-        //     }
-        // }
+#if DEBUG_LOGS
+        private void _Debug_PrintPrefabs()
+        {
+            Debug.Log("Prefab Keys");
+            var keys = _partyPrefabs.GetKeys();
+            for (int i = 0; i < keys.Count; i++)
+            {
+                Debug.Log($"Prefab Key {keys[i].UShort}");
+            }
+        }
+#endif
     }
 }

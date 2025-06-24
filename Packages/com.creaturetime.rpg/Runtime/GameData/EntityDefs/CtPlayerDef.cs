@@ -2,7 +2,6 @@
 using System;
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VRC.SDKBase;
 
 namespace CreatureTime
@@ -13,10 +12,19 @@ namespace CreatureTime
         private const int MaxInventoryCount = 16;
 
         [SerializeField] private CtPlayerManager playerManager;
+        [SerializeField] private CtPlayerTurn playerTurn;
 
-        [SerializeField]
-        [UdonSynced]
-        [FieldChangeCallback(nameof(_BarksCallback))]
+        public void WeaponAttack(CtEntity target)
+        {
+            playerTurn.Submit(CTBattleInteractType.Attack, -1, target.Identifier);
+        }
+
+        public void UseSkill(int index, CtEntity target)
+        {
+            playerTurn.Submit(CTBattleInteractType.Attack, index, target.Identifier);
+        }
+
+        [SerializeField, UdonSynced, FieldChangeCallback(nameof(_BarksCallback))]
         private ulong barks;
 
         public ulong _BarksCallback
@@ -39,8 +47,9 @@ namespace CreatureTime
             }
         }
 
-        public bool IsLocal { get; set; } = false;
+        public bool IsLocal { get; set; }
         public ushort PlayerId { get; set; } = CtConstants.InvalidId;
+        public CtPlayerTurn PlayerTurn => playerTurn;
 
         [HideInInspector, SerializeField, UdonSynced] private ulong[] inventory = new ulong[MaxInventoryCount]
         {
@@ -142,16 +151,11 @@ namespace CreatureTime
                 PlayerId = (ushort)player.playerId;
                 playerManager.Client_OnPlayerAdded(this);
             }
-
-            // if (!player.isLocal || !Networking.IsOwner(gameObject))
-            //     return;
-            //
-            // playerManager.SetupPlayer(player, this);
         }
 
-        private void OnDestroy()
+        public void OnDestroy()
         {
-            playerManager.OnPlayerDestroyed(this);
+            playerManager.Client_OnPlayerRemoved(this);
         }
     }
 }

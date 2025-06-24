@@ -24,20 +24,20 @@ namespace CreatureTime
 
         public void _OnPlayerAdded()
         {
-            var index = GetArgs[0].Int;
+            var playerId = GetArgs[0].UShort;
 
             var prefab = Instantiate(playerPrefab, playerPrefab.transform.parent);
             prefab.SetActive(true);
-            prefab.transform.position = new Vector3(index * 3, 10, 10);
+            prefab.transform.position = new Vector3(playerId * 3, 10, 10);
 
-            var playerDef = playerManager.GetPlayerDefByIndex(index);
+            var playerDef = playerManager.GetPlayerDefById(playerId);
             prefab.name = playerDef.DisplayName;
 
             MaterialPropertyBlock props = new MaterialPropertyBlock();
             props.SetTexture("_MainTex", playerDef.Icon);
 
             prefab.GetComponent<MeshRenderer>().SetPropertyBlock(props);
-            _playerPrefabs.Add(index, prefab);
+            _playerPrefabs.Add(playerId, prefab);
         }
 
         public void _OnPlayerRemoved()

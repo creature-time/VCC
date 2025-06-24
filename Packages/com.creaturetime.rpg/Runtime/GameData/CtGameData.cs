@@ -5,7 +5,7 @@ using VRC.SDK3.Data;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtGameData : UdonSharpBehaviour
+    public class CtGameData : CtSingleton
     {
         private DataDictionary _npcDefinitions = new DataDictionary();
         private DataDictionary _skillDefinitions = new DataDictionary();

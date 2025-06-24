@@ -24,7 +24,7 @@ namespace CreatureTime
         ApplyDamage
     }
 
-    public class CtEntity : CtEntityBase
+    public abstract class CtEntity : CtEntityBase
     {
         public const int MaxSkillCount = 10;
 
@@ -241,7 +241,11 @@ namespace CreatureTime
         public float NormalizedHealth => Health / (float)_entityDef.MaxHealth;
         public string DisplayName => _entityDef.DisplayName;
         public Texture Icon => _entityDef.Icon;
-        public bool IsPlayer { get; protected set; }
+
+        public abstract bool IsPlayer
+        {
+            get;
+        }
 
         private CtEntityDef _entityDef;
 
@@ -453,11 +457,6 @@ namespace CreatureTime
         {
             if (!Networking.IsOwner(player, gameObject))
                 Networking.SetOwner(player, gameObject);
-        }
-
-        protected override void _OnEntityIdChanged()
-        {
-            // Do nothing?
         }
 
         public virtual CtBattleState BattleState

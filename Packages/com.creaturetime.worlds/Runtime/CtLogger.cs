@@ -20,10 +20,8 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtLogger : CtAbstractSignal
+    public class CtLogger : CtSingleton
     {
-        private const string InstanceName = "__Logger";
-
         public const string DebugColor = "#808080";
         public const string InfoColor = "#6495ED";
         public const string WarningColor = "#FFFF00";
@@ -43,76 +41,29 @@ namespace CreatureTime
 
         private string GetColor(ELoggerType loggerType) => _colors[(int)loggerType];
 
-        public static CtLogger Logger()
+        public void LogDebug(string topic, string message)
         {
-            GameObject obj = GameObject.Find(InstanceName);
-            if (!obj)
-                return null;
-            return obj.GetComponent<CtLogger>();
+            Log(topic, message, ELoggerType.Debug);
         }
 
-        public static void ConnectMessageChanged(CtAbstractSignal receiver, string method)
+        public void Log(string topic, string message)
         {
-            CtLogger logger = Logger();
-            if (!logger)
-                return;
-            logger.Connect(ELoggerSignal.MessageChanged, receiver, method);
+            Log(topic, message, ELoggerType.Info);
         }
 
-        public static void DisconnectMessageChanged(CtAbstractSignal receiver, string method)
+        public void LogWarning(string topic, string message)
         {
-            CtLogger logger = Logger();
-            if (!logger)
-                return;
-            logger.Disconnect(ELoggerSignal.MessageChanged, receiver, method);
+            Log(topic, message, ELoggerType.Warning);
         }
 
-        public static string GetMessage()
+        public void LogError(string topic, string message)
         {
-            CtLogger logger = Logger();
-            if (!logger)
-                return null;
-            return logger._message;
+            Log(topic, message, ELoggerType.Error);
         }
 
-        public static void LogDebug(string topic, string message)
+        public void LogCritical(string topic, string message)
         {
-            CtLogger logger = Logger();
-            if (!logger)
-                return;
-            logger.Log(topic, message, ELoggerType.Debug);
-        }
-
-        public static void Log(string topic, string message)
-        {
-            CtLogger logger = Logger();
-            if (!logger)
-                return;
-            logger.Log(topic, message, ELoggerType.Info);
-        }
-
-        public static void LogWarning(string topic, string message)
-        {
-            CtLogger logger = Logger();
-            if (!logger)
-                return;
-            logger.Log(topic, message, ELoggerType.Warning);
-        }
-
-        public static void LogError(string topic, string message)
-        {
-            CtLogger logger = Logger();
-            if (!logger)
-                return;
-            logger.Log(topic, message, ELoggerType.Error);
-        }
-
-        public static void LogCritical(string topic, string message)
-        {
-            CtLogger logger = Logger();
-            if (!logger)
-                return;
-            logger.Log(topic, message, ELoggerType.Critical);
+            Log(topic, message, ELoggerType.Critical);
         }
 
         private static string _AsString(ELoggerType loggerType)

@@ -12,7 +12,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtPartyManager : CtAbstractSignal
+    public class CtPartyManager : CtSingleton
     {
         [SerializeField, HideInInspector] private CtParty[] playerParties;
         [SerializeField, HideInInspector] private CtParty[] enemyParties;
@@ -21,23 +21,18 @@ namespace CreatureTime
 
         public void Init()
         {
-            ushort identifier = 0;
             for (ushort i = 0; i < playerParties.Length; i++)
             {
                 var party = playerParties[i];
-                party.Init(identifier);
                 party.Connect(EPartySignal.Started, this, nameof(_OnPlayerPartyStarted));
                 party.Connect(EPartySignal.Disbanded, this, nameof(_OnPlayerPartyDisbanded));
-                _partyLookup.Add(identifier, party);
-                identifier++;
+                _partyLookup.Add(party.Identifier, party);
             }
 
             for (ushort i = 0; i < enemyParties.Length; i++)
             {
                 var party = enemyParties[i];
-                party.Init(identifier);
-                _partyLookup.Add(identifier, party);
-                identifier++;
+                _partyLookup.Add(party.Identifier, party);
             }
         }
 

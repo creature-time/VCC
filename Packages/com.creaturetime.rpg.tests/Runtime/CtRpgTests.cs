@@ -22,17 +22,20 @@ namespace CreatureTime
 
         public void _RunPartyManagerTest0()
         {
-            rpgGame.JoinParty(rpgGame.LocalEntity);
+            CtParty party = null;
+            if (rpgGame.EntityManager.TryGetEntity(1, out var entity))
+                rpgGame.PartyManager.TryGetEntityParty(entity, out party);
+            rpgGame.RequestJoinParty(rpgGame.LocalEntity, party);
         }
 
         public void _RunPartyManagerTest1()
         {
-            rpgGame.LeaveParty(rpgGame.LocalEntity);
+            rpgGame.RequestLeaveParty(rpgGame.LocalEntity);
         }
 
         public void _RunPartyManagerTest2()
         {
-            rpgGame.AcquireRecruitNpc(rpgGame.LocalEntity, rpgGame.GameData.GetNpcDef(1));
+            rpgGame.RequestRecruitNpc(rpgGame.LocalEntity, rpgGame.GameData.GetNpcDef(1));
         }
 
         public void _RunPartyManagerTest3()
@@ -45,7 +48,6 @@ namespace CreatureTime
                 return;
             }
 
-            CtEntity recruit = null;
             for (int i = 0; i < 4; ++i)
             {
                 var identifier = party.GetMemberId(i);
@@ -60,11 +62,9 @@ namespace CreatureTime
                     }
 
                     if (!entity.IsPlayer)
-                        recruit = entity;
+                        rpgGame.RequestLeaveNpc(entity);
                 }
             }
-
-            rpgGame.ReleaseRecruitNpc(recruit);
         }
 
         public void _RunDialogueTest0()
@@ -87,7 +87,7 @@ namespace CreatureTime
                 return;
             }
 
-            rpgGame.StartBattle(party);
+            rpgGame.RequestStartBattle(party);
         }
     }
 }

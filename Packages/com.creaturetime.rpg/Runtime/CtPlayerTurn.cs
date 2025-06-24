@@ -19,8 +19,6 @@ namespace CreatureTime
         [UdonSynced] private ushort _targetIndex = CtConstants.InvalidId;
 
         public CTBattleInteractType InteractType => _interactType;
-        // public int SkillIndex => _skillIndex;
-        // public int TargetIndex => _targetIndex;
 
         public void Submit(CTBattleInteractType interactType, int skillIndex, ushort targetIndex)
         {
@@ -39,7 +37,7 @@ namespace CreatureTime
         public void ResetToWait()
         {
 #if DEBUG_LOGS
-            LogDebug("Reset");
+            LogDebug("ResetToWait");
 #endif
 
             _interactType = CTBattleInteractType.Waiting;
@@ -72,11 +70,13 @@ namespace CreatureTime
         {
             skillIndex = -1;
             targetId = CtConstants.InvalidId;;
-            if (InteractType == CTBattleInteractType.Waiting)
-                return false;
 
-            if (InteractType == CTBattleInteractType.None)
-                return false;
+            switch (InteractType)
+            {
+                case CTBattleInteractType.None:
+                case CTBattleInteractType.Waiting:
+                    return false;
+            }
 
             skillIndex = _skillIndex;
             targetId = _targetIndex;

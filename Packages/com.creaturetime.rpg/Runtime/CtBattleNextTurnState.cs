@@ -26,6 +26,9 @@ namespace CreatureTime
 
         public override ENodeStatus Process(CtBlackboard context)
         {
+            if (!battleState.InProgress)
+                return ENodeStatus.Failure;
+
             var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
             battleState.TryGetEntity(entityIdentifier, out var entity);
             if (entity.IsPlayer)

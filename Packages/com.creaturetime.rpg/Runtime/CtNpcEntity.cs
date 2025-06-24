@@ -12,6 +12,33 @@ namespace CreatureTime
 
         public CtBattleNpcBrain Brain => brain;
 
+        [UdonSynced, FieldChangeCallback(nameof(EntityIdCallback))]
+        private ushort _entityId = CtConstants.InvalidId;
+
+        public ushort EntityIdCallback
+        {
+            get => _entityId;
+            set
+            {
+                var previousId = _entityId;
+                _entityId = value;
+
+                _OnEntityIdChanged();
+
+                SetArgs.Add(previousId);
+                SetArgs.Add(_entityId);
+                this.Emit(EEntitySignal.IdentifierChanged);
+            }
+        }
+
+        public override ushort EntityId => EntityIdCallback;
+        public override bool IsPlayer => false;
+
+        public ushort NpcId
+        {
+            set => EntityIdCallback = value;
+        }
+
         [UdonSynced, FieldChangeCallback(nameof(HealingCoolDownCallback))]
         private int _healingCoolDown = 0;
 
@@ -69,12 +96,11 @@ namespace CreatureTime
             }
         }
 
-        protected override void _OnEntityIdChanged()
+        private void _OnEntityIdChanged()
         {
             if (EntityId != CtConstants.InvalidId)
             {
-                var npcIdentifier = CtEntityManager.GetIdentifier(EntityId);
-                var npcDef = gameData.GetNpcDef(npcIdentifier);
+                var npcDef = gameData.GetNpcDef(EntityId);
                 EntityDef = npcDef;
                 brain.Behavior = npcDef.Behavior;
             }

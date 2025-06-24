@@ -19,7 +19,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtNetSocket : CtAbstractSignal
+    public class CtNetSocket : CtSingleton
     {
         private const int MaxQueue = 256;
 

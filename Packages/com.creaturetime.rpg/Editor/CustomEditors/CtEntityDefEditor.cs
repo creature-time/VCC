@@ -1,4 +1,5 @@
 
+using System;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -298,6 +299,17 @@ namespace CreatureTime
                     rootVisualElement.Add(invItem);
                 }
             }
+
+            Foldout foldout = new Foldout
+            {
+                text = "Default Parameters",
+                value = false
+            };
+            rootVisualElement.Add(foldout);
+
+            Type fallbackEditorType = typeof(Editor).Assembly.GetType("UnityEditor.GenericInspector");
+            VisualElement defaultElements = CreateEditor(targets, fallbackEditorType).CreateInspectorGUI();
+            foldout.Add(defaultElements);
 
             return rootVisualElement;
         }

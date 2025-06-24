@@ -1,6 +1,8 @@
 ﻿
 using System;
 using UdonSharp;
+using UnityEngine;
+using UnityEngine.Serialization;
 using VRC.SDKBase;
 
 namespace CreatureTime
@@ -8,14 +10,9 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtNetConnection : CtLoggerUdonScript
     {
+        [SerializeField] private CtNetSocket netSocket;
+
         [UdonSynced] private byte[] _packet = { };
-
-        private CtNetSocket _netSocket;
-
-        private void Start()
-        {
-            _netSocket = GetComponentInParent<CtNetSocket>();
-        }
 
         public void SendNextPacket(byte[] data)
         {
@@ -52,7 +49,7 @@ namespace CreatureTime
 
                 byte[] data = new byte[_packet.Length - offset];
                 Array.Copy(_packet, offset, data, 0, data.Length);
-                _netSocket.OnHandlePacket(data);
+                netSocket.OnHandlePacket(data);
             }
         }
 
@@ -76,13 +73,13 @@ namespace CreatureTime
             if (!player.isLocal || !Networking.IsOwner(gameObject))
                 return;
 
-            _netSocket.Connect(this);
+            netSocket.Connect(this);
         }
 
         private void OnDestroy()
         {
-            if (_netSocket.LocalConnection == this)
-                _netSocket.Disconnect();
+            if (netSocket.LocalConnection == this)
+                netSocket.Disconnect();
         }
     }
 }

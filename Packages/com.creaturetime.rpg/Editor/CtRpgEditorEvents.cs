@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using UdonSharp;
@@ -9,6 +10,7 @@ using UnityEngine;
 using VRC.Core;
 using VRC.SDKBase;
 using VRC.SDKBase.Editor.Api;
+using VRC.Udon.Serialization.OdinSerializer.Utilities;
 using Object = UnityEngine.Object;
 
 namespace CreatureTime
@@ -145,14 +147,15 @@ namespace CreatureTime
 
             var xform = partyManager.transform.Find("PlayerParties/_Template");
             _UpdatePartyTemplate(xform, 4);
-            _UpdateParties<CtPartyManager, CtParty>(partyManager, "playerParty", "playerParties", capacity, xform);
+            _UpdateParties<CtPartyManager, CtParty>(partyManager, "playerParty", "playerParties", 1000, capacity, xform);
 
             xform = partyManager.transform.Find("EnemyParties/_Template");
             _UpdatePartyTemplate(xform, 4);
-            _UpdateParties<CtPartyManager, CtParty>(partyManager, "enemyParty", "enemyParties", capacity, xform);
+            _UpdateParties<CtPartyManager, CtParty>(partyManager, "enemyParty", "enemyParties", 2000, capacity, xform);
         }
 
-        private static void _UpdateParties<TManager, T>(TManager manager, string prefix, string targetPropertyName, int capacity, Transform partyTemplate)
+        private static void _UpdateParties<TManager, T>(TManager manager, string prefix, string targetPropertyName, 
+            int start, int capacity, Transform partyTemplate)
             where TManager : UdonSharpBehaviour
             where T : UdonSharpBehaviour
         {
@@ -172,9 +175,19 @@ namespace CreatureTime
             for (int i = 0; i < capacity; i++)
             {
                 var prefab = Object.Instantiate(partyTemplate.gameObject, partyTemplate.transform.parent);
+
+                // Remove EditorOnly tag
+                prefab.gameObject.tag = "Untagged";
+
+                var t = prefab.GetComponent<T>();
+                var so = new SerializedObject(t);
+                var idProp = so.FindProperty("identifier");
+                idProp.intValue = i + start;
+                so.ApplyModifiedProperties();
+
                 prefab.SetActive(true);
-                prefab.name = $"{prefix}_{i:0000}";
-                prop.GetArrayElementAtIndex(i).objectReferenceValue = prefab.GetComponent<T>();
+                prefab.name = $"{prefix}_{i + start:0000}";
+                prop.GetArrayElementAtIndex(i).objectReferenceValue = t;
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -193,19 +206,46 @@ namespace CreatureTime
         {
             var entityManager = (CtEntityManager)Object.FindObjectOfType(typeof(CtEntityManager));
 
-            _UpdateParties<CtEntityManager, CtEntity>(entityManager, "playerEntity", "playerEntities", capacity, 
+            _UpdateParties<CtEntityManager, CtEntity>(entityManager, "playerEntity", "playerEntities", 1, capacity, 
                 entityManager.transform.Find("PlayerEntities/_Template"));
 
             // NOTE: Max player party member count minus one.
             // TODO: Grab the template for the player party and grab the member count.
             int maxRecruitCount = capacity * 3;
-            _UpdateParties<CtEntityManager, CtEntity>(entityManager, "recruitEntity", "recruitEntities", maxRecruitCount, 
-                entityManager.transform.Find("RecruitEntities/_Template"));
+            _UpdateParties<CtEntityManager, CtEntity>(entityManager, "recruitEntity", "recruitEntities", 1000, 
+                maxRecruitCount, entityManager.transform.Find("RecruitEntities/_Template"));
 
             // TODO: Grab the template for the enemy party and grab the member count.
             int maxEnemyCount = capacity * 4;
-            _UpdateParties<CtEntityManager, CtEntity>(entityManager, "enemyEntity", "enemyEntities", maxEnemyCount, 
-                entityManager.transform.Find("EnemyEntities/_Template"));
+            _UpdateParties<CtEntityManager, CtEntity>(entityManager, "enemyEntity", "enemyEntities", 2000, 
+                maxEnemyCount, entityManager.transform.Find("EnemyEntities/_Template"));
+        }
+
+        private static void _UpdateBattleStates(int capacity)
+        {
+            var battleStateManager = (CtBattleStateManager)Object.FindObjectOfType(typeof(CtBattleStateManager));
+
+            _UpdateParties<CtBattleStateManager, CtBattleState>(battleStateManager, "BattleState", "battleStates", 0, 
+                capacity, battleStateManager.transform.Find("_Template"));
+
+            var blackboards = battleStateManager.GetComponentsInChildren<CtBlackboard>(false);
+
+            var rpgGame = GameObject.FindObjectOfType<CtRpgGame>();
+            if (!rpgGame)
+                throw new Exception("Failed to find RpgGame.");
+
+            var stateMachine = rpgGame.GetComponent<CtStateMachine>();
+            if (!stateMachine)
+                throw new Exception("Failed to find StateMachine.");
+
+            var serializedObject = new SerializedObject(stateMachine);
+
+            var prop = serializedObject.FindProperty("contexts");
+            prop.arraySize = blackboards.Length;
+            for (int i = 0; i < blackboards.Length; i++)
+                prop.GetArrayElementAtIndex(i).objectReferenceValue = blackboards[i];
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         [MenuItem("CreatureTime/Rpg/Update Counts", false, 1)]
@@ -217,42 +257,58 @@ namespace CreatureTime
             _UpdateParties(worldData.Capacity);
             _UpdatePlayerDefs(worldData.Capacity);
             _UpdateEntities(worldData.Capacity);
+            _UpdateBattleStates(worldData.Capacity);
         }
 
-        // [MenuItem("CreatureTime/Rpg/Assign Unique Ids to All Sequence Nodes")]
-        // private static void AssignUniqueIdsToAllSequenceNodes()
-        // {
-        //     var sequenceNodes = GameObject.FindObjectsOfType<CtSequenceNode>();
-        //     foreach (var sequenceNode in sequenceNodes)
-        //     {
-        //         var so = new SerializedObject(sequenceNode);
-        //         var path = sequenceNode.transform._GetFullPath();
-        //         so.FindProperty("identifier").stringValue = path;
-        //         so.ApplyModifiedProperties();
-        //     }
-        // }
+        [MenuItem("CreatureTime/Rpg/Update All Global Parameters", false, 3)]
+        private static void UpdateAllGlobalParameters()
+        {
+            Dictionary<Type, UdonSharpBehaviour> singletons = new Dictionary<Type, UdonSharpBehaviour>();
+
+            // Find all objects for each singleton type from all assemblies.
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (Type typ in
+                         assembly.GetTypes()
+                             .Where(myType =>
+                                 myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(CtSingleton))))
+                {
+                    singletons.Add(typ, (UdonSharpBehaviour)Object.FindObjectOfType(typ));
+                }
+
+            // Throw error if singleton does not exist in the scene.
+            foreach (var pair in singletons)
+                if (!pair.Value)
+                    throw new Exception($"Failed to find singleton for type ({pair.Key})");
+
+            // Find all the components and their fields and set the value of the singleton if the type is the
+            // singleton.
+            foreach (var component in Object.FindObjectsOfType<UdonSharpBehaviour>(true))
+            {
+                var type = component.GetType();
+                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic).ToList();
+                foreach (var baseType in type.GetBaseTypes())
+                    foreach (var fieldInfo in baseType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
+                        fields.Add(fieldInfo);
+
+                foreach (var fieldInfo in fields)
+                {
+                    if (!singletons.TryGetValue(fieldInfo.FieldType, out var singleton))
+                        continue;
+
+                    Debug.Log($"Updating property {fieldInfo.Name} with {singleton} on {component.name}.");
+                    fieldInfo.SetValue(component, singleton);
+
+                    EditorUtility.SetDirty(component);
+                }
+            }
+        }
 
         [MenuItem("CreatureTime/Rpg/Update All")]
         private static void UpdateAll()
         {
             _UpdateSkills();
             _UpdateCounts();
-            // AssignUniqueIdsToAllSequenceNodes();
+            UpdateAllGlobalParameters();
         }
-
-        // private static string _GetFullPath(this Transform tr)
-        // {
-        //     var parents = tr.GetComponentsInParent<Transform>();
-        //
-        //     var results = string.Empty;
-        //     if (parents.Length > 0)
-        //     {
-        //         results += parents[0].name;
-        //         for (int i = parents.Length - 2; i >= 0; i--)
-        //             results += "/" + parents[i].name;
-        //     }
-        //
-        //     return results;
-        // }
-    }
+   }
 }

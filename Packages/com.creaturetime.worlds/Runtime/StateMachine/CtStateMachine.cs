@@ -1,4 +1,5 @@
-﻿
+﻿#define DEBUG_LOGS
+
 using System;
 using UdonSharp;
 using UnityEngine;
@@ -57,6 +58,10 @@ namespace CreatureTime
             else if (nextState)
             {
                 this.Emit(EStateMachineSignal.Started);
+
+#if DEBUG_LOGS
+                LogDebug($"Starting (identifier={identifier})");
+#endif
 
                 context.SetupBlackboard(entryData);
 

@@ -1,19 +1,34 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
+using VRC.SDKBase;
 
 namespace CreatureTime
 {
     [DefaultExecutionOrder(-1)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtRpgGame : CtAbstractSignal
+    public class CtRpgGame : CtSingleton
     {
+        private const int MessagePartyStart = 100;
+        private const int MessagePartyAcceptQuest = MessagePartyStart + 0;
+        private const int MessagePartyJoin = MessagePartyStart + 1;
+        private const int MessagePartyLeave = MessagePartyStart + 2;
+
+        private const int MessageRecruitStart = 200;
+        private const int MessageRecruitJoin = MessageRecruitStart + 0;
+        private const int MessageRecruitLeave = MessageRecruitStart + 1;
+
+        private const int MessageBattleStart = 300;
+        private const int MessageStartBattle = MessageBattleStart + 0;
+
         [SerializeField] private CtGameData gameData;
         [SerializeField] private CtPlayerManager playerManager;
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
         [SerializeField] private CtDialogueManager dialogueManager;
+        [SerializeField] private CtNetSocket netSocket;
 
         [SerializeField] private CtAbstractQuest[] quests;
         [SerializeField] private CtBattleStateManager battleStateManager;
@@ -48,61 +63,41 @@ namespace CreatureTime
 
             entityManager.Connect(EEntityManagerSignal.NpcEntityChanged, this, nameof(_OnNpcEntityChanged));
 
-            // battleState.Connect(EBattleStateSignal.AllyAdded, this, nameof(_OnBattleAllyAdded));
-            // battleState.Connect(EBattleStateSignal.AllyRemoved, this, nameof(_OnBattleAllyRemoved));
-            //
-            // battleState.Connect(EBattleStateSignal.EnemyAdded, this, nameof(_OnBattleEnemyAdded));
-            // battleState.Connect(EBattleStateSignal.EnemyRemoved, this, nameof(_OnBattleEnemyRemoved));
+            netSocket.Connect(ENetSocketSignal.PacketChanged, this, nameof(_OnPacketChanged));
         }
-
-        // public void _OnBattleAllyAdded()
-        // {
-        //     
-        // }
-        //
-        // public void _OnBattleAllyRemoved()
-        // {
-        //     
-        // }
-        //
-        // public void _OnBattleEnemyAdded()
-        // {
-        //     
-        // }
-        //
-        // public void _OnBattleEnemyRemoved()
-        // {
-        //     
-        // }
 
         public void _OnPlayerAdded()
         {
-            var index = GetArgs[0].Int;
+            var playerId = GetArgs[0].UShort;
 
-            var playerDef = playerManager.GetPlayerDefByIndex(index);
-            entityManager.AcquirePlayerEntity(index, playerDef, out var entity);
-
+            var playerDef = playerManager.GetPlayerDefById(playerId);
+            entityManager.CreatePlayerEntity(playerDef, out var playerEntity);
             if (playerDef.IsLocal)
-                LocalEntity = entity;
-
-            entity.OnStartBattle();
+                LocalEntity = playerEntity;
         }
 
         public void _OnPlayerRemoved()
         {
-            var index = GetArgs[0].Int;
+            var playerId = GetArgs[0].UShort;
 
-            if (!entityManager.TryGetPlayerEntity(index, out var entity))
+            if (!entityManager.TryGetEntity(playerId, out var entity))
+            {
+                LogError($"Failed to find player entity (identifier={entity.Identifier}).");
                 return;
+            }
 
-            if (partyManager.TryGetEntityParty(entity, out var party))
-                _LeaveParty(entity, party);
-
-            entityManager.ReleasePlayerEntity(index);
-
-            var playerDef = playerManager.GetPlayerDefByIndex(index);
+            var playerDef = (CtPlayerDef)entity.EntityDef;
             if (playerDef.IsLocal)
                 LocalEntity = null;
+
+            // TODO: Make owner switch do a check and purge any invalid players, too.
+            if (Networking.IsMaster)
+            {
+                if (partyManager.TryGetEntityParty(entity, out var party))
+                    _LeaveParty(entity, party);
+            }
+
+            entityManager.ReleasePlayerEntity(playerDef);
         }
 
         public void _OnNpcEntityChanged()
@@ -122,7 +117,7 @@ namespace CreatureTime
             }
         }
 
-        public void JoinParty(CtEntity playerEntity)
+        private void JoinParty(CtEntity playerEntity)
         {
             if (partyManager.TryGetEntityParty(playerEntity, out var party))
             {
@@ -143,20 +138,28 @@ namespace CreatureTime
             JoinParty(playerEntity, party);
         }
 
-        public void JoinParty(CtEntity playerEntity, CtParty party)
+        private void JoinParty(CtEntity playerEntity, CtParty party)
         {
             party.Join(playerEntity);
         }
 
-        public void _LeaveParty(CtEntity playerEntity, CtParty party)
+        private void _LeaveParty(CtEntity playerEntity, CtParty party)
         {
             party.Leave(playerEntity);
 
             if (!_HasPlayers(party))
+            {
+                foreach (var battleState in battleStateManager.BattleStates)
+                    if (battleState.AllyParty == party)
+                    {
+                        EndBattle(battleState);
+                        break;
+                    }
                 party.Clear();
+            }
         }
 
-        public void LeaveParty(CtEntity playerEntity)
+        private void LeaveParty(CtEntity playerEntity)
         {
             if (!partyManager.TryGetEntityParty(playerEntity, out var party))
             {
@@ -192,7 +195,7 @@ namespace CreatureTime
             return false;
         }
 
-        public void AcquireRecruitNpc(CtEntity playerEntity, CtNpcDef npcDef)
+        private void AcquireRecruitNpc(CtEntity playerEntity, CtNpcDef npcDef)
         {
             if (!partyManager.TryGetEntityParty(playerEntity, out var party))
             {
@@ -225,7 +228,7 @@ namespace CreatureTime
             party.Join(recruit);
         }
 
-        public void ReleaseRecruitNpc(CtEntity recruit)
+        private void ReleaseRecruitNpc(CtEntity recruit)
         {
             if (!recruit)
             {
@@ -274,7 +277,7 @@ namespace CreatureTime
             party.Join(entity);
         }
 
-        public void StartBattle(CtParty party)
+        private void _StartBattle(CtParty party)
         {
             if (!partyManager.TryGetAvailableEnemyParty(out var enemyParty))
             {
@@ -286,15 +289,6 @@ namespace CreatureTime
 
             _PopulateEnemyParty(enemyParty);
 
-            if (!battleStateManager.TryCreateBattleState(party, enemyParty, out var battleState))
-            {
-#if DEBUG_LOGS
-                LogCritical("Could not find available battle state to start battle.");
-#endif
-                _ReleaseEnemyParty(battleState.EnemyParty);
-                return;
-            }
-
             for (int i = 0; i < party.MaxCount; ++i)
             {
                 var identifer = party.GetMemberId(i);
@@ -304,7 +298,20 @@ namespace CreatureTime
                 entity.OnStartBattle();
             }
 
+            if (!battleStateManager.TryCreateBattleState(party, enemyParty, out var battleState))
+            {
+#if DEBUG_LOGS
+                LogCritical("Could not find available battle state to start battle.");
+#endif
+                _ReleaseEnemyParty(battleState.EnemyParty);
+                return;
+            }
+
             stateMachine.Process(battleState.GetState());
+
+#if DEBUG_LOGS
+            LogDebug("Battle started.");
+#endif
         }
 
         private void _ReleaseEnemyParty(CtParty party)
@@ -316,7 +323,7 @@ namespace CreatureTime
                     continue;
                 entityManager.TryGetEntity(identifier, out var entity);
                 entity.OnEndBattle();
-                entityManager.ReleaseRecruitEntity(entity);
+                entityManager.ReleaseEnemy(entity);
                 party.Leave(entity);
             }
 
@@ -326,6 +333,24 @@ namespace CreatureTime
                 LogWarning("Enemy party was not empty.");
 #endif
             }
+        }
+
+        public void _Client_TestAttack()
+        {
+            entityManager.TryGetEntity(2000, out var target);
+#if DEBUG_LOGS
+            LogDebug($"Test Attack (target={target.name})");
+#endif
+            playerManager.LocalPlayerDef.WeaponAttack(target);
+        }
+
+        public void _Client_TestSkill()
+        {
+            entityManager.TryGetEntity(2000, out var target);
+#if DEBUG_LOGS
+            LogDebug($"Test Attack (target={target.name})");
+#endif
+            playerManager.LocalPlayerDef.UseSkill(0, target);
         }
 
         public void EndBattle(CtBattleState battleState)
@@ -341,6 +366,265 @@ namespace CreatureTime
 
             _ReleaseEnemyParty(battleState.EnemyParty);
             battleStateManager.ReleaseBattleState(battleState);
+
+#if DEBUG_LOGS
+            LogDebug("Battle ended.");
+#endif
+        }
+
+        public override void OnMasterTransferred(VRCPlayerApi newMaster)
+        {
+            if (!newMaster.isLocal)
+                return;
+
+            foreach (var battleState in battleStateManager.BattleStates)
+            {
+                if (battleState.InProgress)
+                    stateMachine.Process(battleState.GetState());
+            }
+        }
+
+        public void _OnPacketChanged()
+        {
+            byte[] data = netSocket.Packet;
+            if (data.Length < 4)
+                return;
+
+#if DEBUG_LOGS
+            LogDebug($"(Data.Length={data.Length})");
+#endif
+
+            int offset = 0;
+            int messageType = BitConverter.ToInt32(data, offset);
+            offset += 4;
+
+#if DEBUG_LOGS
+            LogDebug($"(MessageType={messageType})");
+#endif
+
+            ushort playerId = CtConstants.InvalidId;
+            ushort identifier = CtConstants.InvalidId;
+
+            switch (messageType)
+            {
+                case MessagePartyAcceptQuest:
+                    playerId = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    identifier = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    _HandlePartyAcceptQuest(playerId, identifier);
+
+                    return;
+                case MessagePartyJoin:
+                    playerId = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    identifier = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    _HandleJoinParty(playerId, identifier);
+
+                    return;
+                case MessagePartyLeave:
+                    playerId = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    _HandleLeaveParty(playerId);
+                    return;
+                case MessageRecruitJoin:
+                    playerId = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    identifier = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    _HandleRecruitNpc(playerId, identifier);
+
+                    return;
+                case MessageRecruitLeave:
+                    identifier = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    _HandleLeaveNpc(identifier);
+
+                    return;
+                case MessageStartBattle:
+                    identifier = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    _HandleStartBattle(identifier);
+
+                    return;
+                default:
+                    return;
+            }
+        }
+
+        public void RequestPartyAcceptQuest(CtEntity playerEntity, CtAbstractQuest quest)
+        {
+            // TODO
+        }
+
+        private void _HandlePartyAcceptQuest(ushort playerId, ushort questId)
+        {
+            // TODO
+        }
+
+        public void RequestJoinParty(CtEntity playerEntity, CtParty party)
+        {
+            int size = 0;
+
+            byte[] messageId = BitConverter.GetBytes(MessagePartyJoin);
+            size += messageId.Length;
+
+            byte[] playerIdBytes = BitConverter.GetBytes(playerEntity.Identifier);
+            size += playerIdBytes.Length;
+
+            var partyId = party ? party.Identifier : CtConstants.InvalidId;
+            byte[] partyIdBytes = BitConverter.GetBytes(partyId);
+            size += partyIdBytes.Length;
+
+            byte[] data = new byte[size];
+            int offset = 0;
+
+            Buffer.BlockCopy(messageId, 0, data, offset, messageId.Length);
+            offset += messageId.Length;
+
+            Buffer.BlockCopy(playerIdBytes, 0, data, offset, playerIdBytes.Length);
+            offset += playerIdBytes.Length;
+
+            Buffer.BlockCopy(partyIdBytes, 0, data, offset, partyIdBytes.Length);
+            offset += partyIdBytes.Length;
+
+            netSocket.SendToMasterOnly(data);
+        }
+
+        private void _HandleJoinParty(ushort playerId, ushort partyId)
+        {
+            entityManager.TryGetEntity(playerId, out var playerEntity);
+            if (partyId == CtConstants.InvalidId)
+            {
+                JoinParty(playerEntity);
+            }
+            else
+            {
+                partyManager.TryGetParty(partyId, out var party);
+                JoinParty(playerEntity, party);
+            }
+        }
+
+        public void RequestLeaveParty(CtEntity playerEntity)
+        {
+            int size = 0;
+
+            byte[] messageId = BitConverter.GetBytes(MessagePartyLeave);
+            size += messageId.Length;
+
+            byte[] playerIdBytes = BitConverter.GetBytes(playerEntity.Identifier);
+            size += playerIdBytes.Length;
+            byte[] data = new byte[size];
+            int offset = 0;
+
+            Buffer.BlockCopy(messageId, 0, data, offset, messageId.Length);
+            offset += messageId.Length;
+
+            Buffer.BlockCopy(playerIdBytes, 0, data, offset, playerIdBytes.Length);
+            offset += playerIdBytes.Length;
+
+            netSocket.SendToMasterOnly(data);
+        }
+
+        private void _HandleLeaveParty(ushort playerId)
+        {
+            entityManager.TryGetEntity(playerId, out var entity);
+            LeaveParty(entity);
+        }
+
+        public void RequestRecruitNpc(CtEntity playerEntity, CtNpcDef npcDef)
+        {
+            int size = 0;
+
+            byte[] messageId = BitConverter.GetBytes(MessageRecruitJoin);
+            size += messageId.Length;
+
+            byte[] playerIdBytes = BitConverter.GetBytes(playerEntity.Identifier);
+            size += playerIdBytes.Length;
+
+            byte[] npcIdBytes = BitConverter.GetBytes(npcDef.Identifier);
+            size += npcIdBytes.Length;
+
+            byte[] data = new byte[size];
+            int offset = 0;
+
+            Buffer.BlockCopy(messageId, 0, data, offset, messageId.Length);
+            offset += messageId.Length;
+
+            Buffer.BlockCopy(playerIdBytes, 0, data, offset, playerIdBytes.Length);
+            offset += playerIdBytes.Length;
+
+            Buffer.BlockCopy(npcIdBytes, 0, data, offset, npcIdBytes.Length);
+            offset += npcIdBytes.Length;
+
+            netSocket.SendToMasterOnly(data);
+        }
+
+        private void _HandleRecruitNpc(ushort playerId, ushort npcId)
+        {
+            entityManager.TryGetEntity(playerId, out var playerEntity);
+            AcquireRecruitNpc(playerEntity, gameData.GetNpcDef(npcId));
+        }
+
+        public void RequestLeaveNpc(CtEntity npcEntity)
+        {
+            int size = 0;
+
+            byte[] messageId = BitConverter.GetBytes(MessageRecruitLeave);
+            size += messageId.Length;
+
+            byte[] npcIdBytes = BitConverter.GetBytes(npcEntity.Identifier);
+            size += npcIdBytes.Length;
+
+            byte[] data = new byte[size];
+            int offset = 0;
+
+            Buffer.BlockCopy(messageId, 0, data, offset, messageId.Length);
+            offset += messageId.Length;
+
+            Buffer.BlockCopy(npcIdBytes, 0, data, offset, npcIdBytes.Length);
+            offset += npcIdBytes.Length;
+
+            netSocket.SendToMasterOnly(data);
+        }
+
+        private void _HandleLeaveNpc(ushort npcId)
+        {
+            entityManager.TryGetEntity(npcId, out var entity);
+            ReleaseRecruitNpc(entity);
+        }
+
+        public void RequestStartBattle(CtParty party)
+        {
+            int size = 0;
+
+            byte[] messageId = BitConverter.GetBytes(MessageStartBattle);
+            size += messageId.Length;
+
+            byte[] partyIdBytes = BitConverter.GetBytes(party.Identifier);
+            size += partyIdBytes.Length;
+
+            byte[] data = new byte[size];
+            int offset = 0;
+
+            Buffer.BlockCopy(messageId, 0, data, offset, messageId.Length);
+            offset += messageId.Length;
+
+            Buffer.BlockCopy(partyIdBytes, 0, data, offset, partyIdBytes.Length);
+            offset += partyIdBytes.Length;
+
+            netSocket.SendToMasterOnly(data);
+        }
+
+        private void _HandleStartBattle(ushort partyId)
+        {
+            if (!partyManager.TryGetParty(partyId, out var party))
+            {
+                return;
+            }
+
+            _StartBattle(party);
         }
     }
 }

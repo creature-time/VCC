@@ -5,9 +5,11 @@ using UnityEngine;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtBattleStateManager : CtAbstractSignal
+    public class CtBattleStateManager : CtSingleton
     {
         [SerializeField] private CtBattleState[] battleStates;
+
+        public CtBattleState[] BattleStates => battleStates;
 
         public bool TryCreateBattleState(CtParty allyParty, CtParty enemyParty, out CtBattleState battleState)
         {
@@ -53,6 +55,7 @@ namespace CreatureTime
                 battleState = bs;
                 return true;
             }
+
             return false;
         }
 
@@ -61,6 +64,7 @@ namespace CreatureTime
             battleState.AllyId = CtConstants.InvalidId;
             battleState.EnemyId = CtConstants.InvalidId;
             battleState.Initiatives = new ushort[] {};
+            battleState.State = EBattleState.Start;
             battleState.InProgress = false;
         }
     }

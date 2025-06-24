@@ -1,54 +1,27 @@
 ﻿
-using UdonSharp;
 using UnityEngine;
 
 namespace CreatureTime
 {
     public abstract class CtEntityBase : CtAbstractSignal
     {
-        protected CtEntityManager EntityManager;
-        private ushort _identifier = CtConstants.InvalidId;
+        [SerializeField] private CtEntityManager entityManager;
+        [SerializeField] private ushort identifier = CtConstants.InvalidId;
 
-        public ushort Identifier => _identifier;
+        public CtEntityManager EntityManager => entityManager;
 
-        [UdonSynced, FieldChangeCallback(nameof(EntityIdCallback))]
-        private ushort _entityId = CtConstants.InvalidId;
-
-        public ushort EntityIdCallback
+        public ushort Identifier
         {
-            get => _entityId;
-            set
-            {
-                var previousId = _entityId;
-                _entityId = value;
-
-                _OnEntityIdChanged();
-
-                SetArgs.Add(previousId);
-                SetArgs.Add(_entityId);
-                this.Emit(EEntitySignal.IdentifierChanged);
-            }
+            get => identifier;
+            protected set => identifier = value;
         }
 
-        public ushort EntityId
+        public abstract ushort EntityId
         {
-            get => EntityIdCallback;
-            set
-            {
-                EntityIdCallback = value;
-                RequestSerialization();
-            }
+            get;
         }
 
         public Transform SourceTransform { get; protected set; }
-
-        public virtual void Init(CtEntityManager entityManager, ushort identifier)
-        {
-            EntityManager = entityManager;
-            _identifier = identifier;
-        }
-
-        protected abstract void _OnEntityIdChanged();
 
         public abstract void ApplyDamage(ushort instanceId, int damage, EDamageType damageType,
             EDamageSourceType damageSourceType, int identifier,

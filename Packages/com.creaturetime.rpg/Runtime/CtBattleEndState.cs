@@ -6,8 +6,8 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtBattleEndState : CtStateBase
     {
-        [SerializeField] private CtBattleState battleState;
         [SerializeField] private CtRpgGame rpgGame;
+        [SerializeField] private CtBattleState battleState;
 
         public override CtStateBase GetNext(CtBlackboard context)
         {
@@ -21,6 +21,9 @@ namespace CreatureTime
 
         public override ENodeStatus Process(CtBlackboard context)
         {
+            if (!battleState.InProgress)
+                return ENodeStatus.Failure;
+
             rpgGame.EndBattle(battleState);
 
             return ENodeStatus.Success;

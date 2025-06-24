@@ -12,7 +12,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtDialogueManager : CtAbstractSignal
+    public class CtDialogueManager : CtSingleton
     {
         [SerializeField] private CtDialogueDatabase dialogueDatabase;
         [SerializeField] private CtConversationModel conversationModel;

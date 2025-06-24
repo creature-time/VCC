@@ -22,6 +22,8 @@ namespace CreatureTime
 
         public override ENodeStatus Process(CtBlackboard context)
         {
+            if (!battleState.InProgress)
+                return ENodeStatus.Failure;
             if (battleState.ArePlayersLoaded())
                 return ENodeStatus.Success;
             return ENodeStatus.Running;

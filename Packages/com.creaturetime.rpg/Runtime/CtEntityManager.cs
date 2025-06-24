@@ -1,4 +1,5 @@
-﻿
+﻿#define DEBUG_LOGS
+
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
@@ -11,41 +12,25 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtEntityManager : CtAbstractSignal
+    public class CtEntityManager : CtSingleton
     {
-        [SerializeField, HideInInspector] private CtEntity[] playerEntities;
-        [SerializeField, HideInInspector] private CtEntity[] recruitEntities;
-        [SerializeField, HideInInspector] private CtEntity[] enemyEntities;
+        [SerializeField, HideInInspector] private CtPlayerEntity[] playerEntities;
+        [SerializeField, HideInInspector] private CtNpcEntity[] recruitEntities;
+        [SerializeField, HideInInspector] private CtNpcEntity[] enemyEntities;
 
         private DataDictionary _entityLookup = new DataDictionary();
 
         public void Init()
         {
-            for (int i = 0; i < playerEntities.Length; i++)
+            foreach (var entity in recruitEntities)
             {
-                ushort id = (ushort)i;
-                var entity = playerEntities[i];
-                entity.Init(this, id);
-                _entityLookup.Add(id, entity);
-            }
-
-            for (int i = 0; i < recruitEntities.Length; i++)
-            {
-                ushort id = (ushort)(i + 1000);
-                var entity = recruitEntities[i];
-                entity.Init(this, id);
-                _entityLookup.Add(id, entity);
-
+                _entityLookup.Add(entity.Identifier, entity);
                 entity.Connect(EEntitySignal.IdentifierChanged, this, nameof(_OnIdentifierChanged));
             }
 
-            for (int i = 0; i < enemyEntities.Length; i++)
+            foreach (var entity in enemyEntities)
             {
-                ushort id = (ushort)(i + 2000);
-                var entity = enemyEntities[i];
-                entity.Init(this, id);
-                _entityLookup.Add(id, entity);
-
+                _entityLookup.Add(entity.Identifier, entity);
                 entity.Connect(EEntitySignal.IdentifierChanged, this, nameof(_OnIdentifierChanged));
             }
         }
@@ -74,28 +59,27 @@ namespace CreatureTime
             return false;
         }
 
-        public void AcquirePlayerEntity(int index, CtPlayerDef playerDef, out CtEntity entity)
+        public void CreatePlayerEntity(CtPlayerDef playerDef, out CtEntity entity)
         {
-            entity = playerEntities[index];
-            entity.EntityId = GeneratePartyId(playerDef);
+            var playerEntity = playerEntities[playerDef.PlayerId - 1];
+            playerEntity.PlayerDef = playerDef;
+            _entityLookup.Add(playerEntity.Identifier, playerEntity);
+            entity = playerEntity;
+
+#if DEBUG_LOGS
+                Log($"Setup player entity (identifier={playerEntity.Identifier}).");
+#endif
         }
 
-        public bool TryGetPlayerEntity(int index, out CtEntity entity)
+        public void ReleasePlayerEntity(CtPlayerDef playerDef)
         {
-            entity = playerEntities[index];
-            if (entity.EntityId == CtConstants.InvalidId)
-            {
-                entity = null;
-                return false;
-            }
+#if DEBUG_LOGS
+            Log($"Releasing player entity (playerId={playerDef.PlayerId}).");
+#endif
 
-            return true;
-        }
-
-        public void ReleasePlayerEntity(int index)
-        {
-            var entity = playerEntities[index];
-            entity.EntityId = CtConstants.InvalidId;
+            var playerEntity = playerEntities[playerDef.PlayerId - 1];
+            playerEntity.PlayerDef = null;
+            _entityLookup.Remove(playerEntity.Identifier);
         }
 
         public bool TryAcquireRecruit(CtNpcDef npcDef, out CtEntity entity)
@@ -105,7 +89,7 @@ namespace CreatureTime
             {
                 if (other.EntityId == CtConstants.InvalidId)
                 {
-                    other.EntityId = GeneratePartyId(npcDef);
+                    other.NpcId = npcDef.Identifier;
                     entity = other;
                     return true;
                 }
@@ -116,7 +100,8 @@ namespace CreatureTime
 
         public void ReleaseRecruitEntity(CtEntity entity)
         {
-            entity.EntityId = CtConstants.InvalidId;
+            var npcEntity = (CtNpcEntity)entity;
+            npcEntity.NpcId = CtConstants.InvalidId;
         }
 
         public bool TryCreateEnemy(CtNpcDef npcDef, out CtEntity entity)
@@ -126,7 +111,7 @@ namespace CreatureTime
             {
                 if (other.EntityId == CtConstants.InvalidId)
                 {
-                    other.EntityId = GeneratePartyId(npcDef);
+                    other.NpcId = npcDef.Identifier;
                     entity = other;
                     return true;
                 }
@@ -135,30 +120,10 @@ namespace CreatureTime
             return false;
         }
 
-        public static bool IsPlayer(ushort memberId)
+        public void ReleaseEnemy(CtEntity entity)
         {
-            return (memberId & 0x00FF) != 0;
-        }
-
-        public static ushort GetIdentifier(ushort memberId)
-        {
-            return (ushort)((memberId & 0xFF00) >> 8);
-        }
-
-        public static ushort GeneratePartyId(CtPlayerDef playerDef)
-        {
-            ushort partyId = 1 & 0xFF;
-            ushort idx = playerDef.PlayerId;
-            partyId |= (ushort)((idx & 0x00FF) << 8);
-            return partyId;
-        }
-
-        public static ushort GeneratePartyId(CtNpcDef npcDef)
-        {
-            ushort partyId = 0 & 0xFF;
-            ushort id = npcDef.Identifier;
-            partyId |= (ushort)((id & 0x00FF) << 8);
-            return partyId;
+            var npcEntity = (CtNpcEntity)entity;
+            npcEntity.NpcId = CtConstants.InvalidId;
         }
     }
 }

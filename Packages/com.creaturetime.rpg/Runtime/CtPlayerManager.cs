@@ -15,7 +15,7 @@ namespace CreatureTime
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtPlayerManager : CtAbstractSignal
+    public class CtPlayerManager : CtSingleton
     {
         [SerializeField, HideInInspector] private CtPlayerDef[] playerDefs;
         [SerializeField] private CtAvatarSnapshot avatarSnapshot;
@@ -49,36 +49,17 @@ namespace CreatureTime
             return null;
         }
 
-        public CtPlayerDef GetPlayerDefByIndex(int index)
-        {
-            return playerDefs[index];
-        }
-
-        public void OnPlayerDestroyed(CtPlayerDef playerDef)
-        {
-            Client_OnPlayerRemoved(playerDef);
-
-            int index = Array.IndexOf(playerDefs, playerDef);
-            playerDefs[index] = null;
-
-#if DEBUG_LOGS
-            LogDebug("Player Manager",
-                $"Player destroyed (displayName={playerDef.DisplayName}, playerId={playerDef.PlayerId})");
-#endif
-        }
-
         public void Client_OnPlayerAdded(CtPlayerDef playerDef)
         {
 #if DEBUG_LOGS
-            LogDebug("Player Manager",
-                $"Player added (displayName={playerDef.DisplayName}).");
+            LogDebug($"Player added (displayName={playerDef.DisplayName}).");
 #endif
 
             int index = Array.IndexOf(playerDefs, null);
             if (index == -1)
             {
 #if DEBUG_LOGS
-                LogCritical("Player Manager", "Could not find available player definition.");
+                LogCritical("Could not find available player definition.");
 #endif
                 return;
             }
@@ -93,7 +74,7 @@ namespace CreatureTime
 
             playerDefs[index] = playerDef;
 
-            SetArgs.Add(index);
+            SetArgs.Add(playerDef.PlayerId);
             this.Emit(EPlayerManagerSignal.PlayerAdded);
 
             QueueUpdatePlayerAvatar(playerDef.PlayerId);
@@ -101,10 +82,11 @@ namespace CreatureTime
 
         public void Client_OnPlayerRemoved(CtPlayerDef playerDef)
         {
-            int index = Array.IndexOf(playerDefs, playerDef);
-
-            SetArgs.Add(index);
+            SetArgs.Add(playerDef.PlayerId);
             this.Emit(EPlayerManagerSignal.PlayerRemoved);
+
+            int index = Array.IndexOf(playerDefs, playerDef);
+            playerDefs[index] = null;
 
             if (playerDef.IsLocal)
             {
@@ -115,8 +97,7 @@ namespace CreatureTime
             playerRenderTextures[index].Release();
 
 #if DEBUG_LOGS
-            LogDebug("Player Manager",
-                $"Player removed (displayName={playerDef.DisplayName}).");
+            LogDebug($"Player removed (displayName={playerDef.DisplayName}).");
 #endif
         }
 

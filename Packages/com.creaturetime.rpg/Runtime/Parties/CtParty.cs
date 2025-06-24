@@ -19,6 +19,7 @@ namespace CreatureTime
     public class CtParty : CtAbstractSignal
     {
         [SerializeField] private CtPartyManager partyManager;
+        [SerializeField] private ushort identifier = CtConstants.InvalidId;
 
         [SerializeField, HideInInspector, UdonSynced] private ushort[] members;
         [SerializeField, HideInInspector] private ushort[] membersCmp;
@@ -53,7 +54,7 @@ namespace CreatureTime
 
         private DataList _memberCache = new DataList();
 
-        public ushort Identifier {get; private set; }
+        public ushort Identifier => identifier;
         public bool IsEmpty => _memberCache.Count == 0;
         public bool IsFull => _memberCache.Count == members.Length;
         public int Count => _memberCache.Count;
@@ -64,11 +65,6 @@ namespace CreatureTime
             membersCmp = new ushort[members.Length];
             for (int i = 0; i < membersCmp.Length; i++)
                 membersCmp[i] = CtConstants.InvalidId;
-        }
-
-        public void Init(ushort identifier)
-        {
-            Identifier = identifier;
         }
 
         public override void OnDeserialization()
