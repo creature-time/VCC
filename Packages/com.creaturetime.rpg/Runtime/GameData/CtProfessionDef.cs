@@ -9,7 +9,7 @@ namespace CreatureTime
     {
         [SerializeField] private string displayName;
         [SerializeField] private CtAttributeDef[] attributes;
-        [SerializeField] private Color theme;
+        [SerializeField] private Color theme = Color.black;
 
         public string DisplayName => displayName;
         public CtAttributeDef[] Attributes => attributes;

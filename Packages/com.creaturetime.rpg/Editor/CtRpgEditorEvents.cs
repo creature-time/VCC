@@ -17,7 +17,7 @@ namespace CreatureTime
 {
     public static class CtRpgEditorEvents
     {
-        private static VRCWorld _GetWorld()
+        private static async Task<VRCWorld> _GetWorld()
         {
             VRCWorld worldData;
 
@@ -31,9 +31,7 @@ namespace CreatureTime
             }
             else
             {
-                var task = VRCApi.GetWorld(pipelineManager.blueprintId, true);
-                Task.Run(() => task).Wait();
-                worldData = task.Result;
+                worldData = await VRCApi.GetWorld(pipelineManager.blueprintId, true);
             }
 
             return worldData;
@@ -147,11 +145,11 @@ namespace CreatureTime
 
             var xform = partyManager.transform.Find("PlayerParties/_Template");
             _UpdatePartyTemplate(xform, 4);
-            _UpdateParties<CtPartyManager, CtParty>(partyManager, "playerParty", "playerParties", 1000, capacity, xform);
+            _UpdateParties<CtPartyManager, CtParty>(partyManager, "playerParty", "playerParties", 0, capacity, xform);
 
             xform = partyManager.transform.Find("EnemyParties/_Template");
             _UpdatePartyTemplate(xform, 4);
-            _UpdateParties<CtPartyManager, CtParty>(partyManager, "enemyParty", "enemyParties", 2000, capacity, xform);
+            _UpdateParties<CtPartyManager, CtParty>(partyManager, "enemyParty", "enemyParties", 1000, capacity, xform);
         }
 
         private static void _UpdateParties<TManager, T>(TManager manager, string prefix, string targetPropertyName, 
@@ -249,9 +247,9 @@ namespace CreatureTime
         }
 
         [MenuItem("CreatureTime/Rpg/Update Counts", false, 1)]
-        private static void _UpdateCounts()
+        private static async void _UpdateCounts()
         {
-            var worldData = _GetWorld();
+            var worldData = await _GetWorld();
 
             _UpdateRenderTargets(worldData.Capacity);
             _UpdateParties(worldData.Capacity);
@@ -263,7 +261,7 @@ namespace CreatureTime
         [MenuItem("CreatureTime/Rpg/Update All Global Parameters", false, 3)]
         private static void UpdateAllGlobalParameters()
         {
-            Dictionary<Type, UdonSharpBehaviour> singletons = new Dictionary<Type, UdonSharpBehaviour>();
+            Dictionary<Type, CtSingleton> singletons = new Dictionary<Type, CtSingleton>();
 
             // Find all objects for each singleton type from all assemblies.
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -272,7 +270,7 @@ namespace CreatureTime
                              .Where(myType =>
                                  myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(CtSingleton))))
                 {
-                    singletons.Add(typ, (UdonSharpBehaviour)Object.FindObjectOfType(typ));
+                    singletons.Add(typ, (CtSingleton)Object.FindFirstObjectByType(typ, FindObjectsInactive.Include));
                 }
 
             // Throw error if singleton does not exist in the scene.

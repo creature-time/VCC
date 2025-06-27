@@ -292,8 +292,8 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 6742349204099128093}
   logger: {fileID: 0}
-  battleState: {fileID: 3933716108148538209}
   rpgGame: {fileID: 0}
+  battleState: {fileID: 3933716108148538209}
 --- !u!114 &6742349204099128093
 MonoBehaviour:
   m_ObjectHideFlags: 0

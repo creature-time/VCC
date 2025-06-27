@@ -18,7 +18,7 @@ namespace CreatureTime
         [SerializeField] private EDialogueChoiceType choiceType;
         [SerializeField] private CtResponseCondition[] conditions;
         [SerializeField] private CtResponseConsequence[] consequences;
-        [SerializeField] private ushort nextId;
+        [SerializeField] private ushort nextId = CtConstants.InvalidId;
 
         public ushort Index => index;
         public string DisplayText => displayText;

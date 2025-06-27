@@ -91,6 +91,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 7687631111612201035}
   logger: {fileID: 0}
+  playerEntities: []
   recruitEntities:
   - {fileID: 0}
   - {fileID: 0}
@@ -208,6 +209,10 @@ PrefabInstance:
     - target: {fileID: 1335498316770938519, guid: 30d1d86525248934fa07b4a110ff5dea, type: 3}
       propertyPath: m_Name
       value: _Template
+      objectReference: {fileID: 0}
+    - target: {fileID: 4170920779571354136, guid: 30d1d86525248934fa07b4a110ff5dea, type: 3}
+      propertyPath: logger
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4170920779571354136, guid: 30d1d86525248934fa07b4a110ff5dea, type: 3}
       propertyPath: serializationData.Prefab

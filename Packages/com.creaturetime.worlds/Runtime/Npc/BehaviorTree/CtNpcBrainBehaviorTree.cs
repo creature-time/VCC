@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtNpcBrainBehaviorTreeTest : CtNpcBrain
+    public class CtNpcBrainBehaviorTree : CtNpcBrain
     {
         [SerializeField] private CtBlackboardEntryData entryData;
         [SerializeField] private CtBehaviorTree behaviorTree;

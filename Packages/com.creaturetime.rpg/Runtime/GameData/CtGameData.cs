@@ -13,9 +13,11 @@ namespace CreatureTime
         private DataDictionary _offHandDefinitions = new DataDictionary();
         private DataDictionary _armorDefinitions = new DataDictionary();
         private DataDictionary _professionDefinitions = new DataDictionary();
+        private DataDictionary _questDefinitions = new DataDictionary();
 
         public CtSkillDef[] Skills { get; private set; }
         public CtProfessionDef[] Professions { get; private set; }
+        public CtAbstractQuest[] Quests { get; private set; }
 
         public void Init()
         {
@@ -25,6 +27,7 @@ namespace CreatureTime
             CtOffHandDef[] offHandDefs = GetComponentsInChildren<CtOffHandDef>(true);
             CtArmorDef[] armorDefs = GetComponentsInChildren<CtArmorDef>(true);
             Professions = GetComponentsInChildren<CtProfessionDef>(true);
+            Quests = GetComponentsInChildren<CtAbstractQuest>(true);
 
             for (int i = 0; i < npcDefs.Length; i++)
             {
@@ -62,8 +65,14 @@ namespace CreatureTime
                 _professionDefinitions[professionDef.Identifier] = professionDef;
             }
 
+            for (int i = 0; i < Quests.Length; i++)
+            {
+                var quest = Quests[i];
+                _questDefinitions[quest.Identifier] = quest;
+            }
+
 #if DEBUG_LOGS
-            LogDebug("Rpg Data", "Data Initialized.");
+            LogDebug("Data Initialized.");
 #endif
         }
 
@@ -137,6 +146,18 @@ namespace CreatureTime
                 return null;
             }
             return (CtProfessionDef)dataToken.Reference;
+        }
+
+        public CtAbstractQuest GetQuestDef(ushort identifier)
+        {
+            if (!_questDefinitions.TryGetValue(identifier, out var dataToken))
+            {
+#if DEBUG_LOGS
+                LogWarning($"Failed to find quest by identifier (identifier={identifier}).");
+#endif
+                return null;
+            }
+            return (CtAbstractQuest)dataToken.Reference;
         }
     }
 }

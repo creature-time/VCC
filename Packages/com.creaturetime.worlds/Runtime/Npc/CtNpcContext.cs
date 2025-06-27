@@ -5,7 +5,7 @@ using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
-    public abstract class CtNpcContext : CtBlackboard
+    public class CtNpcContext : CtBlackboard
     {
         // [SerializeField] private CtNpcBrain brain;
         [SerializeField] private NavMeshAgent agent;

@@ -14,34 +14,22 @@ namespace CreatureTime
     public class CtConversationModel : CtAbstractConversationModel
     {
         private CtDialogueEntry _entry;
-
-        // [UdonSynced, FieldChangeCallback(nameof(ConversationIdCallback))] 
         private ushort _entryId = CtConstants.InvalidId;
 
-        public ushort ConversationIdCallback
+        public override ushort Identifier
         {
             get => _entryId;
             set
             {
                 _entryId = value;
-                dialogueDatabase.TryGetDialogueEntry(_entryId, out _entry);
-                if (_entry)
+                if (dialogueDatabase.TryGetDialogueEntry(_entryId, out _entry))
                     State = EConversationState.Processing;
 
                 this.Emit(EConversationModelSignal.EntryChanged);
             }
         }
 
-        public override ushort Identifier
-        {
-            get => ConversationIdCallback;
-            set
-            {
-                ConversationIdCallback = value;
-                // TODO: Can we make this toggleable or externally controlled?
-                // RequestSerialization();
-            }
-        }
+        public CtDialogueEntry Entry => _entry;
 
         public string ActorName
         {

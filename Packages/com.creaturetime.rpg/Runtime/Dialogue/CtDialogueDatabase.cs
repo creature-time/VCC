@@ -1,7 +1,6 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VRC.SDK3.Data;
 
 namespace CreatureTime
@@ -11,7 +10,7 @@ namespace CreatureTime
     {
         [SerializeField] private CtDialogueActor[] actors;
         [SerializeField] private CtConversation[] conversations;
-        [FormerlySerializedAs("chatterConversations")] [SerializeField] private CtChatter[] chatters;
+        [SerializeField] private CtChatter[] chatters;
 
         private DataDictionary _actors = new DataDictionary();
         private DataDictionary _conversations = new DataDictionary();

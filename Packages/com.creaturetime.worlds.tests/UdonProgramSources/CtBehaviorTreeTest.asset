@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtBehaviorTreeTest
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: bc82ff86e4067a3448ce8c3a195f342e, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: faed9fe9131c7bf40babf8b33458708f, type: 2}
   udonAssembly: 
   assemblyError: 
-  sourceCsScript: {fileID: 11500000, guid: 68f82dab0b1453647817dc21e6827e11, type: 3}
+  sourceCsScript: {fileID: 11500000, guid: c9b4cd51818c3944fb853a1387718a69, type: 3}
   scriptVersion: 2
   compiledVersion: 2
   behaviourSyncMode: 2

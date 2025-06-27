@@ -1,11 +1,26 @@
 ﻿using UdonSharp;
+using UnityEngine;
 
 namespace CreatureTime
 {
-    public abstract class CtNpcExpert : UdonSharpBehaviour
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
+    public class CtNpcExpert : UdonSharpBehaviour
     {
-        public abstract int GetInsistence(CtNpcContext blackboard);
-        public abstract void Execute(CtNpcContext blackboard);
-        public abstract CtBehaviorTreeNodeBase[] GetActions();
+        [SerializeField] private CtBehaviorTreeNodeBase[] nodes;
+
+        public virtual int GetInsistence(CtNpcContext blackboard)
+        {
+            return 0;
+        }
+
+        public virtual void Execute(CtNpcContext blackboard)
+        {
+            // Do any setup here with the blackboard.
+        }
+
+        public virtual CtBehaviorTreeNodeBase[] GetActions()
+        {
+            return nodes;
+        }
     }
 }

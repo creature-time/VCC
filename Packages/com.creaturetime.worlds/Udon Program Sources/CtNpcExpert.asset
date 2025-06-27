@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
-  m_Name: CtNpcExpertTest
+  m_Name: CtNpcExpert
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: fd0837851e63d93459b5649be64ae583, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 73fecf9fa436daf4186e699cbcc4a64d, type: 2}
   udonAssembly: 
   assemblyError: 
-  sourceCsScript: {fileID: 11500000, guid: 3a12a677dcc34f346bce0a8a4dea8391, type: 3}
+  sourceCsScript: {fileID: 11500000, guid: 6f6e3364718be6842a1960019ce0ea21, type: 3}
   scriptVersion: 2
   compiledVersion: 2
   behaviourSyncMode: 2
   hasInteractEvent: 0
-  scriptID: -1213355435789603657
+  scriptID: -2430949496398671542
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -91,7 +91,13 @@ MonoBehaviour:
       Data: 5|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib
     - Name: 
       Entry: 12
-      Data: 0
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 6|UnityEngine.SerializeField, UnityEngine.CoreModule
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 13
       Data: 

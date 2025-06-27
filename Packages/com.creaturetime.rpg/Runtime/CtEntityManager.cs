@@ -22,6 +22,11 @@ namespace CreatureTime
 
         public void Init()
         {
+            foreach (var entity in playerEntities)
+            {
+                _entityLookup.Add(entity.Identifier, entity);
+            }
+
             foreach (var entity in recruitEntities)
             {
                 _entityLookup.Add(entity.Identifier, entity);
@@ -63,7 +68,7 @@ namespace CreatureTime
         {
             var playerEntity = playerEntities[playerDef.PlayerId - 1];
             playerEntity.PlayerDef = playerDef;
-            _entityLookup.Add(playerEntity.Identifier, playerEntity);
+            // _entityLookup.Add(playerEntity.Identifier, playerEntity);
             entity = playerEntity;
 
 #if DEBUG_LOGS
@@ -79,7 +84,7 @@ namespace CreatureTime
 
             var playerEntity = playerEntities[playerDef.PlayerId - 1];
             playerEntity.PlayerDef = null;
-            _entityLookup.Remove(playerEntity.Identifier);
+            // _entityLookup.Remove(playerEntity.Identifier);
         }
 
         public bool TryAcquireRecruit(CtNpcDef npcDef, out CtEntity entity)

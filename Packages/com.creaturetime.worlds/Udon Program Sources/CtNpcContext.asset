@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
-  m_Name: CtBattleNpcContext
+  m_Name: CtNpcContext
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 40cfc36862aef024b843f55caf6e5616, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 3222c7f9fcc235a45bc87240a3ce26c8, type: 2}
   udonAssembly: 
   assemblyError: 
-  sourceCsScript: {fileID: 11500000, guid: 7f4df340064a86248a8e79e00bbcb60a, type: 3}
+  sourceCsScript: {fileID: 11500000, guid: d0261abe21499a046add0c337d66f88b, type: 3}
   scriptVersion: 2
   compiledVersion: 2
-  behaviourSyncMode: 2
+  behaviourSyncMode: 1
   hasInteractEvent: 0
-  scriptID: 1267028139967882174
+  scriptID: -259763974422281466
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 

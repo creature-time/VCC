@@ -1,4 +1,5 @@
-﻿
+﻿#define DEBUG_LOGS
+
 using System;
 using UdonSharp;
 using UnityEngine;
@@ -30,11 +31,8 @@ namespace CreatureTime
         [SerializeField] private CtDialogueManager dialogueManager;
         [SerializeField] private CtNetSocket netSocket;
 
-        [SerializeField] private CtAbstractQuest[] quests;
         [SerializeField] private CtBattleStateManager battleStateManager;
         [SerializeField] private CtStateMachine stateMachine;
-
-        private DataDictionary _quests = new DataDictionary();
 
         public CtGameData GameData => gameData;
         public CtPlayerManager PlayerManager => playerManager;
@@ -54,9 +52,6 @@ namespace CreatureTime
             playerManager.Init();
             partyManager.Init();
             entityManager.Init();
-
-            foreach (var quest in quests)
-                _quests.Add(quest.Identifier, quest);
 
             playerManager.Connect(EPlayerManagerSignal.PlayerAdded, this, nameof(_OnPlayerAdded));
             playerManager.Connect(EPlayerManagerSignal.PlayerRemoved, this, nameof(_OnPlayerRemoved));
@@ -264,20 +259,17 @@ namespace CreatureTime
             party.Quest = CtConstants.InvalidId;
         }
 
-        private void _PopulateEnemyParty(CtParty party)
+        private void _PopulateEnemyParty(CtParty party, CtNpcDef[] npcDefs)
         {
-            entityManager.TryCreateEnemy(gameData.GetNpcDef(1), out var entity);
-            entity.OnStartBattle();
-            party.Join(entity);
-            entityManager.TryCreateEnemy(gameData.GetNpcDef(2), out entity);
-            entity.OnStartBattle();
-            party.Join(entity);
-            entityManager.TryCreateEnemy(gameData.GetNpcDef(3), out entity);
-            entity.OnStartBattle();
-            party.Join(entity);
+            foreach (var npcDef in npcDefs)
+            {
+                entityManager.TryCreateEnemy(npcDef, out var entity);
+                entity.OnStartBattle();
+                party.Join(entity);
+            }
         }
 
-        private void _StartBattle(CtParty party)
+        private void _StartBattle(CtParty party, CtNpcDef[] npcDefs)
         {
             if (!partyManager.TryGetAvailableEnemyParty(out var enemyParty))
             {
@@ -287,7 +279,7 @@ namespace CreatureTime
                 return;
             }
 
-            _PopulateEnemyParty(enemyParty);
+            _PopulateEnemyParty(enemyParty, npcDefs);
 
             for (int i = 0; i < party.MaxCount; ++i)
             {
@@ -455,12 +447,53 @@ namespace CreatureTime
 
         public void RequestPartyAcceptQuest(CtEntity playerEntity, CtAbstractQuest quest)
         {
-            // TODO
+            int size = 0;
+
+            byte[] messageId = BitConverter.GetBytes(MessagePartyAcceptQuest);
+            size += messageId.Length;
+
+            byte[] playerIdBytes = BitConverter.GetBytes(playerEntity.Identifier);
+            size += playerIdBytes.Length;
+
+            byte[] questIdBytes = BitConverter.GetBytes(quest.Identifier);
+            size += questIdBytes.Length;
+
+            byte[] data = new byte[size];
+            int offset = 0;
+
+            Buffer.BlockCopy(messageId, 0, data, offset, messageId.Length);
+            offset += messageId.Length;
+
+            Buffer.BlockCopy(playerIdBytes, 0, data, offset, playerIdBytes.Length);
+            offset += playerIdBytes.Length;
+
+            Buffer.BlockCopy(questIdBytes, 0, data, offset, questIdBytes.Length);
+            offset += questIdBytes.Length;
+
+            netSocket.SendToMasterOnly(data);
         }
 
         private void _HandlePartyAcceptQuest(ushort playerId, ushort questId)
         {
-            // TODO
+            if (!entityManager.TryGetEntity(playerId, out var playerEntity))
+            {
+#if DEBUG_LOGS
+                LogError($"Failed to find player entity (playerId={playerId}).");
+#endif
+                return;
+            }
+
+            JoinParty(playerEntity);
+
+            if (!partyManager.TryGetEntityParty(playerEntity, out var party))
+            {
+#if DEBUG_LOGS
+                LogWarning($"Failed to find party for entity (identifier={playerEntity.Identifier})");
+#endif
+                return;
+            }
+
+            party.Quest = questId;
         }
 
         public void RequestJoinParty(CtEntity playerEntity, CtParty party)
@@ -595,6 +628,35 @@ namespace CreatureTime
             ReleaseRecruitNpc(entity);
         }
 
+        public void _RequestStartBattleTest()
+        {
+            if (!partyManager.TryGetEntityParty(LocalEntity, out var party))
+            {
+                LogWarning($"Local entity was not in a party (identifier={LocalEntity.Identifier}).");
+                return;
+            }
+
+            var quest = gameData.GetQuestDef(party.Quest);
+            if (!quest)
+            {
+                LogWarning($"Failed to get quest definition (identifier={party.Quest}).");
+                return;
+            }
+
+            RequestStartBattle(party);
+        }
+
+        public void StartBattle(CtParty party, CtNpcDef[] npcDefs)
+        {
+            if (npcDefs.Length == 0)
+            {
+                LogError("No npc defs to battle against.");
+                return;
+            }
+
+            _StartBattle(party, npcDefs);
+        }
+
         public void RequestStartBattle(CtParty party)
         {
             int size = 0;
@@ -624,7 +686,14 @@ namespace CreatureTime
                 return;
             }
 
-            _StartBattle(party);
+            var quest = gameData.GetQuestDef(party.Quest);
+            if (!quest)
+            {
+                LogWarning($"Failed to get quest definition (identifier={party.Quest}).");
+                return;
+            }
+
+            quest.Execute(party);
         }
     }
 }

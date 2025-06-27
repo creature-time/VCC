@@ -59,9 +59,42 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1706568214177810986}
+  logger: {fileID: 0}
   playerDefs: []
   avatarSnapshot: {fileID: 5713273844636986763}
-  playerRenderTextures: []
+  playerRenderTextures:
+  - {fileID: 8400000, guid: 550f61d3d847d3046a958298a16fa634, type: 2}
+  - {fileID: 8400000, guid: 97a9269453ccf7345ba1f8cdbce9e440, type: 2}
+  - {fileID: 8400000, guid: fbe1a32ede38bdd4b914b6c781f80143, type: 2}
+  - {fileID: 8400000, guid: 67efbaf450c0e1f4c85dc4163c508c65, type: 2}
+  - {fileID: 8400000, guid: c2471f96d1a659548aa11676b5497941, type: 2}
+  - {fileID: 8400000, guid: c14fceb2222d40b47a67c979c38cadee, type: 2}
+  - {fileID: 8400000, guid: 03c9536e6445fcf47b904efa37672b41, type: 2}
+  - {fileID: 8400000, guid: 3cd4725e32774074ab1a2b39cf7be8a5, type: 2}
+  - {fileID: 8400000, guid: f9acfb9e88bfbeb439c7b51f02f946bf, type: 2}
+  - {fileID: 8400000, guid: 4c2e3ca9ef635dd43b03771a543bc66a, type: 2}
+  - {fileID: 8400000, guid: d13ca83a0c5820f4cb2e96e9a486757b, type: 2}
+  - {fileID: 8400000, guid: a00c3c40f0163fd4284cd9c59bced78f, type: 2}
+  - {fileID: 8400000, guid: 58c409e857c7e004d85d8dd53aadbe2b, type: 2}
+  - {fileID: 8400000, guid: a2c74630bec39784dbadbb0282c215f6, type: 2}
+  - {fileID: 8400000, guid: 615af43e5b8b2db4a85e0323b2efdb94, type: 2}
+  - {fileID: 8400000, guid: ab76b8dfff31cba46910b0651d098cd5, type: 2}
+  - {fileID: 8400000, guid: 000edc9cc09a7704ea3590f2ff04a842, type: 2}
+  - {fileID: 8400000, guid: 8aa3441d90859c746a0bd1fab3a8a0b1, type: 2}
+  - {fileID: 8400000, guid: 2c1d824c0170977469111262ec168149, type: 2}
+  - {fileID: 8400000, guid: 5519db2b6d8ff904eadf6176f14b0349, type: 2}
+  - {fileID: 8400000, guid: ad6a37368a353d54abcd2612067cece2, type: 2}
+  - {fileID: 8400000, guid: b9f682a9425c6d1449f778282dbca351, type: 2}
+  - {fileID: 8400000, guid: cef53048d94c8bb409f72c9fd109110d, type: 2}
+  - {fileID: 8400000, guid: 3cbf99febea96cf4f95d39c9036c6ab2, type: 2}
+  - {fileID: 8400000, guid: cefeed41a94814a4193c8d79093d66ad, type: 2}
+  - {fileID: 8400000, guid: ec5aaeff5ba17dc429227846b96b4cb8, type: 2}
+  - {fileID: 8400000, guid: 0beaf6e3e4260c74ebe06d0e7bb02efc, type: 2}
+  - {fileID: 8400000, guid: fa218c1bfe38cf446ae4569fcbf326cc, type: 2}
+  - {fileID: 8400000, guid: 908217c248c656147883c221469a244d, type: 2}
+  - {fileID: 8400000, guid: 3ed8556cfb41ca04fb24683adcb3d56b, type: 2}
+  - {fileID: 8400000, guid: 593d875f237fb8a4f85e9986832f6afd, type: 2}
+  - {fileID: 8400000, guid: 7508defa1c622d74ca13f10047d6aab4, type: 2}
 --- !u!114 &1706568214177810986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,6 +348,10 @@ PrefabInstance:
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 8643617009290205713, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
+    - target: {fileID: 9210175904081999149, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
+      propertyPath: logger
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 9210175904081999149, guid: b739f357d1b6bd74d897d9509c0be82a, type: 3}
       propertyPath: serializationData.Prefab
       value: 

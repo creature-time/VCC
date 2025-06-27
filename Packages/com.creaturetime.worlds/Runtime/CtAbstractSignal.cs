@@ -1,5 +1,4 @@
 
-using UnityEngine;
 using VRC.SDK3.Data;
 
 namespace CreatureTime
@@ -23,29 +22,34 @@ namespace CreatureTime
         {
             if (!_callbacks.ContainsKey(typeId))
             {
+#if DEBUG_LOGS
+                LogDebug($"Adding typeId to callbacks (signal={this}, typeId={typeId}).");
+#endif
                 _callbacks.Add(typeId, new DataDictionary());
             }
 
             if (!_callbacks[typeId].DataDictionary.ContainsKey(receiver))
             {
+#if DEBUG_LOGS
+                LogDebug($"Adding receiver to receivers (signal={this}, typeId={typeId}, receiver={receiver}).");
+#endif
                 _callbacks[typeId].DataDictionary.Add(receiver, new DataList());
             }
 
-            _callbacks[typeId].DataDictionary[receiver].DataList.Add(method);
 #if DEBUG_LOGS
-            LogDebug($"Connected (typeId={typeId}, receiver={receiver}, method={method}).");
+            LogDebug($"Connected (signal={this}, typeId={typeId}, receiver={receiver}, method={method}).");
 #endif
+            _callbacks[typeId].DataDictionary[receiver].DataList.Add(method);
         }
 
         public void Disconnect(int typeId, CtAbstractSignal receiver, string method)
         {
-            DataDictionary receivers;
             if (!_callbacks.ContainsKey(typeId))
             {
                 return;
             }
 
-            receivers = _callbacks[typeId].DataDictionary;
+            DataDictionary receivers = _callbacks[typeId].DataDictionary;
             if (!receivers.ContainsKey(receiver))
             {
                 return;
@@ -54,17 +58,23 @@ namespace CreatureTime
             DataList methods = receivers[receiver].DataList;
             methods.Remove(method);
 
+#if DEBUG_LOGS
+            LogDebug($"Disconnected (signal={this}, typeId={typeId}, receiver={receiver}, method={method}).");
+#endif
+
             if (methods.Count > 0)
                 return;
+#if DEBUG_LOGS
+            LogDebug($"Removing receiver from receivers (signal={this}, typeId={typeId}, receiver={receiver}).");
+#endif
+            receivers.Remove(receiver);
 
-            receivers.Remove(method);
             if (receivers.Count > 0)
                 return;
-
-            _callbacks.Remove(receiver);
 #if DEBUG_LOGS
-            LogDebug($"Disconnected (typeId={typeId}, receiver={receiver}, method={method}).");
+            LogDebug($"Removing typeId from callbacks (signal={this}, typeId={typeId}).");
 #endif
+            _callbacks.Remove(typeId);
         }
 
         public void Emit(int typeId)
@@ -74,6 +84,10 @@ namespace CreatureTime
 
             _blocked = true;
 
+#if DEBUG_LOGS
+            LogDebug($"Begin emitting (signal={this}, typeId={typeId}).");
+#endif
+
             if (_callbacks.TryGetValue(typeId, TokenType.DataDictionary, out DataToken token))
             {
                 var receivers = token.DataDictionary;
@@ -82,6 +96,14 @@ namespace CreatureTime
                 for (int i = 0; i < tokens.Length; ++i)
                 {
                     var receiver = tokens[i];
+                    if (!receivers.ContainsKey(receiver))
+                    {
+#if DEBUG_LOGS
+                        LogWarning($"Receiver was invalid (signal={this}, typeId={typeId}, receiver={receiver}).");
+#endif
+                        continue;
+                    }
+
                     var reference = (CtAbstractSignal)receiver.Reference;
 
                     reference._sender.Insert(0, this);
@@ -91,11 +113,11 @@ namespace CreatureTime
                     for (int j = 0; j < methods.Count; ++j)
                     {
                         string method = methods[j].String;
+
 #if DEBUG_LOGS
-                        LogDebug(
-                            "Emitting " +
-                            $"(typeId={typeId}, sender={reference.Sender}, receiver={receiver}, method={method}).");
+                        LogDebug($"Emitting (signal={this}, typeId={typeId}, receiver={receiver}, method={method}).");
 #endif
+
                         reference.SendCustomEvent(method);
                     }
 

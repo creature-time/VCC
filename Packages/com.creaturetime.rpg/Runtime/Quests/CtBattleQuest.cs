@@ -1,14 +1,18 @@
-﻿
-using UdonSharp;
+﻿using UdonSharp;
+using UnityEngine;
 
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtBattleQuest : CtAbstractQuest
     {
-        public override void Execute()
+        [SerializeField] private CtRpgGame rpgGame;
+
+        [SerializeField] private CtNpcDef[] npcDefinitions;
+
+        public override void Execute(CtParty party)
         {
-            
+            rpgGame.StartBattle(party, npcDefinitions);
         }
     }
 }

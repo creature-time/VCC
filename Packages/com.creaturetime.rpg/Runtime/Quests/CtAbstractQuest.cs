@@ -13,6 +13,6 @@ namespace CreatureTime
         public virtual Texture2D Icon => icon;
         public virtual int LevelReq => levelReq;
 
-        public abstract void Execute();
+        public abstract void Execute(CtParty party);
     }
 }

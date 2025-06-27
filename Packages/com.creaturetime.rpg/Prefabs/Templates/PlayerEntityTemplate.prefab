@@ -60,8 +60,6 @@ MonoBehaviour:
   identifier: 65535
   gameData: {fileID: 0}
   playerManager: {fileID: 0}
-  playerDef: {fileID: 0}
-  playerTurn: {fileID: 0}
 --- !u!114 &5740171394666362694
 MonoBehaviour:
   m_ObjectHideFlags: 0

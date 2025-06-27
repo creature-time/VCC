@@ -6,17 +6,28 @@ using VRC.SDKBase;
 
 namespace CreatureTime
 {
-    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtBehaviorTreePathFindingTest : CtBehaviorTreeNodeBase
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
+    public class CtPathFindingNode : CtBehaviorTreeNodeBase
     {
         [SerializeField] private Transform[] wayPoints = {};
         [SerializeField] private float nextWayPointDistance = 0.5f;
 
-        private int _currentIndex;
+        [UdonSynced] private int _currentIndex;
+
+        private int CurrentIndex
+        {
+            get => _currentIndex;
+            set
+            {
+                _currentIndex = value;
+                if (Networking.IsMaster)
+                    RequestSerialization();
+            }
+        }
 
         public override void OnEnter(CtNpcContext context)
         {
-            _currentIndex = 0;
+            CurrentIndex = 0;
         }
 
         public override ENodeStatus Process(CtNpcContext context)
@@ -28,12 +39,12 @@ namespace CreatureTime
             if (!Networking.IsOwner(agent.gameObject))
                 return ENodeStatus.Running;
 
-            var targetPosition = wayPoints[_currentIndex].position;
+            var targetPosition = wayPoints[CurrentIndex].position;
             agent.SetDestination(targetPosition);
             float distance = Vector3.Distance(targetPosition, context.transform.position);
             if (distance < nextWayPointDistance + agent.radius)
-                _currentIndex = (_currentIndex + 1) % wayPoints.Length;
-            return _currentIndex == wayPoints.Length ? ENodeStatus.Success : ENodeStatus.Running;
+                CurrentIndex = (CurrentIndex + 1) % wayPoints.Length;
+            return CurrentIndex == wayPoints.Length ? ENodeStatus.Success : ENodeStatus.Running;
         }
     }
 }
