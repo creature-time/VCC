@@ -15,19 +15,19 @@ namespace CreatureTime
     public class CtPlayerTurn : CtLoggerUdonScript
     {
         [UdonSynced] private CTBattleInteractType _interactType = CTBattleInteractType.None;
-        [UdonSynced] private int _skillIndex = -1;
+        [UdonSynced] private ushort _skillId = CtConstants.InvalidId;
         [UdonSynced] private ushort _targetIndex = CtConstants.InvalidId;
 
         public CTBattleInteractType InteractType => _interactType;
 
-        public void Submit(CTBattleInteractType interactType, int skillIndex, ushort targetIndex)
+        public void Submit(CTBattleInteractType interactType, ushort skillId, ushort targetIndex)
         {
 #if DEBUG_LOGS
             LogDebug($"(interactType={interactType}, skillIndex={skillIndex}, targetIndex={targetIndex})");
 #endif
 
             _interactType = interactType;
-            _skillIndex = skillIndex;
+            _skillId = skillId;
             _targetIndex = targetIndex;
             RequestSerialization();
 
@@ -41,7 +41,7 @@ namespace CreatureTime
 #endif
 
             _interactType = CTBattleInteractType.Waiting;
-            _skillIndex = -1;
+            _skillId = CtConstants.InvalidId;
             _targetIndex = CtConstants.InvalidId;
             RequestSerialization();
 
@@ -51,7 +51,7 @@ namespace CreatureTime
         public void Reset()
         {
             _interactType = CTBattleInteractType.None;
-            _skillIndex = -1;
+            _skillId = CtConstants.InvalidId;
             _targetIndex = CtConstants.InvalidId;
             RequestSerialization();
 
@@ -66,9 +66,9 @@ namespace CreatureTime
 #endif
         }
 
-        public bool TryGetAttack(out int skillIndex, out ushort targetId)
+        public bool TryGetAttack(out ushort skillId, out ushort targetId)
         {
-            skillIndex = -1;
+            skillId = CtConstants.InvalidId;
             targetId = CtConstants.InvalidId;;
 
             switch (InteractType)
@@ -78,7 +78,7 @@ namespace CreatureTime
                     return false;
             }
 
-            skillIndex = _skillIndex;
+            skillId = _skillId;
             targetId = _targetIndex;
             return true;
         }

@@ -35,12 +35,11 @@ namespace CreatureTime
 
         public int Value => (Type == ESkillType.Adrenaline) ? Cost * 25 : Cost;
 
-        public virtual void OnUse(CtGameData gameData, ushort instanceId, CtEntity target, CtEntity source) {}
+        public virtual void OnUse(CtGameData gameData, CtEntity target, CtEntity source) {}
         public virtual void OnEntryEffect(CtEntity target, CtEntity source) {}
-        public virtual void OnPersistentEffect(ushort instanceId, CtEntity target, CtEntity source) {}
-        public virtual void OnSkillUsed(CtGameData gameData, ushort instanceId, CtEntity target, CtEntity source,
-            CtSkillDef usedSkill) {}
-        public virtual void OnTickEffect(ushort instanceId, CtEntity target, CtEntity source) {}
+        public virtual void OnPersistentEffect(CtEntity target, CtEntity source) {}
+        public virtual void OnSkillUsed(CtGameData gameData, CtEntity target, CtEntity source, CtSkillDef usedSkill) {}
+        public virtual void OnTickEffect(CtEntity target, CtEntity source) {}
         public virtual void OnLeaveEffect(CtEntity target, CtEntity source) {}
 
         public virtual string GetDescription(int attributeRank) => "<Invalid Description>";
@@ -82,13 +81,13 @@ namespace CreatureTime
             int attributeRank =
                 TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, attributeType);
             int skillValue = CalcSkillValue(-healingBase, healingPerAttribute, attributeRank);
-            target.ApplyDamage(instanceId, skillValue, EDamageType.Healing, EDamageSourceType.Skill, identifier, source, false);
+            target.ApplyDamage(skillValue, EDamageType.Healing, EDamageSourceType.Skill, identifier, source, false);
         }
 
-        public static void MeleeAttack(CtGameData gameData, ushort instanceId, CtEntity target, CtEntity source)
+        public static void MeleeAttack(CtGameData gameData, CtEntity target, CtEntity source)
         {
             int damage = _CalcMeleeAttack(gameData, target, source, out var weaponDefinition, out var attributeRank, out var isCritical);
-            target.ApplyDamage(instanceId, damage, weaponDefinition.DamageType, EDamageSourceType.Weapon, 
+            target.ApplyDamage(damage, weaponDefinition.DamageType, EDamageSourceType.Weapon, 
                 weaponDefinition.Identifier, source, isCritical);
         }
 
@@ -172,32 +171,33 @@ namespace CreatureTime
                 target.EntityDef.CharacterLevel, armorRating, out isCritical);
         }
 
-        public static void MeleeSkill(CtGameData gameData, ushort instanceId, CtEntity target, CtEntity source, int identifier, int damageBase, 
-            float damagePerAttribute, float armorPenetration = 0)
+        public static void MeleeSkill(CtGameData gameData, CtEntity target, CtEntity source, ushort skillId, 
+            int damageBase, float damagePerAttribute, float armorPenetration = 0)
         {
             int armorLevel = target.EntityDef.armorLevel - 
                              Mathf.RoundToInt(target.EntityDef.armorLevel * armorPenetration);
 
             // Skill Weapon Damage
-            int damage = _CalcMeleeAttack(gameData, target, source, out var weaponDefinition, out var attributeRank, out var isCritical);
-            damage += CalcDamage(damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel,
-                armorLevel);
-            target.ApplyDamage(instanceId, damage, weaponDefinition.DamageType, EDamageSourceType.Skill, identifier, source,
-                isCritical);
+            int damage = _CalcMeleeAttack(
+                gameData, target, source, out var weaponDefinition, out var attributeRank, out var isCritical);
+            damage += CalcDamage(
+                damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel, armorLevel);
+            target.ApplyDamage(
+                damage, weaponDefinition.DamageType, EDamageSourceType.Skill, skillId, source, isCritical);
         }
 
-        public static void SpellSkill(CtGameData gameData, ushort instanceId, CtEntity target, CtEntity source, EAttributeType attributeType,
-            int identifier, EDamageType damageType, int damageBase, float damagePerAttribute)
+        public static void SpellSkill(CtGameData gameData, CtEntity target, CtEntity source, 
+            EAttributeType attributeType, ushort skillId, EDamageType damageType, int damageBase, 
+            float damagePerAttribute)
         {
             int attributeRank =
                 TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, attributeType);
             int damage = CalcDamage(damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel,
                 target.EntityDef.armorLevel);
-            target.ApplyDamage(instanceId, damage, damageType, EDamageSourceType.Skill, identifier,
-                source, false);
+            target.ApplyDamage(damage, damageType, EDamageSourceType.Skill, skillId, source, false);
         }
 
-        public static void ApplyStatus(ushort instanceId, CtEntity target, CtEntity source, int identifier, int turns)
+        public static void ApplyStatus(CtEntity target, CtEntity source, int identifier, int turns)
         {
             // bool skipApply = false;
             // int count = target.CombatEffectData.EffectCount;

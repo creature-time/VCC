@@ -21,7 +21,7 @@ namespace CreatureTime
         EnergyChanged,
         EffectChanged,
         EntityStatsChanged,
-        ApplyDamage
+        DamageApplied
     }
 
     public abstract class CtEntity : CtEntityBase
@@ -239,6 +239,7 @@ namespace CreatureTime
         public bool IsBlind { get; set; }
 
         public float NormalizedHealth => Health / (float)_entityDef.MaxHealth;
+        public float NormalizedEnergy => Energy / (float)_entityDef.MaxEnergy;
         public string DisplayName => _entityDef.DisplayName;
         public Texture Icon => _entityDef.Icon;
 
@@ -314,8 +315,8 @@ namespace CreatureTime
                 _adrenaline[i] = 0;
         }
 
-        public override void ApplyDamage(ushort instanceId, int damage, EDamageType damageType, EDamageSourceType damageSourceType, int identifier, 
-            CtEntity instigator, bool isCritical)
+        public override void ApplyDamage(int damage, EDamageType damageType, 
+            EDamageSourceType damageSourceType, ushort skillId, CtEntity instigator, bool isCritical)
         {
             // Pre-damage calculations.
             GainAdrenalineOnHit(this, damage);
@@ -374,7 +375,7 @@ namespace CreatureTime
 
             damage = Mathf.Max(0, damage);
 
-            // Calculate damage so we don't over kill.
+            // Calculate damage so we don't overkill.
             damage = Mathf.Min(Health, damage);
 
             // Update total damage resisted stats.
@@ -396,13 +397,19 @@ namespace CreatureTime
             instigator.RequestSerialization();
 
             SetArgs.Add(Convert.ToInt32(damageSourceType));
-            SetArgs.Add(identifier);
+            SetArgs.Add(skillId);
             SetArgs.Add(instigator);
             SetArgs.Add(this);
             SetArgs.Add(Convert.ToInt32(damageType));
             SetArgs.Add(damage);
             SetArgs.Add(isCritical);
-            this.Emit(EEntitySignal.ApplyDamage);
+            this.Emit(EEntitySignal.DamageApplied);
+
+            LogDebug("Damage applied (" +
+                     $"target={this}, damage={damage}, damageType={damageType}, " +
+                     $"damageSourceType={damageSourceType}, skillId={skillId}, instigator={instigator}, " +
+                     $"isCritical={isCritical}" +
+                     ").");
         }
 
         private void GainAdrenalineOnHit(CtEntity target, int roll)
@@ -472,9 +479,9 @@ namespace CreatureTime
             return true;
         }
 
-        public virtual bool TryGetAttack(out int skillIndex, out ushort targetId)
+        public virtual bool TryGetAttack(out ushort skillId, out ushort targetId)
         {
-            skillIndex = -1;
+            skillId = CtConstants.InvalidId;
             targetId = CtConstants.InvalidId;
             return false;
         }

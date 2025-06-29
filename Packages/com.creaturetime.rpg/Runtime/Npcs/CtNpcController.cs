@@ -37,7 +37,6 @@ namespace CreatureTime
         [SerializeField] private Animator animator;
 
         [Header("Character")]
-        [SerializeField] private ushort identifier = CtConstants.InvalidId;
         [SerializeField] private string displayName;
         [SerializeField] private string subTitle;
         [SerializeField] private AudioClip babbleClip;
@@ -49,7 +48,6 @@ namespace CreatureTime
         [SerializeField] private float runSpeed = 5.0f;
         [SerializeField] private float sprintSpeed = 7.0f;
 
-        public ushort Identifier => identifier;
         public string DisplayName => displayName;
         public string SubTitle => subTitle;
 
@@ -135,7 +133,7 @@ namespace CreatureTime
                 if (value)
                     _flags |= CharacterFlagsHasDialogue;
                 else
-                    _flags &= ~CharacterFlagsHasDialogue;                
+                    _flags &= ~CharacterFlagsHasDialogue;
                 this.Emit(ECharacterSignal.DialogueChanged);
             }
         }

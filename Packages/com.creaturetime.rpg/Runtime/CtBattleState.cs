@@ -13,11 +13,14 @@ namespace CreatureTime
         AllyAdded,
         AllyRemoved,
         EnemyAdded,
-        EnemyRemoved
+        EnemyRemoved,
+        DamageSource,
+        DamageApplied
     }
 
     public enum EBattleState
     {
+        None,
         Start,
         Wait,
         Attack,
@@ -29,8 +32,11 @@ namespace CreatureTime
     public class CtBattleState : CtAbstractSignal
     {
         [SerializeField] private ushort identifier = CtConstants.InvalidId;
+
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
+
+        [SerializeField] private CtDamageMessageBuilder damageMessageBuilder;
 
         [SerializeField] private CtBattleStartState startState;
         [SerializeField] private CtBattleWaitState waitState;
@@ -148,7 +154,14 @@ namespace CreatureTime
                 {
                     _allyParty.Disconnect(EPartySignal.MemberAdded, this, nameof(_OnAllyPartyAdded));
                     _allyParty.Disconnect(EPartySignal.MemberRemoved, this, nameof(_OnAllyPartyRemoved));
-        
+
+                    for (int i = 0; i < _allyParty.MaxCount; i++)
+                    {
+                        var memberId = _allyParty.GetMemberId(i);
+                        if (memberId != CtConstants.InvalidId)
+                            _OnAllyPartyRemovedRaw(_allyParty, i);
+                    }
+
                     _allyParty = null;
                 }
 
@@ -164,10 +177,17 @@ namespace CreatureTime
                         return;
                     }
 
-                    _AssignBattleStateToParty(_allyParty);
-
                     if (_allyParty)
                     {
+                        _AssignBattleStateToParty(_allyParty);
+    
+                        for (int i = 0; i < _allyParty.MaxCount; i++)
+                        {
+                            var memberId = _allyParty.GetMemberId(i);
+                            if (memberId != CtConstants.InvalidId)
+                                _OnAllyPartyAddedRaw(_allyParty, i);
+                        }
+
                         _allyParty.Connect(EPartySignal.MemberAdded, this, nameof(_OnAllyPartyAdded));
                         _allyParty.Connect(EPartySignal.MemberRemoved, this, nameof(_OnAllyPartyRemoved));
                     }
@@ -198,6 +218,13 @@ namespace CreatureTime
                     _enemyParty.Disconnect(EPartySignal.MemberAdded, this, nameof(_OnEnemyPartyAdded));
                     _enemyParty.Disconnect(EPartySignal.MemberRemoved, this, nameof(_OnEnemyPartyRemoved));
 
+                    for (int i = 0; i < _enemyParty.MaxCount; i++)
+                    {
+                        var memberId = _enemyParty.GetMemberId(i);
+                        if (memberId != CtConstants.InvalidId)
+                            _OnEnemyPartyRemovedRaw(_enemyParty, i);
+                    }
+
                     _enemyParty = null;
                 }
 
@@ -211,6 +238,13 @@ namespace CreatureTime
                         LogCritical($"Failed to find valid party by identifier (partyId={_enemyId}).");
 #endif
                         return;
+                    }
+
+                    for (int i = 0; i < _enemyParty.MaxCount; i++)
+                    {
+                        var memberId = _enemyParty.GetMemberId(i);
+                        if (memberId != CtConstants.InvalidId)
+                            _OnEnemyPartyAddedRaw(_enemyParty, i);
                     }
 
                     _AssignBattleStateToParty(_enemyParty);
@@ -242,6 +276,40 @@ namespace CreatureTime
         public CtParty AllyParty => _allyParty;
         public CtParty EnemyParty => _enemyParty;
 
+        private void Start()
+        {
+            damageMessageBuilder.Connect(EDamageBlockSignal.DamageSource, this, nameof(_OnDamageSourceChanged));
+            damageMessageBuilder.Connect(EDamageBlockSignal.DamageApplied, this, nameof(_OnDamageBlockChanged));
+        }
+
+        public void _OnDamageSourceChanged()
+        {
+#if DEBUG_LOGS
+            LogDebug("Damage source forwarded.");
+#endif
+
+            SetArgs.Add(GetArgs[0].UShort);
+            SetArgs.Add(GetArgs[1].UShort);
+            SetArgs.Add(GetArgs[2].UShort);
+            this.Emit(EBattleStateSignal.DamageSource);
+        }
+
+        public void _OnDamageBlockChanged()
+        {
+#if DEBUG_LOGS
+            LogDebug("Damage block forwarded.");
+#endif
+
+            SetArgs.Add(GetArgs[0].UShort);
+            SetArgs.Add(GetArgs[1].UShort);
+            SetArgs.Add(GetArgs[2].UShort);
+            SetArgs.Add(GetArgs[3].UShort);
+            SetArgs.Add(GetArgs[4].UShort);
+            SetArgs.Add(GetArgs[5].Int);
+            SetArgs.Add(GetArgs[6].Boolean);
+            this.Emit(EBattleStateSignal.DamageApplied);
+        }
+
         public CtStateBase GetState()
         {
             switch (_state)
@@ -268,7 +336,6 @@ namespace CreatureTime
                 var id = party.GetMemberId(i);
                 if (id == CtConstants.InvalidId)
                     continue;
-
                 entityManager.TryGetEntity(id, out var entity);
                 entity.BattleState = this;
             }
@@ -276,12 +343,15 @@ namespace CreatureTime
 
         public void _OnAllyPartyAdded()
         {
-            var party = (CtParty)Sender;
-            var index = GetArgs[0].Int;
+            _OnAllyPartyAddedRaw((CtParty)Sender, GetArgs[0].Int);
+        }
 
+        private void _OnAllyPartyAddedRaw(CtParty party, int index)
+        {
             TryGetEntity(party.GetMemberId(index), out var entity);
             entity.BattleState = this;
-            
+            entity.Connect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
+
             SetArgs.Add(party.Identifier);
             SetArgs.Add(index);
             this.Emit(EBattleStateSignal.AllyAdded);
@@ -289,10 +359,13 @@ namespace CreatureTime
 
         public void _OnAllyPartyRemoved()
         {
-            var party = (CtParty)Sender;
-            var index = GetArgs[0].Int;
+            _OnAllyPartyRemovedRaw((CtParty)Sender, GetArgs[0].Int);
+        }
 
+        private void _OnAllyPartyRemovedRaw(CtParty party, int index)
+        {
             TryGetEntity(party.GetMemberId(index), out var entity);
+            entity.Disconnect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = null;
 
             SetArgs.Add(party.Identifier);
@@ -302,10 +375,13 @@ namespace CreatureTime
 
         public void _OnEnemyPartyAdded()
         {
-            var party = (CtParty)Sender;
-            var index = GetArgs[0].Int;
+            _OnEnemyPartyAddedRaw((CtParty)Sender, GetArgs[0].Int);
+        }
 
+        private void _OnEnemyPartyAddedRaw(CtParty party, int index)
+        {
             entityManager.TryGetEntity(party.GetMemberId(index), out var entity);
+            entity.Connect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = this;
 
             SetArgs.Add(party.Identifier);
@@ -315,12 +391,15 @@ namespace CreatureTime
 
         public void _OnEnemyPartyRemoved()
         {
-            var party = (CtParty)Sender;
-            var index = GetArgs[0].Int;
+            _OnEnemyPartyRemovedRaw((CtParty)Sender, GetArgs[0].Int);
+        }
 
+        private void _OnEnemyPartyRemovedRaw(CtParty party, int index)
+        {
             TryGetEntity(party.GetMemberId(index), out var entity);
+            entity.Disconnect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = null;
-            
+
             SetArgs.Add(party.Identifier);
             SetArgs.Add(index);
             this.Emit(EBattleStateSignal.EnemyRemoved);
@@ -401,6 +480,37 @@ namespace CreatureTime
         public bool IsEnemyTeamDead()
         {
             return _IsPartyDead(_enemyParty);
+        }
+
+        public void BeginDamageBlock(CtBattleState battleState, CtEntity sourceEntity, CtEntity targetEntity, 
+            ushort skillId)
+        {
+            damageMessageBuilder.SetHeader(sourceEntity.Identifier, targetEntity.Identifier, skillId);
+        }
+
+        public void _HandleAppliedDamage()
+        {
+#if DEBUG_LOGS
+            LogDebug($"Handling applied damage from entity (sender={Sender}).");
+#endif
+
+            var damageSourceTypeValue = GetArgs[0].Int;
+            var skillId = GetArgs[1].UShort;
+            // var instigator = (CtEntity)GetArgs[2].Reference;
+            var target = (CtEntity)GetArgs[3].Reference;
+            var damageTypeValue = GetArgs[4].Int;
+            var damage = GetArgs[5].Int;
+            var isCritical = GetArgs[6].Boolean;
+
+            var damageSourceType = (EDamageSourceType)damageSourceTypeValue;
+            var damageType = (EDamageType)damageTypeValue;
+            damageMessageBuilder.AddDamageCommand(
+                damageSourceType, skillId, target.Identifier, damageType, damage, isCritical);
+        }
+
+        public void EndDamageBlock()
+        {
+            damageMessageBuilder.CommitDamage();
         }
     }
 }

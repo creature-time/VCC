@@ -18,7 +18,7 @@ namespace CreatureTime
             if (!battleState.TryGetEntity(entityIdentifier, out var entity))
                 return endState;
 
-            entity.TryGetAttack(out var skillIndex, out var targetId);
+            entity.TryGetAttack(out var skillId, out var targetId);
             if (!battleState.TryGetEntity(targetId, out var targetEntity))
                 return endState;
 
@@ -36,23 +36,26 @@ namespace CreatureTime
                 return ENodeStatus.Failure;
 
             var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
-            if (!battleState.TryGetEntity(entityIdentifier, out var entity))
+            if (!battleState.TryGetEntity(entityIdentifier, out var sourceEntity))
                 return ENodeStatus.Success;
 
-            entity.TryGetAttack(out var skillIndex, out var targetId);
+            sourceEntity.TryGetAttack(out var skillId, out var targetId);
             if (!battleState.TryGetEntity(targetId, out var targetEntity))
                 return ENodeStatus.Success;
 
-            if (skillIndex == -1)
+            battleState.BeginDamageBlock(battleState, sourceEntity, targetEntity, skillId);
+
+            if (skillId == CtConstants.InvalidId)
             {
-                CtSkillDef.MeleeAttack(gameData, 0, targetEntity, entity);
+                CtSkillDef.MeleeAttack(gameData, targetEntity, sourceEntity);
             }
             else
             {
-                var identifier = entity.EntityDef.GetSkill(skillIndex);
-                var skillDef = gameData.GetSkillDef(identifier);
-                skillDef.OnUse(gameData, 0, targetEntity, entity);
+                var skillDef = gameData.GetSkillDef(skillId);
+                skillDef.OnUse(gameData, targetEntity, sourceEntity);
             }
+
+            battleState.EndDamageBlock();
 
             return ENodeStatus.Success;
         }

@@ -1,9 +1,7 @@
-﻿#define DEBUG_LOGS
-
+﻿
 using System;
 using UdonSharp;
 using UnityEngine;
-using VRC.SDK3.Data;
 using VRC.SDKBase;
 
 namespace CreatureTime
@@ -23,6 +21,7 @@ namespace CreatureTime
 
         private const int MessageBattleStart = 300;
         private const int MessageStartBattle = MessageBattleStart + 0;
+        private const int MessageDamageValues = MessageBattleStart + 1;
 
         [SerializeField] private CtGameData gameData;
         [SerializeField] private CtPlayerManager playerManager;
@@ -30,7 +29,6 @@ namespace CreatureTime
         [SerializeField] private CtEntityManager entityManager;
         [SerializeField] private CtDialogueManager dialogueManager;
         [SerializeField] private CtNetSocket netSocket;
-
         [SerializeField] private CtBattleStateManager battleStateManager;
         [SerializeField] private CtStateMachine stateMachine;
 
@@ -435,6 +433,12 @@ namespace CreatureTime
 
                     return;
                 case MessageStartBattle:
+                    identifier = BitConverter.ToUInt16(data, offset);
+                    offset += 2;
+                    _HandleStartBattle(identifier);
+
+                    return;
+                case MessageDamageValues:
                     identifier = BitConverter.ToUInt16(data, offset);
                     offset += 2;
                     _HandleStartBattle(identifier);

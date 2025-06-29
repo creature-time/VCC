@@ -36,9 +36,9 @@ namespace CreatureTime
             return _playerTurn.InteractType != CTBattleInteractType.None;
         }
 
-        public override bool TryGetAttack(out int skillIndex, out ushort targetId)
+        public override bool TryGetAttack(out ushort skillId, out ushort targetId)
         {
-            return _playerTurn.TryGetAttack(out skillIndex, out targetId);
+            return _playerTurn.TryGetAttack(out skillId, out targetId);
         }
 
         public override void OnEndBattle()

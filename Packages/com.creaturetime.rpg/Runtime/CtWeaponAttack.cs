@@ -3,7 +3,7 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 
-namespace CreatureTime
+namespace CreatureTime.RpgGame
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtWeaponAttack : CtUserData
@@ -16,14 +16,14 @@ namespace CreatureTime
                 return;
 
             // TODO: Get the battle controller that would probably have the reference to the entity identifier.
-            var npcController = other.GetComponent<CtNpcController>();
-            if (!npcController)
+            var npcUserData = other.GetComponent<CtNpcUserData>();
+            if (!npcUserData)
                 return;
 
             if (PlayerTurn.InteractType != CTBattleInteractType.Waiting)
                 return;
 
-            PlayerTurn.Submit(CTBattleInteractType.Attack, -1, npcController.Identifier);
+            PlayerTurn.Submit(CTBattleInteractType.Attack, CtConstants.InvalidId, npcUserData.TargetId);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace CreatureTime
             if (!battleState.TryGetEntity(entityIdentifier, out var entity))
                 return endState;
 
-            if (entity.TryGetAttack(out var skillIndex, out var targetId))
+            if (entity.TryGetAttack(out var skillId, out var targetId))
                 return attackState;
 
             return endState;
@@ -37,7 +37,7 @@ namespace CreatureTime
             if (!battleState.TryGetEntity(entityIdentifier, out var entity))
                 return ENodeStatus.Success;
 
-            if (entity.TryGetAttack(out var skillIndex, out var targetId))
+            if (entity.TryGetAttack(out var skillId, out var targetId))
                 return ENodeStatus.Success;
 
             return ENodeStatus.Running;

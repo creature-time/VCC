@@ -98,6 +98,8 @@ namespace CreatureTime
             npcContext.SetInt("Skills.Count", CtEntityDef.MaxSkillCount);
             for (int i = 0; i < CtEntityDef.MaxSkillCount; i++)
             {
+                npcContext.SetUShort($"Skills.Values[{i}]/Identifier", CtConstants.InvalidId);
+
                 npcContext.SetBool($"Skills.Values[{i}]/IsSelfTargetOnly", false);
                 npcContext.SetBool($"Skills.Values[{i}]/IsTargetEnemy", false);
 
@@ -119,6 +121,8 @@ namespace CreatureTime
                 CtSkillDef skillDef = gameData.GetSkillDef(skillId);
                 if (!skillDef)
                     continue;
+
+                npcContext.SetUShort($"Skills.Values[{i}]/Identifier", skillDef.Identifier);
 
                 npcContext.SetFloat($"Skills.Values[{i}]/SkillRecharging", recharge);
 
@@ -198,14 +202,15 @@ namespace CreatureTime
 
         public override void Think()
         {
-            npcContext.SetInt("Result/SkillIndex", -1);
+            npcContext.SetUShort("Result/SkillId", CtConstants.InvalidId);
             npcContext.SetUShort("Result/TargetId", CtConstants.InvalidId);
 
             behaviorTree.Process();
 
-            npcContext.TryGetInt("Result/SkillIndex", out var skillIndex);
+            npcContext.TryGetUShort("Result/SkillId", out var skillId);
             npcContext.TryGetUShort("Result/TargetId", out var targetId);
-            npcTurn.Submit(CTBattleInteractType.Attack, skillIndex, targetId);
+
+            npcTurn.Submit(CTBattleInteractType.Attack, skillId, targetId);
         }
     }
 }

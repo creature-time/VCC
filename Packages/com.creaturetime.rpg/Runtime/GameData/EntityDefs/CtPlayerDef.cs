@@ -16,12 +16,12 @@ namespace CreatureTime
 
         public void WeaponAttack(CtEntity target)
         {
-            playerTurn.Submit(CTBattleInteractType.Attack, -1, target.Identifier);
+            playerTurn.Submit(CTBattleInteractType.Attack, CtConstants.InvalidId, target.Identifier);
         }
 
-        public void UseSkill(int index, CtEntity target)
+        public void UseSkill(ushort skillId, CtEntity target)
         {
-            playerTurn.Submit(CTBattleInteractType.Attack, index, target.Identifier);
+            playerTurn.Submit(CTBattleInteractType.Attack, skillId, target.Identifier);
         }
 
         [SerializeField, UdonSynced, FieldChangeCallback(nameof(_BarksCallback))]
@@ -66,6 +66,8 @@ namespace CreatureTime
             CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
             CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData
         };
+
+        public int InvSize => inventory.Length;
 
         public int InvCountOf(ushort identifier)
         {

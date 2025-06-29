@@ -52,6 +52,11 @@ namespace CreatureTime
             return membersCmp[index];
         }
 
+        public int GetMemberIndex(ushort memberId)
+        {
+            return Array.IndexOf(membersCmp, memberId);
+        }
+
         private DataList _memberCache = new DataList();
 
         public ushort Identifier => identifier;

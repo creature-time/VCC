@@ -4,7 +4,7 @@ using UnityEngine;
 using VRC.SDK3.Components;
 using VRC.SDKBase;
 
-namespace CreatureTime
+namespace CreatureTime.RpgGame
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtItemSpawner : CtAbstractSignal
