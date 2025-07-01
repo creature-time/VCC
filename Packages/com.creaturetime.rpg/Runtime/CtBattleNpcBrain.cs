@@ -13,6 +13,8 @@ namespace CreatureTime
         [SerializeField] private CtNpcContext npcContext;
         [SerializeField] private CtPlayerTurn npcTurn;
 
+        public override CtBlackboard Context => npcContext;
+
         public CtNpcBehavior Behavior
         {
             set
@@ -68,6 +70,9 @@ namespace CreatureTime
             npcContext.SetInt("Allies.Count", allyParty.MaxCount);
             for (int i = 0; i < allyParty.MaxCount; ++i)
             {
+                npcContext.SetUShort($"Allies.Values[{i}]/Identifier", CtConstants.InvalidId);
+                npcContext.SetFloat($"Allies.Values[{i}]/Health", -1);
+
                 ushort identifier = allyParty.GetMemberId(i);
                 if (identifier == CtConstants.InvalidId)
                     continue;
@@ -83,6 +88,9 @@ namespace CreatureTime
             npcContext.SetInt("Enemies.Count", enemyParty.MaxCount);
             for (int i = 0; i < enemyParty.MaxCount; ++i)
             {
+                npcContext.SetUShort($"Enemies.Values[{i}]/Identifier", CtConstants.InvalidId);
+                npcContext.SetFloat($"Enemies.Values[{i}]/Health", -1);
+
                 ushort identifier = enemyParty.GetMemberId(i);
                 if (identifier == CtConstants.InvalidId)
                     continue;

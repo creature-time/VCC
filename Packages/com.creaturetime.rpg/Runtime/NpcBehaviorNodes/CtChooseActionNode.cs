@@ -14,6 +14,10 @@ namespace CreatureTime
 
         public override ENodeStatus Process(CtNpcContext context)
         {
+#if DEBUG_LOGS
+            LogDebug("CtChooseActionNode");
+#endif
+
             // CtNpcBehaviorUtils.AssertIfTargetIsValid(target);
             // CtNpcBehaviorUtils.AssertIfSkillIsValid(skill);
 

@@ -15,6 +15,10 @@ namespace CreatureTime
 
         public override ENodeStatus Process(CtNpcContext context)
         {
+#if DEBUG_LOGS
+            LogDebug("CtOffensiveActionNode");
+#endif
+
             context.TryGetFloat("Offensive/UseSkillWeight",  out var useSkillWeight);
             context.TryGetFloat("Self/AttackCoolDown",  out var attackCoolDown);
             context.TryGetFloat("Attacking/AttackWeight",  out var attackWeight);
@@ -32,6 +36,7 @@ namespace CreatureTime
 
             _weights[0] = useSkillWeight;
             _weights[1] = attackWeight;
+
             var index = CtRandomizer.GetRandomFromArray(_weights);
             if (index != -1)
             {

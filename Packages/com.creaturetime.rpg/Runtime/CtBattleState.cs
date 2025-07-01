@@ -10,10 +10,9 @@ namespace CreatureTime
         InProgressChanged,
         InitiativesChanged,
         TurnIndexChanged,
-        AllyAdded,
-        AllyRemoved,
-        EnemyAdded,
-        EnemyRemoved,
+        IsLocalChanged,
+        AllyPartyChanged,
+        EnemyPartyChanged,
         DamageSource,
         DamageApplied
     }
@@ -33,6 +32,7 @@ namespace CreatureTime
     {
         [SerializeField] private ushort identifier = CtConstants.InvalidId;
 
+        [SerializeField] private CtRpgGame rpgGame;
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
 
@@ -122,7 +122,7 @@ namespace CreatureTime
 
         public int TurnIndexCallback
         {
-            get { return _turnIndex; }
+            get => _turnIndex;
             set
             {
                 _turnIndex = value;
@@ -142,6 +142,17 @@ namespace CreatureTime
             }
         }
 
+        private bool _isLocal;
+        public bool IsLocal
+        {
+            get => _isLocal;
+            private set
+            {
+                _isLocal = value;
+                this.Emit(EBattleStateSignal.IsLocalChanged);
+            }
+        }
+
         [UdonSynced, FieldChangeCallback(nameof(AllyIdCallback))]
         private ushort _allyId = CtConstants.InvalidId;
 
@@ -158,8 +169,11 @@ namespace CreatureTime
                     for (int i = 0; i < _allyParty.MaxCount; i++)
                     {
                         var memberId = _allyParty.GetMemberId(i);
-                        if (memberId != CtConstants.InvalidId)
-                            _OnAllyPartyRemovedRaw(_allyParty, i);
+                        if (memberId == CtConstants.InvalidId)
+                            continue;
+                        _OnAllyPartyRemovedRaw(_allyParty, i);
+                        if (memberId == rpgGame.LocalEntity.Identifier)
+                            IsLocal = false;
                     }
 
                     _allyParty = null;
@@ -184,14 +198,19 @@ namespace CreatureTime
                         for (int i = 0; i < _allyParty.MaxCount; i++)
                         {
                             var memberId = _allyParty.GetMemberId(i);
-                            if (memberId != CtConstants.InvalidId)
-                                _OnAllyPartyAddedRaw(_allyParty, i);
+                            if (memberId == CtConstants.InvalidId)
+                                continue;
+                            _OnAllyPartyAddedRaw(_allyParty, i);
+                            if (memberId == rpgGame.LocalEntity.Identifier)
+                                IsLocal = true;
                         }
 
                         _allyParty.Connect(EPartySignal.MemberAdded, this, nameof(_OnAllyPartyAdded));
                         _allyParty.Connect(EPartySignal.MemberRemoved, this, nameof(_OnAllyPartyRemoved));
                     }
                 }
+
+                this.Emit(EBattleStateSignal.AllyPartyChanged);
             }
         }
 
@@ -254,6 +273,8 @@ namespace CreatureTime
                         _enemyParty.Connect(EPartySignal.MemberAdded, this, nameof(_OnEnemyPartyAdded));
                         _enemyParty.Connect(EPartySignal.MemberRemoved, this, nameof(_OnEnemyPartyRemoved));
                     }
+
+                    this.Emit(EBattleStateSignal.EnemyPartyChanged);
                 }
             }
         }
@@ -351,10 +372,6 @@ namespace CreatureTime
             TryGetEntity(party.GetMemberId(index), out var entity);
             entity.BattleState = this;
             entity.Connect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
-
-            SetArgs.Add(party.Identifier);
-            SetArgs.Add(index);
-            this.Emit(EBattleStateSignal.AllyAdded);
         }
 
         public void _OnAllyPartyRemoved()
@@ -367,10 +384,6 @@ namespace CreatureTime
             TryGetEntity(party.GetMemberId(index), out var entity);
             entity.Disconnect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = null;
-
-            SetArgs.Add(party.Identifier);
-            SetArgs.Add(index);
-            this.Emit(EBattleStateSignal.AllyRemoved);
         }
 
         public void _OnEnemyPartyAdded()
@@ -383,10 +396,6 @@ namespace CreatureTime
             entityManager.TryGetEntity(party.GetMemberId(index), out var entity);
             entity.Connect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = this;
-
-            SetArgs.Add(party.Identifier);
-            SetArgs.Add(index);
-            this.Emit(EBattleStateSignal.EnemyAdded);
         }
 
         public void _OnEnemyPartyRemoved()
@@ -399,10 +408,6 @@ namespace CreatureTime
             TryGetEntity(party.GetMemberId(index), out var entity);
             entity.Disconnect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = null;
-
-            SetArgs.Add(party.Identifier);
-            SetArgs.Add(index);
-            this.Emit(EBattleStateSignal.EnemyRemoved);
         }
 
         public bool TryGetEntity(ushort identifier, out CtEntity entity)
@@ -512,5 +517,10 @@ namespace CreatureTime
         {
             damageMessageBuilder.CommitDamage();
         }
+
+        // public void Reset()
+        // {
+        //     damageMessageBuilder.Reset();
+        // }
     }
 }

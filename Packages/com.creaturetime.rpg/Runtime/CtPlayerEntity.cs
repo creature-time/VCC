@@ -27,7 +27,7 @@ namespace CreatureTime
 
         public override void OnStartBattle()
         {
-            _playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, "ResetToWait");
+            _playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(_playerTurn.ResetToWait));
             base.OnStartBattle();
         }
 
@@ -43,7 +43,7 @@ namespace CreatureTime
 
         public override void OnEndBattle()
         {
-            _playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, "Reset");
+            _playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(_playerTurn.Reset));
             base.OnEndBattle();
         }
     }

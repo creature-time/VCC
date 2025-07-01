@@ -316,7 +316,7 @@ namespace CreatureTime
         }
 
         public override void ApplyDamage(int damage, EDamageType damageType, 
-            EDamageSourceType damageSourceType, ushort skillId, CtEntity instigator, bool isCritical)
+            EDamageSourceType damageSourceType, ushort identifier, CtEntity instigator, bool isCritical)
         {
             // Pre-damage calculations.
             GainAdrenalineOnHit(this, damage);
@@ -397,7 +397,7 @@ namespace CreatureTime
             instigator.RequestSerialization();
 
             SetArgs.Add(Convert.ToInt32(damageSourceType));
-            SetArgs.Add(skillId);
+            SetArgs.Add(identifier);
             SetArgs.Add(instigator);
             SetArgs.Add(this);
             SetArgs.Add(Convert.ToInt32(damageType));
@@ -407,7 +407,7 @@ namespace CreatureTime
 
             LogDebug("Damage applied (" +
                      $"target={this}, damage={damage}, damageType={damageType}, " +
-                     $"damageSourceType={damageSourceType}, skillId={skillId}, instigator={instigator}, " +
+                     $"damageSourceType={damageSourceType}, identifier={identifier}, instigator={instigator}, " +
                      $"isCritical={isCritical}" +
                      ").");
         }

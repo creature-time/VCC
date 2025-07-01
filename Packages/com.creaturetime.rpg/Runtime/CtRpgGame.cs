@@ -269,6 +269,10 @@ namespace CreatureTime
 
         private void _StartBattle(CtParty party, CtNpcDef[] npcDefs)
         {
+#if DEBUG_LOGS
+            LogDebug($"Starting battle (party={party}, npcDefs={npcDefs.Length}).");
+#endif
+
             if (!partyManager.TryGetAvailableEnemyParty(out var enemyParty))
             {
 #if DEBUG_LOGS
@@ -313,8 +317,8 @@ namespace CreatureTime
                     continue;
                 entityManager.TryGetEntity(identifier, out var entity);
                 entity.OnEndBattle();
-                entityManager.ReleaseEnemy(entity);
                 party.Leave(entity);
+                entityManager.ReleaseEnemy(entity);
             }
 
             if (party.Count > 0)
@@ -345,6 +349,10 @@ namespace CreatureTime
 
         public void EndBattle(CtBattleState battleState)
         {
+#if DEBUG_LOGS
+            LogDebug($"Ending battle (battleState={battleState}).");
+#endif
+
             for (int i = 0; i < battleState.AllyParty.MaxCount; ++i)
             {
                 var identifer = battleState.AllyParty.GetMemberId(i);
@@ -636,14 +644,18 @@ namespace CreatureTime
         {
             if (!partyManager.TryGetEntityParty(LocalEntity, out var party))
             {
+#if DEBUG_LOGS
                 LogWarning($"Local entity was not in a party (identifier={LocalEntity.Identifier}).");
+#endif
                 return;
             }
 
             var quest = gameData.GetQuestDef(party.Quest);
             if (!quest)
             {
+#if DEBUG_LOGS
                 LogWarning($"Failed to get quest definition (identifier={party.Quest}).");
+#endif
                 return;
             }
 
@@ -654,7 +666,9 @@ namespace CreatureTime
         {
             if (npcDefs.Length == 0)
             {
+#if DEBUG_LOGS
                 LogError("No npc defs to battle against.");
+#endif
                 return;
             }
 
@@ -687,13 +701,18 @@ namespace CreatureTime
         {
             if (!partyManager.TryGetParty(partyId, out var party))
             {
+#if DEBUG_LOGS
+                LogWarning($"Failed to find party (identifier={partyId}).");
+#endif
                 return;
             }
 
             var quest = gameData.GetQuestDef(party.Quest);
             if (!quest)
             {
+#if DEBUG_LOGS
                 LogWarning($"Failed to get quest definition (identifier={party.Quest}).");
+#endif
                 return;
             }
 

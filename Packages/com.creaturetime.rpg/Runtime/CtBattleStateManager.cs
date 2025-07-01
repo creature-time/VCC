@@ -4,6 +4,11 @@ using UnityEngine;
 
 namespace CreatureTime
 {
+    public enum EBattleStateManagerSignal
+    {
+        LocalBattleStateChanged,
+    }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtBattleStateManager : CtSingleton
     {

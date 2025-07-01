@@ -24,6 +24,6 @@ namespace CreatureTime
         public Transform SourceTransform { get; protected set; }
 
         public abstract void ApplyDamage(int damage, EDamageType damageType,
-            EDamageSourceType damageSourceType, ushort skillId, CtEntity instigator, bool isCritical);
+            EDamageSourceType damageSourceType, ushort identifier, CtEntity instigator, bool isCritical);
     }
 }

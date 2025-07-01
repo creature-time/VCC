@@ -11,6 +11,8 @@ namespace CreatureTime
         [SerializeField] private CtBehaviorTree behaviorTree;
         [SerializeField] private CtNpcArbiter arbiter;
 
+        public override CtBlackboard Context => behaviorTree.Context;
+
         // Translate game state to world state.
         public override void Sense()
         {

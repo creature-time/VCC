@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.Udon.Common.Interfaces;
 
 namespace CreatureTime
 {
@@ -116,12 +117,27 @@ namespace CreatureTime
             set => brain.BattleState = value;
         }
 
+        public override void OnStartBattle()
+        {
+            npcTurn.ResetToWait();
+            base.OnStartBattle();
+        }
+
         public override bool TryGetAttack(out ushort skillId, out ushort targetId)
         {
-            brain.Sense();
-            brain.Think();
+            if (!npcTurn.TryGetAttack(out skillId, out targetId))
+            {
+                brain.Sense();
+                brain.Think();
+            }
 
             return npcTurn.TryGetAttack(out skillId, out targetId);
+        }
+
+        public override void OnEndBattle()
+        {
+            npcTurn.Reset();
+            base.OnEndBattle();
         }
     }
 }

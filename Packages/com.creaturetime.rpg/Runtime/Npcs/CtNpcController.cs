@@ -155,6 +155,19 @@ namespace CreatureTime
         }
 
         public CtNpcController Target { get; set; }
+        public Transform ResetPosition { get; set; }
+        public Transform TargetTransform { get; private set; }
+
+        public bool IsAttacking
+        {
+            set => brain.Context.SetBool("Expert/IsAttacking", value);
+        }
+
+        public void InitiateAttack(Transform targetTransform)
+        {
+            IsAttacking = true;
+            TargetTransform = targetTransform;
+        }
 
         private Transform _lookTarget;
         public Transform LookTarget

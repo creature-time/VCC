@@ -114,15 +114,19 @@ namespace CreatureTime
             }
         }
 
-        private void _SetMemberId(int index, ushort identifier)
+        private void _SetMemberId(int index, ushort memberId)
         {
-            members[index] = identifier;
+            members[index] = memberId;
             RequestSerialization();
             _OnPartyMemberChanged(index);
         }
 
         public void Join(CtEntity entity)
         {
+#if DEBUG_LOGS
+            LogDebug($"Joining party (party={this}, entity={entity}).");
+#endif
+
             int index = Array.IndexOf(members, CtConstants.InvalidId);
             if (index == -1)
             {
@@ -149,6 +153,10 @@ namespace CreatureTime
 
         public void Leave(CtEntity entity)
         {
+#if DEBUG_LOGS
+            LogDebug($"Leaving party (party={this}, entity={entity}).");
+#endif
+
             int index = Array.IndexOf(members, entity.Identifier);
             if (index == -1)
             {

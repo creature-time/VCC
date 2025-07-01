@@ -75,8 +75,8 @@ namespace CreatureTime
             return damageTotal;
         }
 
-        public static void HealingSkill(CtGameData gameData, ushort instanceId, CtEntity target, CtEntity source, EAttributeType attributeType,
-            ushort identifier, int healingBase, float healingPerAttribute)
+        public static void HealingSkill(CtGameData gameData, CtEntity target, CtEntity source, 
+            EAttributeType attributeType, ushort identifier, int healingBase, float healingPerAttribute)
         {
             int attributeRank =
                 TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, attributeType);

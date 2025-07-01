@@ -1,6 +1,6 @@
 ﻿
+using System;
 using UdonSharp;
-using UnityEngine;
 
 namespace CreatureTime
 {
@@ -13,9 +13,9 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtDamageMessageBuilder : CtAbstractSignal
     {
-        [SerializeField] private CtBattleState battleState;
-
         private const int MaxCount = 32;
+
+        [UdonSynced] private long _timestamp;
 
         [UdonSynced] private ushort _sourceId = CtConstants.InvalidId;
         [UdonSynced] private ushort _targetId = CtConstants.InvalidId;
@@ -32,6 +32,10 @@ namespace CreatureTime
 
         public void SetHeader(ushort sourceId, ushort targetId, ushort skillId)
         {
+#if DEBUG_LOGS
+            LogDebug($"Setting header... (sourceId={sourceId}, targetId={targetId}, skillId={skillId})");
+#endif
+
             _sourceId = sourceId;
             _targetId = targetId;
             _skillId = skillId;
@@ -59,6 +63,11 @@ namespace CreatureTime
 
         public void CommitDamage()
         {
+#if DEBUG_LOGS
+            LogDebug("Commiting damage block...");
+#endif
+
+            _timestamp = DateTime.Now.ToBinary();
             RequestSerialization();
             OnDeserialization();
         }
@@ -66,7 +75,8 @@ namespace CreatureTime
         public override void OnDeserialization()
         {
 #if DEBUG_LOGS
-            LogDebug("Sending damage block header...");
+            LogDebug("Sending damage block header... " +
+                     $"(timestamp={_timestamp}, sourceId={_sourceId}, targetId={_targetId}, skillId={_skillId})");
 #endif
 
             SetArgs.Add(_sourceId);
@@ -75,12 +85,13 @@ namespace CreatureTime
             this.Emit(EDamageBlockSignal.DamageSource);
 
 #if DEBUG_LOGS
-            LogDebug($"Sending damage blocks ({_count})...");
+            LogDebug($"Sending damage blocks... (count={_count})");
 #endif
+
             for (int i = 0; i < _count; ++i)
             {
 #if DEBUG_LOGS
-                LogDebug($"Sending damage block...");
+                LogDebug("Sending damage block...");
 #endif
 
                 SetArgs.Add(_damageSourceType[i]);

@@ -23,7 +23,7 @@ namespace CreatureTime
         public void Submit(CTBattleInteractType interactType, ushort skillId, ushort targetIndex)
         {
 #if DEBUG_LOGS
-            LogDebug($"(interactType={interactType}, skillIndex={skillIndex}, targetIndex={targetIndex})");
+            LogDebug($"(interactType={interactType}, skillId={skillId}, targetIndex={targetIndex})");
 #endif
 
             _interactType = interactType;
@@ -44,17 +44,19 @@ namespace CreatureTime
             _skillId = CtConstants.InvalidId;
             _targetIndex = CtConstants.InvalidId;
             RequestSerialization();
-
             OnDeserialization();
         }
 
         public void Reset()
         {
+#if DEBUG_LOGS
+            LogDebug("Reset");
+#endif
+
             _interactType = CTBattleInteractType.None;
             _skillId = CtConstants.InvalidId;
             _targetIndex = CtConstants.InvalidId;
             RequestSerialization();
-
             OnDeserialization();
         }
 
@@ -62,7 +64,7 @@ namespace CreatureTime
         {
 #if DEBUG_LOGS
             LogDebug("OnDeserialization " +
-                $"(interactType={InteractType}, skillIndex={_skillIndex}, targetIndex={_targetIndex}).");
+                $"(interactType={InteractType}, skillId={_skillId}, targetIndex={_targetIndex}).");
 #endif
         }
 
