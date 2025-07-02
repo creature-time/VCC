@@ -267,7 +267,7 @@ namespace CreatureTime
             }
         }
 
-        private void _StartBattle(CtParty party, CtNpcDef[] npcDefs)
+        private void _StartBattle(CtParty party, CtSquadDef squadDef)
         {
 #if DEBUG_LOGS
             LogDebug($"Starting battle (party={party}, npcDefs={npcDefs.Length}).");
@@ -281,7 +281,7 @@ namespace CreatureTime
                 return;
             }
 
-            _PopulateEnemyParty(enemyParty, npcDefs);
+            _PopulateEnemyParty(enemyParty, squadDef.NpcDefs);
 
             for (int i = 0; i < party.MaxCount; ++i)
             {
@@ -292,7 +292,7 @@ namespace CreatureTime
                 entity.OnStartBattle();
             }
 
-            if (!battleStateManager.TryCreateBattleState(party, enemyParty, out var battleState))
+            if (!battleStateManager.TryCreateBattleState(squadDef, party, enemyParty, out var battleState))
             {
 #if DEBUG_LOGS
                 LogCritical("Could not find available battle state to start battle.");
@@ -662,9 +662,9 @@ namespace CreatureTime
             RequestStartBattle(party);
         }
 
-        public void StartBattle(CtParty party, CtNpcDef[] npcDefs)
+        public void StartBattle(CtParty party, CtSquadDef squadDef)
         {
-            if (npcDefs.Length == 0)
+            if (squadDef.NpcDefs.Length == 0)
             {
 #if DEBUG_LOGS
                 LogError("No npc defs to battle against.");
@@ -672,7 +672,7 @@ namespace CreatureTime
                 return;
             }
 
-            _StartBattle(party, npcDefs);
+            _StartBattle(party, squadDef);
         }
 
         public void RequestStartBattle(CtParty party)

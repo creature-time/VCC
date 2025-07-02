@@ -1,6 +1,8 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
@@ -13,10 +15,31 @@ namespace CreatureTime
     public class CtBattleStateManager : CtSingleton
     {
         [SerializeField] private CtBattleState[] battleStates;
+        [SerializeField] private CtSquadDef[] squadDefs;
 
         public CtBattleState[] BattleStates => battleStates;
 
-        public bool TryCreateBattleState(CtParty allyParty, CtParty enemyParty, out CtBattleState battleState)
+        private DataDictionary _squadDefLookup =  new DataDictionary();
+
+        private void Start()
+        {
+            foreach(var squadDef in squadDefs)
+                _squadDefLookup.Add(squadDef.Identifier, squadDef);
+        }
+
+        public bool TryGetSquadDef(ushort identifier, out CtSquadDef def)
+        {
+            def = null;
+            if (_squadDefLookup.TryGetValue(identifier, out var token))
+            {
+                def = (CtSquadDef)token.Reference;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryCreateBattleState(CtSquadDef squadDef, CtParty allyParty, CtParty enemyParty, out CtBattleState battleState)
         {
             battleState = null;
             foreach (var bs in battleStates)
@@ -24,7 +47,7 @@ namespace CreatureTime
                 if (bs.InProgress)
                     continue;
                 bs.InProgress = true;
-
+                bs.SquadId = squadDef.Identifier;
                 bs.AllyId = allyParty.Identifier;
                 bs.EnemyId = enemyParty.Identifier;
 
@@ -66,10 +89,11 @@ namespace CreatureTime
 
         public void ReleaseBattleState(CtBattleState battleState)
         {
-            battleState.AllyId = CtConstants.InvalidId;
-            battleState.EnemyId = CtConstants.InvalidId;
             battleState.Initiatives = new ushort[] {};
             battleState.State = EBattleState.Start;
+            battleState.AllyId = CtConstants.InvalidId;
+            battleState.EnemyId = CtConstants.InvalidId;
+            battleState.SquadId = CtConstants.InvalidId;
             battleState.InProgress = false;
         }
     }

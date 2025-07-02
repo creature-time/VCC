@@ -8,6 +8,7 @@ namespace CreatureTime
     {
         StateChanged,
         InProgressChanged,
+        SquadIdChanged,
         InitiativesChanged,
         TurnIndexChanged,
         IsLocalChanged,
@@ -44,7 +45,7 @@ namespace CreatureTime
         [SerializeField] private CtBattleNextTurnState nextTurnState;
         [SerializeField] private CtBattleEndState endState;
 
-        public ushort Identifier => identifier;
+        // public ushort Identifier => identifier;
 
         #region Synced Variables
 
@@ -90,6 +91,29 @@ namespace CreatureTime
             set
             {
                 InProgressCallback = value;
+                RequestSerialization();
+            }
+        }
+
+        [UdonSynced, FieldChangeCallback(nameof(SquadIdCallback))]
+        private ushort _squadId;
+
+        public ushort SquadIdCallback
+        {
+            get => _squadId;
+            set
+            {
+                _squadId = value;
+                this.Emit(EBattleStateSignal.SquadIdChanged);
+            }
+        }
+
+        public ushort SquadId
+        {
+            get => SquadIdCallback;
+            set
+            {
+                SquadIdCallback = value;
                 RequestSerialization();
             }
         }

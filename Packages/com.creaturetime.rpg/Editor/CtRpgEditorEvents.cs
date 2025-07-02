@@ -139,20 +139,20 @@ namespace CreatureTime
             serializedObject.ApplyModifiedProperties();
         }
 
-        private static void _UpdateParties(int capacity)
+        private static void _UpdateTemplateCounts(int capacity)
         {
             var partyManager = (CtPartyManager)Object.FindObjectOfType(typeof(CtPartyManager));
 
             var xform = partyManager.transform.Find("PlayerParties/_Template");
             _UpdatePartyTemplate(xform, 4);
-            _UpdateParties<CtPartyManager, CtParty>(partyManager, "playerParty", "playerParties", 0, capacity, xform);
+            _UpdateTemplateCounts<CtPartyManager, CtParty>(partyManager, "playerParty", "playerParties", 0, capacity, xform);
 
             xform = partyManager.transform.Find("EnemyParties/_Template");
             _UpdatePartyTemplate(xform, 4);
-            _UpdateParties<CtPartyManager, CtParty>(partyManager, "enemyParty", "enemyParties", 1000, capacity, xform);
+            _UpdateTemplateCounts<CtPartyManager, CtParty>(partyManager, "enemyParty", "enemyParties", 1000, capacity, xform);
         }
 
-        private static void _UpdateParties<TManager, T>(TManager manager, string prefix, string targetPropertyName, 
+        private static void _UpdateTemplateCounts<TManager, T>(TManager manager, string prefix, string targetPropertyName, 
             int start, int capacity, Transform partyTemplate)
             where TManager : UdonSharpBehaviour
             where T : UdonSharpBehaviour
@@ -204,18 +204,18 @@ namespace CreatureTime
         {
             var entityManager = (CtEntityManager)Object.FindObjectOfType(typeof(CtEntityManager));
 
-            _UpdateParties<CtEntityManager, CtEntity>(entityManager, "playerEntity", "playerEntities", 1, capacity, 
+            _UpdateTemplateCounts<CtEntityManager, CtEntity>(entityManager, "playerEntity", "playerEntities", 1, capacity, 
                 entityManager.transform.Find("PlayerEntities/_Template"));
 
             // NOTE: Max player party member count minus one.
             // TODO: Grab the template for the player party and grab the member count.
             int maxRecruitCount = capacity * 3;
-            _UpdateParties<CtEntityManager, CtEntity>(entityManager, "recruitEntity", "recruitEntities", 1000, 
+            _UpdateTemplateCounts<CtEntityManager, CtEntity>(entityManager, "recruitEntity", "recruitEntities", 1000, 
                 maxRecruitCount, entityManager.transform.Find("RecruitEntities/_Template"));
 
             // TODO: Grab the template for the enemy party and grab the member count.
             int maxEnemyCount = capacity * 4;
-            _UpdateParties<CtEntityManager, CtEntity>(entityManager, "enemyEntity", "enemyEntities", 2000, 
+            _UpdateTemplateCounts<CtEntityManager, CtEntity>(entityManager, "enemyEntity", "enemyEntities", 2000, 
                 maxEnemyCount, entityManager.transform.Find("EnemyEntities/_Template"));
         }
 
@@ -223,8 +223,8 @@ namespace CreatureTime
         {
             var battleStateManager = (CtBattleStateManager)Object.FindObjectOfType(typeof(CtBattleStateManager));
 
-            _UpdateParties<CtBattleStateManager, CtBattleState>(battleStateManager, "BattleState", "battleStates", 0, 
-                capacity, battleStateManager.transform.Find("_Template"));
+            _UpdateTemplateCounts<CtBattleStateManager, CtBattleState>(battleStateManager, "BattleState", "battleStates", 0, 
+                capacity, battleStateManager.transform.Find("BattleStates/_Template"));
 
             var blackboards = battleStateManager.GetComponentsInChildren<CtBlackboard>(false);
 
@@ -252,7 +252,7 @@ namespace CreatureTime
             var worldData = await _GetWorld();
 
             _UpdateRenderTargets(worldData.Capacity);
-            _UpdateParties(worldData.Capacity);
+            _UpdateTemplateCounts(worldData.Capacity);
             _UpdatePlayerDefs(worldData.Capacity);
             _UpdateEntities(worldData.Capacity);
             _UpdateBattleStates(worldData.Capacity);

@@ -9,11 +9,11 @@ namespace CreatureTime
     {
         [SerializeField] private CtRpgGame rpgGame;
 
-        [SerializeField] private CtNpcDef[] npcDefinitions;
+        [SerializeField] private CtSquadDef squadDef;
 
         public override void Execute(CtParty party)
         {
-            rpgGame.StartBattle(party, npcDefinitions);
+            rpgGame.StartBattle(party, squadDef);
         }
     }
 }
