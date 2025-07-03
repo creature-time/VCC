@@ -7,7 +7,7 @@ using VRC.SDK3.Data;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtSoundManager : UdonSharpBehaviour
+    public class CtSoundManager : CtSingleton
     {
         [SerializeField] private GameObject sourceEmitterPrefab;
         [SerializeField] int defaultCapacity = 10;

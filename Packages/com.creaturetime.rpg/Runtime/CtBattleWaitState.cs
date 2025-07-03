@@ -13,14 +13,24 @@ namespace CreatureTime
 
         public override CtStateBase GetNext(CtBlackboard context)
         {
-            var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
-            if (!battleState.TryGetEntity(entityIdentifier, out var entity))
+            var identifier = battleState.Initiatives[battleState.TurnIndex];
+            if (!battleState.TryGetEntity(identifier, out var entity))
+            {
+#if DEBUG_LOGS
+                LogError($"Failed to find entity (identifier={identifier}).");
+#endif
                 return endState;
+            }
 
-            if (entity.TryGetAttack(out var skillId, out var targetId))
-                return attackState;
+            if (!entity.HasAttackReady())
+            {
+#if DEBUG_LOGS
+                LogCritical($"Entity should have attack ready.");
+#endif
+                return endState;
+            }
 
-            return endState;
+            return attackState;
         }
 
         public override void OnEnter(CtBlackboard context)
@@ -33,9 +43,14 @@ namespace CreatureTime
             if (!battleState.InProgress)
                 return ENodeStatus.Failure;
 
-            var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
-            if (!battleState.TryGetEntity(entityIdentifier, out var entity))
+            var identifier = battleState.Initiatives[battleState.TurnIndex];
+            if (!battleState.TryGetEntity(identifier, out var entity))
+            {
+#if DEBUG_LOGS
+                LogError($"Failed to find entity (identifier={identifier}).");
+#endif
                 return ENodeStatus.Success;
+            }
 
             if (entity.TryGetAttack(out var skillId, out var targetId))
                 return ENodeStatus.Success;

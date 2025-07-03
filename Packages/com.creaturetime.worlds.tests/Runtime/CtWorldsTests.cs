@@ -42,7 +42,7 @@ namespace CreatureTime
 
         public void _RunAudioTest0()
         {
-            soundBuilder.Setup(testClip, false, true);
+            soundBuilder.Setup(testClip, false, true, 1.0f);
             soundBuilder.Play();
         }
 

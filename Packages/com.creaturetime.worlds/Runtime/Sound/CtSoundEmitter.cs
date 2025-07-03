@@ -13,11 +13,14 @@ namespace CreatureTime
         [SerializeField] private CtSoundManager soundManager;
         [SerializeField] private AudioSource audioSource;
 
-        public void Initialize(AudioClip clip, bool isLooping, bool playOnAwake)
+        public bool IsPlaying => audioSource.isPlaying;
+
+        public void Initialize(AudioClip clip, bool isLooping, bool playOnAwake, float pitch)
         {
             audioSource.clip = clip;
             audioSource.loop = isLooping;
             audioSource.playOnAwake = playOnAwake;
+            audioSource.pitch = pitch;
         }
 
         public void Play()

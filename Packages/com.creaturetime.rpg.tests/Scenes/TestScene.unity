@@ -31585,7 +31585,7 @@ PrefabInstance:
       objectReference: {fileID: 963194225}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
       propertyPath: NetworkIDs.Array.size
-      value: 717
+      value: 720
       objectReference: {fileID: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
       propertyPath: DynamicMaterials.Array.size
@@ -34462,6 +34462,18 @@ PrefabInstance:
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
       propertyPath: NetworkIDs.Array.data[716].ID
       value: 726
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[717].ID
+      value: 727
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[718].ID
+      value: 728
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[719].ID
+      value: 729
       objectReference: {fileID: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
       propertyPath: DynamicMaterials.Array.data[0]
@@ -37472,6 +37484,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 563210396}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[717].gameObject
+      value: 
+      objectReference: {fileID: 1844372879}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[718].gameObject
+      value: 
+      objectReference: {fileID: 1267894304}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[719].gameObject
+      value: 
+      objectReference: {fileID: 1174766552}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
       propertyPath: NetworkIDs.Array.data[0].SerializedTypeNames.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -40337,6 +40361,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
       propertyPath: NetworkIDs.Array.data[716].SerializedTypeNames.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[717].SerializedTypeNames.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[718].SerializedTypeNames.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[719].SerializedTypeNames.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
@@ -50727,6 +50763,18 @@ PrefabInstance:
       propertyPath: NetworkIDs.Array.data[716].SerializedTypeNames.Array.data[0]
       value: VRC.Udon.UdonBehaviour
       objectReference: {fileID: 0}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[717].SerializedTypeNames.Array.data[0]
+      value: VRC.Udon.UdonBehaviour
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[718].SerializedTypeNames.Array.data[0]
+      value: VRC.Udon.UdonBehaviour
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
+      propertyPath: NetworkIDs.Array.data[719].SerializedTypeNames.Array.data[0]
+      value: VRC.Udon.UdonBehaviour
+      objectReference: {fileID: 0}
     - target: {fileID: 8464459589408506562, guid: 8894fa7e4588a5c4fab98453e558847d, type: 3}
       propertyPath: serializedProgramAsset
       value: 
@@ -51962,7 +52010,7 @@ MonoBehaviour:
   icon: {fileID: 2800000, guid: 9f797369cb262b542865ce04e4701eca, type: 3}
   levelReq: 1
   rpgGame: {fileID: 774692472}
-  npcDefinitions: []
+  squadDef: {fileID: 0}
 --- !u!4 &669619736 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2549582392251739058, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
@@ -79129,6 +79177,11 @@ MonoBehaviour:
   behaviorTree: {fileID: 1174650016}
   npcContext: {fileID: 1174650013}
   npcTurn: {fileID: 1628845064}
+--- !u!1 &1174766552 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4754622355296624413, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+  m_PrefabInstance: {fileID: 4161445753243960221}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1174925999
 GameObject:
   m_ObjectHideFlags: 0
@@ -84362,6 +84415,11 @@ MonoBehaviour:
   identifier: 30
   gameData: {fileID: 8961427667474766120}
   playerManager: {fileID: 1585912064}
+--- !u!1 &1267894304 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4574321707313847031, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+  m_PrefabInstance: {fileID: 4161445753243960221}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1269117841
 GameObject:
   m_ObjectHideFlags: 0
@@ -112235,6 +112293,11 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1836551065}
   logger: {fileID: 1084617895}
+--- !u!1 &1844372879 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6538038562755937145, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+  m_PrefabInstance: {fileID: 4161445753243960221}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1844744984
 GameObject:
   m_ObjectHideFlags: 0
@@ -126228,6 +126291,14 @@ PrefabInstance:
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 227795705439185621, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+    - target: {fileID: 237641071348701719, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+      propertyPath: _syncMethod
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 237641071348701719, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+      propertyPath: serializedProgramAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: d6ec0b06fafbbe847858270c8b0fdc6b, type: 2}
     - target: {fileID: 246879988276812615, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
       propertyPath: logger
       value: 
@@ -127512,6 +127583,14 @@ PrefabInstance:
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 1665178044089903161, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+    - target: {fileID: 1666736538207961843, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+      propertyPath: _syncMethod
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1666736538207961843, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+      propertyPath: serializedProgramAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 771be1ce5f73a08498e2f7e8d1d1f841, type: 2}
     - target: {fileID: 1669490568074125912, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
       propertyPath: logger
       value: 
@@ -131200,6 +131279,10 @@ PrefabInstance:
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 4531621363847982139, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+    - target: {fileID: 4536328071876806517, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
+      propertyPath: serializedProgramAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: e2d79204b0fe8fa4f8bf1af1b185eb07, type: 2}
     - target: {fileID: 4537427661313419978, guid: fc11405b7fee61c4fa123103e4f2ab8f, type: 3}
       propertyPath: logger
       value: 

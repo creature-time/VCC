@@ -1,7 +1,6 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
-using VRC.Udon.Common.Interfaces;
 
 namespace CreatureTime
 {
@@ -10,6 +9,8 @@ namespace CreatureTime
     {
         [SerializeField] private CtBattleNpcBrain brain;
         [SerializeField] private CtPlayerTurn npcTurn;
+
+        private CtNpcController _npcController;
 
         public CtBattleNpcBrain Brain => brain;
 
@@ -32,7 +33,36 @@ namespace CreatureTime
             }
         }
 
+        public CtNpcController NpcController
+        {
+            get => _npcController;
+            set
+            {
+                if (_npcController)
+                {
+                    _npcController.Brain.Context.SetUShort("EntityId", CtConstants.InvalidId);
+                    _npcController.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
+                    _npcController.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
+                    _npcController.Brain.Context.SetBool("Expert/IsChargingMelee", false);
+                }
+
+                LogDebug($"NpcController was updated (entityId={Identifier}, prev={_npcController}, next={value}).");
+                _npcController = value;
+                if (_npcController)
+                {
+                    _npcController.Brain.Context.SetUShort("EntityId", Identifier);
+                    _npcController.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
+                    _npcController.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
+                    _npcController.Brain.Context.SetBool("Expert/IsChargingMelee", false);
+                }
+            }
+        }
+
         public override ushort EntityId => EntityIdCallback;
+
+        public override Vector3 Position => _npcController.transform.position;
+        public override Quaternion Rotation => _npcController.transform.rotation;
+
         public override bool IsPlayer => false;
 
         public ushort NpcId
@@ -123,15 +153,25 @@ namespace CreatureTime
             base.OnStartBattle();
         }
 
+        public override bool HasAttackReady()
+        {
+            return npcTurn.InteractType == CTBattleInteractType.Attack;
+        }
+
         public override bool TryGetAttack(out ushort skillId, out ushort targetId)
         {
-            if (!npcTurn.TryGetAttack(out skillId, out targetId))
+            if (!HasAttackReady())
             {
                 brain.Sense();
                 brain.Think();
             }
 
             return npcTurn.TryGetAttack(out skillId, out targetId);
+        }
+
+        public override void ResetAttack()
+        {
+            npcTurn.ResetToWait();
         }
 
         public override void OnEndBattle()

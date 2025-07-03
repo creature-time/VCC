@@ -26,7 +26,7 @@ namespace CreatureTime
 
     public abstract class CtEntity : CtEntityBase
     {
-        public const int MaxSkillCount = 10;
+        private const int MaxSkillCount = 10;
 
         [Header("Global Variables")]
         [SerializeField] protected CtGameData gameData;
@@ -479,12 +479,16 @@ namespace CreatureTime
             return true;
         }
 
+        public virtual bool HasAttackReady() => false;
+
         public virtual bool TryGetAttack(out ushort skillId, out ushort targetId)
         {
             skillId = CtConstants.InvalidId;
             targetId = CtConstants.InvalidId;
             return false;
         }
+
+        public virtual void ResetAttack() { }
 
         public virtual void OnEndBattle() {}
     }

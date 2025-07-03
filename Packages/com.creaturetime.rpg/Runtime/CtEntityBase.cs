@@ -16,12 +16,11 @@ namespace CreatureTime
             protected set => identifier = value;
         }
 
-        public abstract ushort EntityId
-        {
-            get;
-        }
+        public abstract ushort EntityId { get; }
 
-        public Transform SourceTransform { get; protected set; }
+        // TODO: Can we swap these to a Transform without huge cost?
+        public abstract Vector3 Position { get; }
+        public abstract Quaternion Rotation { get; }
 
         public abstract void ApplyDamage(int damage, EDamageType damageType,
             EDamageSourceType damageSourceType, ushort identifier, CtEntity instigator, bool isCritical);

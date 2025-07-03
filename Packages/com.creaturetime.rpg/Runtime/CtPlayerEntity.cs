@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.SDKBase;
 using VRC.Udon.Common.Interfaces;
 
 namespace CreatureTime
@@ -13,6 +14,25 @@ namespace CreatureTime
         private CtPlayerTurn _playerTurn;
 
         public override ushort EntityId => PlayerDef.PlayerId;
+
+        public override Vector3 Position
+        {
+            get
+            {
+                var playerApi = VRCPlayerApi.GetPlayerById(PlayerDef.PlayerId);
+                return playerApi.GetPosition();
+            }
+        }
+
+        public override Quaternion Rotation
+        {
+            get
+            {
+                var playerApi = VRCPlayerApi.GetPlayerById(PlayerDef.PlayerId);
+                return playerApi.GetRotation();
+            }
+        }
+
         public override bool IsPlayer => true;
 
         public CtPlayerDef PlayerDef
@@ -36,9 +56,19 @@ namespace CreatureTime
             return _playerTurn.InteractType != CTBattleInteractType.None;
         }
 
+        public override bool HasAttackReady()
+        {
+            return _playerTurn.InteractType == CTBattleInteractType.Attack;
+        }
+
         public override bool TryGetAttack(out ushort skillId, out ushort targetId)
         {
             return _playerTurn.TryGetAttack(out skillId, out targetId);
+        }
+
+        public override void ResetAttack()
+        {
+            _playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(_playerTurn.ResetToWait));
         }
 
         public override void OnEndBattle()

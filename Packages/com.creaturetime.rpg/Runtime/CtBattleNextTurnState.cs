@@ -1,7 +1,6 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
-using VRC.Udon.Common.Interfaces;
 
 namespace CreatureTime
 {
@@ -29,12 +28,19 @@ namespace CreatureTime
             if (!battleState.InProgress)
                 return ENodeStatus.Failure;
 
-            var entityIdentifier = battleState.Initiatives[battleState.TurnIndex];
-            battleState.TryGetEntity(entityIdentifier, out var entity);
-            if (entity.IsPlayer)
-                entity.EntityDef.GetComponent<CtPlayerTurn>().SendCustomNetworkEvent(NetworkEventTarget.Owner, "ResetToWait");
-            battleState.NextTurn();
+            var identifier = battleState.Initiatives[battleState.TurnIndex];
+            if (!battleState.TryGetEntity(identifier, out var entity))
+            {
+#if DEBUG_LOGS
+                LogError($"Failed to find entity (identifier={identifier}).");
+#endif
+                return ENodeStatus.Success;
+            }
 
+            if (entity.HasAttackReady())
+                return ENodeStatus.Running;
+
+            battleState.NextTurn();
             return ENodeStatus.Success;
         }
     }

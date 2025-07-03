@@ -2,8 +2,9 @@
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
+using VRC.SDK3.Data;
 using VRC.SDKBase;
-using Random = UnityEngine.Random;
 
 namespace CreatureTime
 {
@@ -23,7 +24,8 @@ namespace CreatureTime
     {
         MovementSpeedChanged,
         DialogueChanged,
-        SequenceChanged
+        SequenceChanged,
+        DamageTrigger,
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
@@ -40,10 +42,10 @@ namespace CreatureTime
         [SerializeField] private string displayName;
         [SerializeField] private string subTitle;
         [SerializeField] private AudioClip babbleClip;
-        // TODO: Use a global audio source manager.
-        public AudioSource BabbleSource { get; set; }
 
         [Header("Movement")]
+        [SerializeField] private ENpcMovementSpeed npcMovementSpeed = ENpcMovementSpeed.Walk;
+
         [SerializeField] private float walkSpeed = 1.4f;
         [SerializeField] private float runSpeed = 5.0f;
         [SerializeField] private float sprintSpeed = 7.0f;
@@ -60,19 +62,20 @@ namespace CreatureTime
         [SerializeField] private Transform eyeBoneL;
         [SerializeField] private Transform eyeBoneR;
 
+        public AudioClip BabbleClip => babbleClip;
+        public CtNpcBrain Brain => brain;
+
         public Transform HeadBone => headBone;
         public Transform EyeBoneL => eyeBoneL;
         public Transform EyeBoneR => eyeBoneR;
 
-        private ENpcMovementSpeed _npcMovementSpeed = ENpcMovementSpeed.Walk;
-
         public ENpcMovementSpeed NpcMovementSpeed
         {
-            get => _npcMovementSpeed;
+            get => npcMovementSpeed;
             set
             {
-                _npcMovementSpeed = value;
-                switch (_npcMovementSpeed)
+                npcMovementSpeed = value;
+                switch (npcMovementSpeed)
                 {
                     case ENpcMovementSpeed.Run:
                         agent.speed = runSpeed;
@@ -155,18 +158,66 @@ namespace CreatureTime
         }
 
         public CtNpcController Target { get; set; }
-        public Transform ResetPosition { get; set; }
-        public Transform TargetTransform { get; private set; }
+        public Transform HomePosition { get; set; }
 
-        public bool IsAttacking
+        private DataDictionary _damageValues = new DataDictionary();
+
+        public DataDictionary DamageValues => _damageValues;
+
+        private bool IsChargingMelee
         {
-            set => brain.Context.SetBool("Expert/IsAttacking", value);
+            // get
+            // {
+            //     brain.Context.TryGetBool("Expert/IsChargingMelee", out var value);
+            //     return value;
+            // }
+            set => brain.Context.SetBool("Expert/IsChargingMelee", value);
         }
 
-        public void InitiateAttack(Transform targetTransform)
+        private bool IsAttackingMelee
         {
-            IsAttacking = true;
-            TargetTransform = targetTransform;
+            // get
+            // {
+            //     brain.Context.TryGetBool("Expert/IsAttackingMelee", out var value);
+            //     return value;
+            // }
+            set => brain.Context.SetBool("Expert/IsAttackingMelee", value);
+        }
+
+        private bool IsDoneAttackingMelee
+        {
+            // get
+            // {
+            //     brain.Context.TryGetBool("Expert/IsAttackingMelee", out var value);
+            //     return value;
+            // }
+            set => brain.Context.SetBool("Expert/IsDoneAttackingMelee", value);
+        }
+
+        public void MeleeAttack()
+        {
+            IsAttackingMelee = true;
+            animator.SetTrigger("MeleeAttack");
+
+            // TODO: Get the attack animation length?
+            SendCustomEventDelayedSeconds(nameof(_FinishedAttacking), 1.5f);
+        }
+
+        public void _FinishedAttacking()
+        {
+            IsDoneAttackingMelee = true;
+        }
+
+        public void InitiateAttack(ushort targetId)
+        {
+            brain.Context.SetUShort("TargetId", targetId);
+            IsChargingMelee = true;
+        }
+
+        public void ResetAttack()
+        {
+            IsChargingMelee = false;
+            IsAttackingMelee = false;
         }
 
         private Transform _lookTarget;
@@ -183,7 +234,7 @@ namespace CreatureTime
                 LogWarning("Head transform was null.");
 #endif
 
-            NpcMovementSpeed = ENpcMovementSpeed.Walk;
+            NpcMovementSpeed = npcMovementSpeed;
 
             for (int i = 0; i < features.Length; i++)
                 features[i].Init(this);
@@ -214,16 +265,6 @@ namespace CreatureTime
         {
             for (int i = 0; i < features.Length; i++)
                 features[i].ExecuteLateUpdate(this);
-        }
-
-        public void Babble()
-        {
-            if (!BabbleSource.isPlaying)
-            {
-                BabbleSource.clip = babbleClip;
-                BabbleSource.Play();
-                BabbleSource.pitch = Random.Range(0.75f, 1.25f);
-            }
         }
 
         public override void OnPlayerTriggerEnter(VRCPlayerApi player)
