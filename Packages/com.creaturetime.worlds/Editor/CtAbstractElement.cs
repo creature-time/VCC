@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace CreatureTime
 {
-    public class CtEditor : Editor
+    public abstract class CtAbstractElement : Editor
     {
         private const string StyleSheetFilePath = 
             "Packages/com.creaturetime.worlds/Editor/CtStyleSheet.uss";

@@ -8,15 +8,15 @@ namespace CreatureTime
     public class CtOffHandDef : CtInventoryItemDef
     {
         [SerializeField] private EOffHandType offHandType = EOffHandType.None;
-        [SerializeField] private EAttributeType attributeType = EAttributeType.None;
-        [SerializeField] [Range(0, 9)] private int attributeRequirement = 0;
+        [SerializeField] private ushort attributeType = CtConstants.InvalidId;
+        [SerializeField] [Range(0, 9)] private int attributeRequirement;
         [SerializeField] private int minModifierStat = 8;
         [SerializeField] private int maxModifierStat = 16;
         [SerializeField] private EItemRarity rarity = EItemRarity.None;
         [SerializeField] private CtUserData userData;
 
         public EOffHandType OffHandType => offHandType;
-        public EAttributeType AttributeType => attributeType;
+        public ushort AttributeType => attributeType;
         public int AttributeRequirement => attributeRequirement;
         public int MinModifierStat => minModifierStat;
         public int MaxModifierStat => maxModifierStat;

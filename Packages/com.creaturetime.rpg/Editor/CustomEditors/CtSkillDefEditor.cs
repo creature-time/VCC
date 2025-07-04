@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 namespace CreatureTime
 {
      [CustomEditor(typeof(CtSkillDef), true)]
-     public class CtSkillDefEditor : CtEditor
+     public class CtSkillDefEditor : CtAbstractElement
      {
          private Label _description;
 

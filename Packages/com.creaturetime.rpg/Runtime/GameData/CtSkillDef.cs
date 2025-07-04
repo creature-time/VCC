@@ -13,11 +13,13 @@ namespace CreatureTime
         public const float PreCalcTwoThirds = 1.0f / 3.0f;
 
         [SerializeField] private Texture2D icon;
+        [SerializeField] private ushort attributeType;
         [SerializeField] [HideInInspector] private ECombatEffectFlags flags;
 
         public string DebugDisplayName => $"{DisplayName} [{Identifier}]";
 
         public Texture2D Icon => icon;
+        public ushort AttributeType => attributeType;
         public ECombatEffectFlags Flags => flags;
 
         public bool IsUse => ((int)Flags & (int)ECombatEffectFlags.Use) != 0;
@@ -27,7 +29,6 @@ namespace CreatureTime
 
         public virtual bool IsBeneficial => false;
         public virtual string DisplayName => "<Invalid>";
-        public virtual EAttributeType AttributeType => EAttributeType.None;
         public virtual ESkillType Type => ESkillType.Energy;
         public virtual int Cost => 0;
         public virtual int RechargeTime => 0;
@@ -76,7 +77,7 @@ namespace CreatureTime
         }
 
         public static void HealingSkill(CtGameData gameData, CtEntity target, CtEntity source, 
-            EAttributeType attributeType, ushort identifier, int healingBase, float healingPerAttribute)
+            ushort attributeType, ushort identifier, int healingBase, float healingPerAttribute)
         {
             int attributeRank =
                 TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, attributeType);
@@ -187,7 +188,7 @@ namespace CreatureTime
         }
 
         public static void SpellSkill(CtGameData gameData, CtEntity target, CtEntity source, 
-            EAttributeType attributeType, ushort skillId, EDamageType damageType, int damageBase, 
+            ushort attributeType, ushort skillId, EDamageType damageType, int damageBase, 
             float damagePerAttribute)
         {
             int attributeRank =
@@ -258,12 +259,12 @@ namespace CreatureTime
             return attributePoints;
         }
 
-        public static int TryGetAttributeLevelByAttributeType(CtGameData gameData, CtEntityDef entityStats, EAttributeType attributeType)
+        public static int TryGetAttributeLevelByAttributeType(CtGameData gameData, CtEntityDef entityStats, ushort attributeType)
         {
             ushort profession = CtDataBlock.GetProfession(entityStats.AttributeData);
             CtProfessionDef professionDefinition = gameData.GetProfessionDef(profession);
             for (int i = 0; i < professionDefinition.Attributes.Length; ++i)
-                if (professionDefinition.Attributes[i].AttributeType == attributeType)
+                if (professionDefinition.Attributes[i].Identifier == attributeType)
                     return CtDataBlock.GetAttributeRank(entityStats.AttributeData, i);
 
             return 0;

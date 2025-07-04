@@ -9,7 +9,7 @@ namespace CreatureTime
     public class CtWeaponDef : CtInventoryItemDef
     {
         [SerializeField] private EWeaponType weaponType;
-        [SerializeField] private EAttributeType attributeType = EAttributeType.None;
+        [SerializeField] private ushort attributeType = CtConstants.InvalidId;
         [SerializeField] [Range(0, 9)] private int attributeRequirement = 0;
         [SerializeField] private EDamageType damageType = EDamageType.Piercing;
         [SerializeField] private int damageMin = 15;
@@ -18,7 +18,7 @@ namespace CreatureTime
         [SerializeField] private CtUserData userData;
 
         public EWeaponType WeaponType => weaponType;
-        public EAttributeType AttributeType => attributeType;
+        public ushort AttributeType => attributeType;
         public int AttributeRequirement => attributeRequirement;
         public EDamageType DamageType => damageType;
         public int DamageMin => damageMin;

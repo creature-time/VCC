@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 namespace CreatureTime
 {
     [CustomEditor(typeof(CtEntityDef), true)]
-    public class CtEntityDefEditor : CtEditor
+    public class CtEntityDefEditor : CtAbstractElement
     {
         private ObjectField _npcBehavior;
 

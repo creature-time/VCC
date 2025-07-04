@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace CreatureTime
 {
-    public class CtEditorWindow : EditorWindow
+    public abstract class CtAbstractEditorWindow : EditorWindow
     {
         private const string StyleSheetFilePath = 
             "Packages/com.creaturetime.worlds/Editor/CtStyleSheet.uss";
@@ -13,6 +13,10 @@ namespace CreatureTime
         {
             StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(StyleSheetFilePath);
             rootVisualElement.styleSheets.Add(styleSheet);
+
+            SetUp();
         }
+
+        private protected abstract void SetUp();
     }
 }

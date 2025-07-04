@@ -8,6 +8,10 @@ namespace CreatureTime.RpgGame
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtWeaponAttack : CtUserData
     {
+        [SerializeField, Range(1, 15)] private int palette;
+
+        public int Palette => palette;
+
         public CtPlayerTurn PlayerTurn { private get; set; }
 
         private void OnTriggerEnter(Collider other)

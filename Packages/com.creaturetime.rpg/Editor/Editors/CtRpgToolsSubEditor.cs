@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using UdonSharp;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using VRC.Core;
 using VRC.SDKBase;
 using VRC.SDKBase.Editor.Api;
@@ -15,8 +16,43 @@ using Object = UnityEngine.Object;
 
 namespace CreatureTime
 {
-    public static class CtRpgEditorEvents
+    public class CtRpgToolsSubEditor : CtCreatureTimeSubEditor
     {
+        public override string Name => "RPG Tools";
+
+        public CtRpgToolsSubEditor()
+        {
+            var updateSkills = new Button
+            {
+                text = "Update Skills",
+            };
+            updateSkills.clickable.clicked += _UpdateSkills;
+            Add(updateSkills);
+
+            var assignAllGlobalFields = new Button
+            {
+                text = "Assign All Global Fields",
+            };
+            assignAllGlobalFields.clickable.clicked += _UpdateAllGlobalFields;
+            Add(assignAllGlobalFields);
+
+            var updateCounts = new Button
+            {
+                text = "Update Counts",
+            };
+            updateCounts.clickable.clicked += _UpdateCounts;
+            Add(updateCounts);
+
+            Add(new Label());
+
+            var runAll = new Button
+            {
+                text = "Run All",
+            };
+            runAll.clickable.clicked += _RunAll;
+            Add(runAll);
+        }
+
         private static async Task<VRCWorld> _GetWorld()
         {
             VRCWorld worldData;
@@ -37,7 +73,6 @@ namespace CreatureTime
             return worldData;
         }
 
-        [MenuItem("CreatureTime/Rpg/Update Skills", false, 0)]
         private static void _UpdateSkills()
         {
             Dictionary<ECombatEffectFlags, string> methodFlags = new Dictionary<ECombatEffectFlags, string>
@@ -246,7 +281,6 @@ namespace CreatureTime
             serializedObject.ApplyModifiedProperties();
         }
 
-        [MenuItem("CreatureTime/Rpg/Update Counts", false, 1)]
         private static async void _UpdateCounts()
         {
             var worldData = await _GetWorld();
@@ -258,8 +292,7 @@ namespace CreatureTime
             _UpdateBattleStates(worldData.Capacity);
         }
 
-        [MenuItem("CreatureTime/Rpg/Update All Global Parameters", false, 3)]
-        private static void UpdateAllGlobalParameters()
+        private static void _UpdateAllGlobalFields()
         {
             Dictionary<Type, CtSingleton> singletons = new Dictionary<Type, CtSingleton>();
 
@@ -293,7 +326,6 @@ namespace CreatureTime
                     if (!singletons.TryGetValue(fieldInfo.FieldType, out var singleton))
                         continue;
 
-                    Debug.Log($"Updating property {fieldInfo.Name} with {singleton} on {component.name}.");
                     fieldInfo.SetValue(component, singleton);
 
                     EditorUtility.SetDirty(component);
@@ -301,12 +333,11 @@ namespace CreatureTime
             }
         }
 
-        [MenuItem("CreatureTime/Rpg/Update All")]
-        private static void UpdateAll()
+        private static void _RunAll()
         {
             _UpdateSkills();
+            _UpdateAllGlobalFields();
             _UpdateCounts();
-            UpdateAllGlobalParameters();
         }
-   }
+    }
 }

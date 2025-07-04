@@ -84,28 +84,28 @@ namespace CreatureTime
         HealthIncrease,
     }
 
-    public enum EAttributeType
-    {
-        None,
-
-        AxeMastery,
-        HammerMastery,
-        Swordsmanship,
-        Tactics,
-
-        Earth,
-        Fire,
-        Air,
-        Water,
-
-        Healing,
-        Smiting,
-        Protection,
-
-        Marksmanship,
-        WildernessSurvival,
-        Beastmastery
-    }
+    // public enum EAttributeType
+    // {
+    //     None,
+    //
+    //     AxeMastery,
+    //     HammerMastery,
+    //     Swordsmanship,
+    //     Tactics,
+    //
+    //     Earth,
+    //     Fire,
+    //     Air,
+    //     Water,
+    //
+    //     Healing,
+    //     Smiting,
+    //     Protection,
+    //
+    //     Marksmanship,
+    //     WildernessSurvival,
+    //     Beastmastery
+    // }
 
     public enum EDamageSourceType
     {
