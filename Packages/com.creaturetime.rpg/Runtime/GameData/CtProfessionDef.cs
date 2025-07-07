@@ -5,14 +5,12 @@ using UnityEngine;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtProfessionDef : CtAbstractDefinition
+    public class CtProfessionDef : CtInventoryItemDef
     {
-        [SerializeField] private string displayName;
-        [SerializeField] private CtAttributeDef[] attributes;
         [SerializeField] private Color theme = Color.black;
+        [SerializeField] private CtAttributeDef[] attributes;
 
-        public string DisplayName => displayName;
-        public CtAttributeDef[] Attributes => attributes;
         public Color Theme => theme;
+        public CtAttributeDef[] Attributes => attributes;
     }
 }

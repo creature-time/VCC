@@ -1,24 +1,19 @@
 ﻿
-using UdonSharp;
+using System;
 using UnityEngine;
 
 namespace CreatureTime
 {
-    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtSkillDef : CtAbstractDefinition
+    public abstract class CtSkillDef : CtInventoryItemDef
     {
-        public const string ValueColor = "#008000";
+        protected const string ValueColor = "#008000";
 
-        public const float PreCalcOneThirds = 1.0f / 3.0f;
-        public const float PreCalcTwoThirds = 1.0f / 3.0f;
+        protected const float PreCalcOneThirds = 1.0f / 3.0f;
+        protected const float PreCalcTwoThirds = 1.0f / 3.0f;
 
-        [SerializeField] private Texture2D icon;
         [SerializeField] private ushort attributeType;
-        [SerializeField] [HideInInspector] private ECombatEffectFlags flags;
+        [SerializeField, HideInInspector] private ECombatEffectFlags flags;
 
-        public string DebugDisplayName => $"{DisplayName} [{Identifier}]";
-
-        public Texture2D Icon => icon;
         public ushort AttributeType => attributeType;
         public ECombatEffectFlags Flags => flags;
 
@@ -28,7 +23,6 @@ namespace CreatureTime
         public bool IsTickEffect => ((int)Flags & (int)ECombatEffectFlags.TickEffect) != 0;
 
         public virtual bool IsBeneficial => false;
-        public virtual string DisplayName => "<Invalid>";
         public virtual ESkillType Type => ESkillType.Energy;
         public virtual int Cost => 0;
         public virtual int RechargeTime => 0;
@@ -94,22 +88,50 @@ namespace CreatureTime
 
         private static int CalculateArmorRating(CtGameData gameData, CtEntity target)
         {
-            int armorHit = CtArmorDef.GetArmorIndex(CtArmorDef.RollArmorHit());
-            ulong armorData = target.EntityDef.EquipmentData[armorHit];
+            var armorHitRoll = CtArmorSetDef.RollArmorHit();
+            ulong armorData;
+            switch (armorHitRoll)
+            {
+                case EArmorSlot.Head:
+                    armorData = target.EntityDef.HeadSlot;
+                    break;
+                case EArmorSlot.Chest:
+                    armorData = target.EntityDef.ChestSlot;
+                    break;
+                case EArmorSlot.Hands:
+                    armorData = target.EntityDef.HandsSlot;
+                    break;
+                case EArmorSlot.Legs:
+                    armorData = target.EntityDef.LegsSlot;
+                    break;
+                case EArmorSlot.Feet:
+                    armorData = target.EntityDef.FeetSlot;
+                    break;
+                default:
+                    return 0;
+            }
+
             int armorRating = 0;
             if (CtDataBlock.IsValid(armorData))
             {
-                ushort armorIdentifier = CtDataBlock.GetEquipmentIdentifier(armorData);
-                CtArmorDef armorDefinition = gameData.GetArmorDef(armorIdentifier);
-                if (armorDefinition)
+                ushort identifier = CtDataBlock.GetEquipmentIdentifier(armorData);
+                CtArmorSetDef armorSetDef = gameData.GetArmorDef(identifier);
+                if (armorSetDef)
                 {
-                    armorRating = armorDefinition.ArmorRating;
+                    var armorSlot = armorSetDef.GetArmorSlot(armorHitRoll);
+                    if (armorSlot)
+                        armorRating = armorSlot.ArmorRating;
+#if DEBUG_LOGS
+                else
+                {
+                    Debug.LogWarning($"Failed to find armor slot (armorSlot={armorSlot}).");
+                }
+#endif
                 }
 #if DEBUG_LOGS
                 else
                 {
-                    CtLogger.LogCritical("Skill Definition", 
-                        $"Armor identifier was not found (identifier={armorIdentifier}).");
+                    Debug.LogWarning($"Armor identifier was not found (identifier={identifier}).");
                 }
 #endif
             }
@@ -144,7 +166,7 @@ namespace CreatureTime
             armorRating = Mathf.Max(0, armorRating);
 
 #if DEBUG_LOGS
-            CtLogger.LogDebug("Skill Definition", 
+            Debug.Log(
                 "[Armor Rating] Additional armor rating " +
                 $"(displayName=({target.DisplayName}), armorRating={armorRating}).");
 #endif
@@ -159,7 +181,7 @@ namespace CreatureTime
             weaponDefinition = gameData.GetWeaponDef(identifier);
 #if DEBUG_LOGS
             if (!weaponDefinition)
-                CtLogger.LogCritical("Skill Definition", $"Weapon could not be found (identifier={identifier})");
+                Debug.Log($"Weapon could not be found (identifier={identifier})");
 #endif
 
             attributeRank =
@@ -175,14 +197,13 @@ namespace CreatureTime
         public static void MeleeSkill(CtGameData gameData, CtEntity target, CtEntity source, ushort skillId, 
             int damageBase, float damagePerAttribute, float armorPenetration = 0)
         {
-            int armorLevel = target.EntityDef.armorLevel - 
-                             Mathf.RoundToInt(target.EntityDef.armorLevel * armorPenetration);
+            int armorRating = CalculateArmorRating(gameData, target);
 
             // Skill Weapon Damage
             int damage = _CalcMeleeAttack(
                 gameData, target, source, out var weaponDefinition, out var attributeRank, out var isCritical);
             damage += CalcDamage(
-                damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel, armorLevel);
+                damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel, armorRating);
             target.ApplyDamage(
                 damage, weaponDefinition.DamageType, EDamageSourceType.Skill, skillId, source, isCritical);
         }
@@ -191,10 +212,12 @@ namespace CreatureTime
             ushort attributeType, ushort skillId, EDamageType damageType, int damageBase, 
             float damagePerAttribute)
         {
+            int armorRating = CalculateArmorRating(gameData, target);
+
             int attributeRank =
                 TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, attributeType);
             int damage = CalcDamage(damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel,
-                target.EntityDef.armorLevel);
+                armorRating);
             target.ApplyDamage(damage, damageType, EDamageSourceType.Skill, skillId, source, false);
         }
 

@@ -340,7 +340,7 @@ namespace CreatureTime
             ulong unusedBitMask = 0xFFFFFFFFFFFFFFFF << bitShift;
             return
                 unusedBitMask | // Unused while setting remaining attribute data to zero.
-                (attributeCount & AttributeCountBitShiftMask) << AttributeCountBitShift | // Atribute count
+                (attributeCount & AttributeCountBitShiftMask) << AttributeCountBitShift | // Attribute count
                 (profession & AttributeTypeBitMask); // Profession;
         }
 

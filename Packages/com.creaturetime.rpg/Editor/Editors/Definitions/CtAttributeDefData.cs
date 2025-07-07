@@ -6,9 +6,15 @@ namespace CreatureTime
 {
     [Serializable]
     [CreateAssetMenu(fileName = "attributeData", menuName = "CreatureTime/Rpg/Attribute Definition", order = 1)]
-    public class CtAttributeDefData : ScriptableObject
+    public class CtAttributeDefData : CtAbstractDefData
     {
-        [SerializeField] public ushort identifier;
+        public override string GenerateName => 
+            $"{identifier:00000}_{(string.IsNullOrEmpty(displayName) ? "NoName" : displayName.Replace(' ', '-'))}";
+
+        public override int Identifier => identifier;
+
+        [SerializeField] public ushort identifier = CtConstants.InvalidId;
         [SerializeField] public string displayName;
+        [SerializeField] public Texture2D icon;
     }
 }

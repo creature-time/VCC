@@ -118,15 +118,11 @@ namespace CreatureTime
                 npcContext.SetFloat($"Skills.Values[{i}]/ConditionScore", 0);
                 npcContext.SetFloat($"Skills.Values[{i}]/DamageScore", 0);
 
-                ushort skillId = entity.EntityDef.GetSkill(i);
-                if (skillId == CtConstants.InvalidId)
-                    continue;
-
                 float recharge = entity.GetRecharge(i);
                 if (recharge > 0)
                     continue;
 
-                CtSkillDef skillDef = gameData.GetSkillDef(skillId);
+                var skillDef = entity.GetSkillDef(i);
                 if (!skillDef)
                     continue;
 

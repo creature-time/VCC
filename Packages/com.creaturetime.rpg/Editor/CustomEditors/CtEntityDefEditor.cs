@@ -203,7 +203,7 @@ namespace CreatureTime
             {
                 Label = "Head",
                 AllowedArmorSlot = EArmorSlot.Head,
-                BindingPath = "equipmentData.Array.data[0]",
+                BindingPath = "headSlotData",
                 style =
                 {
                     backgroundColor = alternatingColor
@@ -216,7 +216,7 @@ namespace CreatureTime
             {
                 Label = "Chest",
                 AllowedArmorSlot = EArmorSlot.Chest,
-                BindingPath = "equipmentData.Array.data[1]"
+                BindingPath = "chestSlotData"
             };
             armorChest.Bind(serializedObject);
             armorGroup.Add(armorChest);
@@ -225,7 +225,7 @@ namespace CreatureTime
             {
                 Label = "Hands",
                 AllowedArmorSlot = EArmorSlot.Hands,
-                BindingPath = "equipmentData.Array.data[2]",
+                BindingPath = "handsSlotData",
                 style =
                 {
                     backgroundColor = alternatingColor
@@ -236,9 +236,9 @@ namespace CreatureTime
 
             CtArmorStatsElement armorLegs = new CtArmorStatsElement
             {
-                Label = "Head",
+                Label = "Legs",
                 AllowedArmorSlot = EArmorSlot.Legs,
-                BindingPath = "equipmentData.Array.data[3]"
+                BindingPath = "legsSlotData"
             };
             armorLegs.Bind(serializedObject);
             armorGroup.Add(armorLegs);
@@ -247,7 +247,7 @@ namespace CreatureTime
             {
                 Label = "Feet",
                 AllowedArmorSlot = EArmorSlot.Feet,
-                BindingPath = "equipmentData.Array.data[4]",
+                BindingPath = "feetSlotData",
                 style =
                 {
                     backgroundColor = alternatingColor
@@ -279,7 +279,7 @@ namespace CreatureTime
             {
                 CtSkillStatsElement skill = new CtSkillStatsElement
                 {
-                    BindingPath = $"skills.Array.data[{i}]"
+                    BindingPath = $"skillSlot{i}"
                 };
                 skill.Bind(serializedObject);
                 skills.Add(skill);

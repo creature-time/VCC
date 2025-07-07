@@ -1,21 +1,20 @@
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VRC.SDK3.Editor;
+using Object = UnityEngine.Object;
 
 namespace CreatureTime
 {
     public class CtArmorStatsElement : CtAbstractItemStatsElement
     {
         private ObjectField _armorSelect;
-        private SliderInt _levelReq;
 
-        public EArmorSlot AllowedArmorSlot { get; set; } = EArmorSlot.None;
+        public EArmorSlot AllowedArmorSlot { get; set; }
 
         public string Label
         {
@@ -42,26 +41,20 @@ namespace CreatureTime
             {
                 text = "Reset"
             };
-            utilsLayout.Add(randomize);
+            // utilsLayout.Add(randomize);
 
             Button clearButton = new Button
             {
                 text = "Clear"
             };
-            utilsLayout.Add(clearButton);
+            // utilsLayout.Add(clearButton);
 
             _armorSelect = new ObjectField
             {
                 label = "Armor",
-                objectType = typeof(CtArmorDef)
+                objectType = typeof(CtArmorSetDef)
             };
             _container.Add(_armorSelect);
-
-            _levelReq = new SliderInt(0, 13)
-            {
-                label = "Requirement (Unused)"
-            };
-            _container.Add(_levelReq);
 
             _armorSelect.RegisterValueChangedCallback(evt =>
             {
@@ -70,14 +63,15 @@ namespace CreatureTime
             });
             randomize.clicked += () =>
             {
-                CtArmorDef armorDefinition = _armorSelect.value as CtArmorDef;
-                if (!armorDefinition)
+                CtArmorSlotDef armorSetDefinition = _armorSelect.value as CtArmorSlotDef;
+                if (!armorSetDefinition)
                 {
                     Debug.LogError("There was no armor definition to generation armor.");
                     return;
                 }
                 // _dataBlock.Value = armorDefinition.GenerateWeapon();
             };
+
             _dataBlock.DataBlockElement.RegisterValueChangedCallback(_ => SetupFields());
 
             clearButton.clicked += () => { _dataBlock.Value = CtDataBlock.InvalidData; };
@@ -87,13 +81,17 @@ namespace CreatureTime
 
         private void SetupFields()
         {
+            const string RarityDefaultColor = "#000000";
+            const string RarityCommonColor = "#000000";
+            const string RarityMagicalColor = "#182e6f";
+            const string RarityUncommonColor = "#520075";
+            const string RarityRareColor = "#db9d00";
+
             string displayName = "<Empty>";
             Texture2D texture = null;
             string stats = String.Empty;
 
-            CtArmorDef found = null;
-            EItemRarity rarity = EItemRarity.None;
-            int req = 0;
+            CtArmorSetDef found = null;
             // EWeaponPrefix prefix = EWeaponPrefix.None;
             // EWeaponSuffix suffix = EWeaponSuffix.None;
 
@@ -103,53 +101,57 @@ namespace CreatureTime
                 EDataType dataType = CtDataBlock.GetDataType(data);
                 if (dataType == EDataType.Equipment)
                 {
-                    string color = "#000000";
+                    int armorRating = 0;
+                    string color = RarityDefaultColor;
                     ushort identifier = CtDataBlock.GetEquipmentIdentifier(data);
-                    List<CtArmorDef> armorDefinitions =
-                        GameObject.FindObjectsOfType<CtArmorDef>(true).ToList();
-                    found = armorDefinitions.Find(definition => definition.Identifier == identifier);
+                    var armorDefs = 
+                        Object.FindObjectsByType<CtArmorSetDef>(FindObjectsInactive.Include, FindObjectsSortMode.None).ToList();
+                    found = armorDefs.Find(def => def.Identifier == identifier);
                     if (found)
                     {
-                        displayName = found.DisplayName;
-                        texture = found.Icon as Texture2D;
+                        var armorSlot = found.GetArmorSlot(AllowedArmorSlot);
+                        if (armorSlot)
+                        {
+                            var rarity = found.Rarity;
+                            switch (rarity)
+                            {
+                                case EItemRarity.None:
+                                    color = RarityDefaultColor;
+                                    break;
+                                case EItemRarity.Common:
+                                    color = RarityCommonColor;
+                                    break;
+                                case EItemRarity.Magical:
+                                    color = RarityMagicalColor;
+                                    break;
+                                case EItemRarity.Uncommon:
+                                    color = RarityUncommonColor;
+                                    break;
+                                case EItemRarity.Rare:
+                                    color = RarityRareColor;
+                                    break;
+                                default:
+                                    Debug.LogError($"Item rarity not supported (rarity={rarity}).");
+                                    break;
+                            }
+
+                            displayName = $"<color={color}>{armorSlot.DisplayName}</color>";
+                            texture = armorSlot.Icon;
+                            armorRating = armorSlot.ArmorRating;
+                        }
 
                         if (!texture)
                             texture = AssetDatabase.LoadAssetAtPath<Texture2D>(
                                 "Assets/CreatureTime/Worlds/CreatureTimeRPG/Editor/unknown.png");
                     }
 
-                    // TODO: Setup equipment rarity.
-                    color = "#FFFFFF";
-
-                    // rarity = CtDataBlock.GetArmorRarity(data);
-                    // switch (rarity)
-                    // {
-                    //     case EItemRarity.None:
-                    //         break;
-                    //     case EItemRarity.Common:
-                    //         break;
-                    //     case EItemRarity.Magical:
-                    //         color = "#0000ff";
-                    //         break;
-                    //     case EItemRarity.Uncommon:
-                    //         color = "#ff00ff";
-                    //         break;
-                    //     case EItemRarity.Rare:
-                    //         color = "#ffff00";
-                    //         break;
-                    //     default:
-                    //         Debug.LogError($"Item rarity not supported (rarity={rarity}).");
-                    //         break;
-                    // }
-
-                    stats += $"<color={color}>{displayName}</color>\n";
-
+                    stats += $"<color={color}>{displayName}</color>\nArmor: {armorRating}";
                     stats = stats.Trim();
                 }
             }
 
             _icon.image = texture;
-            _title.text = (displayName);
+            _title.text = displayName;
             _stats.SetVisible(false);
             _stats.text = stats;
 
@@ -160,20 +162,14 @@ namespace CreatureTime
 
         private void UpdateData()
         {
-            CtArmorDef armorDefinition = _armorSelect.value as CtArmorDef;
-            if (!armorDefinition)
+            var armorSetDef = (CtArmorSetDef)_armorSelect.value;
+            if (!armorSetDef)
             {
                 _dataBlock.Value = CtDataBlock.InvalidData;
                 return;
             }
 
-            if (AllowedArmorSlot != EArmorSlot.None && armorDefinition.ArmorSlot != AllowedArmorSlot)
-            {
-                _dataBlock.Value = CtDataBlock.InvalidData;
-                return;
-            }
-
-            ulong data = CtDataBlock.CreateEquipmentData(armorDefinition.Identifier);
+            ulong data = CtDataBlock.CreateEquipmentData(armorSetDef.Identifier);
             _dataBlock.Value = data;
         }
 

@@ -14,13 +14,18 @@ namespace CreatureTime
 
     [Serializable]
     [CreateAssetMenu(fileName = "mainHandDefData", menuName = "CreatureTime/Rpg/Main Hand Definition", order = 1)]
-    public class CtMainHandDefData : ScriptableObject
+    public class CtMainHandDefData : CtAbstractDefData
     {
-        [SerializeField] public ushort identifier;
+        public override string GenerateName => 
+            $"{identifier:00000}_{(string.IsNullOrEmpty(displayName) ? "NoName" : displayName.Replace(' ', '-'))}";
+
+        public override int Identifier => identifier;
+
+        [SerializeField] public ushort identifier = CtConstants.InvalidId;
         [SerializeField] public string displayName;
         [SerializeField] public Texture icon;
         [SerializeField] public EWeaponType weaponType;
-        [SerializeField] public ushort attributeType = CtConstants.InvalidId;
+        [SerializeField] public CtAttributeDefData attributeType;
         [SerializeField] [Range(0, 9)] private int attributeRequirement = 0;
         [SerializeField] public EDamageType damageType = EDamageType.Piercing;
         [SerializeField] [Range(0, 32)] public int damageMin = 15;

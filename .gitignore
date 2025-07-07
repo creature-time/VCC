@@ -94,6 +94,17 @@ crashlytics-build.properties
 !/[Aa]ssets/SerializedUdonPrograms
 !/[Aa]ssets/SerializedUdonPrograms/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].*
 
+# Allow CreatureTime editor assets for RPG game.
+!/[Aa]ssets/CreatureTime
+!/[Aa]ssets/CreatureTime.meta
+!/[Aa]ssets/CreatureTime/Editor
+!/[Aa]ssets/CreatureTime/Editor.meta
+!/[Aa]ssets/CreatureTime/Editor/Data
+!/[Aa]ssets/CreatureTime/Editor/Data.meta
+!/[Aa]ssets/CreatureTime/Editor/Data/Rpg
+!/[Aa]ssets/CreatureTime/Editor/Data/Rpg.meta
+!/[Aa]ssets/CreatureTime/Editor/Data/Rpg/**
+
 # Vmp
 !/.github/**
 !/Website/**

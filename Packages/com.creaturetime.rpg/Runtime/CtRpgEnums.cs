@@ -67,7 +67,6 @@ namespace CreatureTime
 
     public enum EArmorSlot
     {
-        None,
         Head,
         Chest,
         Hands,
@@ -83,29 +82,6 @@ namespace CreatureTime
         ArmorIncrease,
         HealthIncrease,
     }
-
-    // public enum EAttributeType
-    // {
-    //     None,
-    //
-    //     AxeMastery,
-    //     HammerMastery,
-    //     Swordsmanship,
-    //     Tactics,
-    //
-    //     Earth,
-    //     Fire,
-    //     Air,
-    //     Water,
-    //
-    //     Healing,
-    //     Smiting,
-    //     Protection,
-    //
-    //     Marksmanship,
-    //     WildernessSurvival,
-    //     Beastmastery
-    // }
 
     public enum EDamageSourceType
     {

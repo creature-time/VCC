@@ -20,27 +20,19 @@ namespace CreatureTime
         public static void ShowExample()
         {
             var wnd = GetWindow<CtCreatureTimeEditor>();
-            wnd.titleContent = new GUIContent("Creature Time");
+            wnd.titleContent = 
+                new GUIContent("Creature Time", (Texture2D)EditorGUIUtility.Load(DefaultWhiteX16));
         }
 
-        private Toolbar _toolbar;
-        private VisualElement _content;
+        private CtTabElement _tabElement;
 
         private protected override void SetUp()
         {
-            _toolbar = new Toolbar();
-            rootVisualElement.Add(_toolbar);
-
-            _content = new VisualElement
+            _tabElement = new CtTabElement
             {
-                style =
-                {
-                    flexGrow = 1.0f
-                }
+                style = { flexGrow = 1f }
             };
-            rootVisualElement.Add(_content);
-
-            List<CtCreatureTimeSubEditor> subEditors = new List<CtCreatureTimeSubEditor>();
+            rootVisualElement.Add(_tabElement);
 
             // Find all objects for each singleton type from all assemblies.
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -50,36 +42,7 @@ namespace CreatureTime
                              myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(CtCreatureTimeSubEditor))))
             {
                 var subEditor = (CtCreatureTimeSubEditor)Activator.CreateInstance(typ);
-                AddTab(subEditor.Name, subEditor);
-            }
-        }
-
-        public void AddTab(string text, VisualElement element)
-        {
-            element.style.flexGrow = 1.0f;
-
-            var tab = new Button { text = text };
-            tab.userData = element;
-            tab.clicked += () => { _AssignTab(element); };
-            _toolbar.Add(tab);
-
-            if (_currentElement == null)
-                _AssignTab(element);
-        }
-
-        private VisualElement _currentElement;
-
-        private void _AssignTab(VisualElement element)
-        {
-            if (_currentElement != null)
-            {
-                _content.Remove(_currentElement);
-            }
-
-            _currentElement = element;
-            if (_currentElement != null)
-            {
-                _content.Add(_currentElement);
+                _tabElement.AddTab(subEditor.Name, subEditor);
             }
         }
     }

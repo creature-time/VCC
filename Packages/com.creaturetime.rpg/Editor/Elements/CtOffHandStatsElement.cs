@@ -39,13 +39,13 @@ namespace CreatureTime
             {
                 text = "Reset"
             };
-            utilsLayout.Add(randomize);
+            // utilsLayout.Add(randomize);
 
             Button clearButton = new Button
             {
                 text = "Clear"
             };
-            utilsLayout.Add(clearButton);
+            // utilsLayout.Add(clearButton);
 
             _offHandSelect = new ObjectField
             {

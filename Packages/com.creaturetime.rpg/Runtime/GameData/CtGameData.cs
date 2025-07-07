@@ -25,7 +25,7 @@ namespace CreatureTime
             Skills = GetComponentsInChildren<CtSkillDef>(true);
             CtWeaponDef[] weaponDefs = GetComponentsInChildren<CtWeaponDef>(true);
             CtOffHandDef[] offHandDefs = GetComponentsInChildren<CtOffHandDef>(true);
-            CtArmorDef[] armorDefs = GetComponentsInChildren<CtArmorDef>(true);
+            CtArmorSetDef[] armorDefs = GetComponentsInChildren<CtArmorSetDef>(true);
             Professions = GetComponentsInChildren<CtProfessionDef>(true);
             Quests = GetComponentsInChildren<CtAbstractQuest>(true);
 
@@ -124,7 +124,7 @@ namespace CreatureTime
             return (CtOffHandDef)dataToken.Reference;
         }
 
-        public CtArmorDef GetArmorDef(ushort identifier)
+        public CtArmorSetDef GetArmorDef(ushort identifier)
         {
             if (!_armorDefinitions.TryGetValue(identifier, out var dataToken))
             {
@@ -133,7 +133,7 @@ namespace CreatureTime
 #endif
                 return null;
             }
-            return (CtArmorDef)dataToken.Reference;
+            return (CtArmorSetDef)dataToken.Reference;
         }
 
         public CtProfessionDef GetProfessionDef(ushort identifier)

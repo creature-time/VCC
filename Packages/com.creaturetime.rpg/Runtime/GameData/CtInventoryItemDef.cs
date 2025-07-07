@@ -6,9 +6,9 @@ namespace CreatureTime
     public abstract class CtInventoryItemDef : CtAbstractDefinition
     {
         [SerializeField] private string displayName = "";
-        [SerializeField] private Texture icon;
+        [SerializeField] private Texture2D icon;
 
         public string DisplayName => displayName;
-        public Texture Icon => icon;
+        public Texture2D Icon => icon;
     }
 }

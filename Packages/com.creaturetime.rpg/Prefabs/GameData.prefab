@@ -55,8 +55,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1702415410830164655}
+  identifier: 65535
   displayName: Fire
-  attributeType: 6
+  icon: {fileID: 0}
 --- !u!114 &1702415410830164655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,10 +142,11 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 992894583971213129}
   identifier: 1
   displayName: Melee
+  icon: {fileID: 0}
+  theme: {r: 1, g: 0.36519516, b: 0, a: 0}
   attributes:
   - {fileID: 8618719589923169940}
   - {fileID: 7475748838150697243}
-  theme: {r: 1, g: 0.36519516, b: 0, a: 0}
 --- !u!114 &992894583971213129
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,7 +200,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7449819622747613849}
   m_Father: {fileID: 402594309919875350}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1470689890522085177
@@ -256,8 +259,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1628536409788557648}
+  identifier: 65535
   displayName: Healing
-  attributeType: 9
+  icon: {fileID: 0}
 --- !u!114 &1628536409788557648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,8 +342,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 6745235070371744022}
+  identifier: 65535
   displayName: Axe Mastery
-  attributeType: 1
+  icon: {fileID: 0}
 --- !u!114 &6745235070371744022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -401,6 +406,7 @@ Transform:
   - {fileID: 8188839873313222501}
   - {fileID: 7643718142879972327}
   - {fileID: 6921543834781035579}
+  - {fileID: 5234133651074497141}
   - {fileID: 2321018177094056662}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -507,8 +513,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 5609339486939511540}
+  identifier: 65535
   displayName: Hammer Mastery
-  attributeType: 2
+  icon: {fileID: 0}
 --- !u!114 &5609339486939511540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -657,10 +664,11 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 725374212246752296}
   identifier: 2
   displayName: Ranged
+  icon: {fileID: 0}
+  theme: {r: 0.025981864, g: 0.90588236, b: 0, a: 0}
   attributes:
   - {fileID: 2490495331257055219}
   - {fileID: 8666650140593230997}
-  theme: {r: 0.025981864, g: 0.90588236, b: 0, a: 0}
 --- !u!114 &725374212246752296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -741,8 +749,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 3144752358302432334}
+  identifier: 65535
   displayName: Beast Mastery
-  attributeType: 14
+  icon: {fileID: 0}
 --- !u!114 &3144752358302432334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -823,8 +832,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1834156147299594800}
+  identifier: 65535
   displayName: Smiting
-  attributeType: 10
+  icon: {fileID: 0}
 --- !u!114 &1834156147299594800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -880,6 +890,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7643718142879972327}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4779664558715237563
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7449819622747613849}
+  m_Layer: 0
+  m_Name: Battle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7449819622747613849
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4779664558715237563}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2321018177094056662}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5158518235598450241
 GameObject:
@@ -940,10 +981,11 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 67457402773030669}
   identifier: 4
   displayName: Healer
+  icon: {fileID: 0}
+  theme: {r: 0, g: 0.29372057, b: 0.6981132, a: 0}
   attributes:
   - {fileID: 8271012107834360495}
   - {fileID: 1935584232186011099}
-  theme: {r: 0, g: 0.29372057, b: 0.6981132, a: 0}
 --- !u!114 &67457402773030669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1090,8 +1132,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 4255512816090773286}
+  identifier: 65535
   displayName: Marksmanship
-  attributeType: 12
+  icon: {fileID: 0}
 --- !u!114 &4255512816090773286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1117,6 +1160,37 @@ MonoBehaviour:
   serializedPublicVariablesBytesString: Ai8AAAAAATIAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAFQAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AAAAAAAYBAAAAAAAAACcBBAAAAHQAeQBwAGUAAWgAAABTAHkAcwB0AGUAbQAuAEMAbwBsAGwAZQBjAHQAaQBvAG4AcwAuAEcAZQBuAGUAcgBpAGMALgBMAGkAcwB0AGAAMQBbAFsAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4ALgBJAG4AdABlAHIAZgBhAGMAZQBzAC4ASQBVAGQAbwBuAFYAYQByAGkAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AXQBdACwAIABtAHMAYwBvAHIAbABpAGIAAQEJAAAAVgBhAHIAaQBhAGIAbABlAHMALwEAAAABaAAAAFMAeQBzAHQAZQBtAC4AQwBvAGwAbABlAGMAdABpAG8AbgBzAC4ARwBlAG4AZQByAGkAYwAuAEwAaQBzAHQAYAAxAFsAWwBWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAEkAbgB0AGUAcgBmAGEAYwBlAHMALgBJAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlACwAIABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgBdAF0ALAAgAG0AcwBjAG8AcgBsAGkAYgABAAAABgEAAAAAAAAAAi8CAAAAAUkAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAGAAMQBbAFsAUwB5AHMAdABlAG0ALgBJAG4AdAAzADIALAAgAG0AcwBjAG8AcgBsAGkAYgBdAF0ALAAgAFYAUgBDAC4AVQBkAG8AbgAuAEMAbwBtAG0AbwBuAAIAAAAGAgAAAAAAAAAnAQQAAAB0AHkAcABlAAEXAAAAUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwAsACAAbQBzAGMAbwByAGwAaQBiACcBCgAAAFMAeQBtAGIAbwBsAE4AYQBtAGUAAR8AAABfAF8AXwBVAGQAbwBuAFMAaABhAHIAcABCAGUAaABhAHYAaQBvAHUAcgBWAGUAcgBzAGkAbwBuAF8AXwBfACcBBAAAAHQAeQBwAGUAARYAAABTAHkAcwB0AGUAbQAuAEkAbgB0ADMAMgAsACAAbQBzAGMAbwByAGwAaQBiABcBBQAAAFYAYQBsAHUAZQACAAAABwUHBQcF
   publicVariablesUnityEngineObjects: []
   publicVariablesSerializationDataFormat: 0
+--- !u!1 &7239898062055569007
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5234133651074497141}
+  m_Layer: 0
+  m_Name: Squads
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &5234133651074497141
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7239898062055569007}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 402594309919875350}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7272091166985116816
 GameObject:
   m_ObjectHideFlags: 0
@@ -1203,8 +1277,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 8969815379450259283}
+  identifier: 65535
   displayName: Water
-  attributeType: 8
+  icon: {fileID: 0}
 --- !u!114 &8969815379450259283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1320,10 +1395,11 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 7731531874275878345}
   identifier: 3
   displayName: Caster
+  icon: {fileID: 0}
+  theme: {r: 0.9528302, g: 0, b: 0, a: 0}
   attributes:
   - {fileID: 938627221403384772}
   - {fileID: 2938023130052291224}
-  theme: {r: 0.9528302, g: 0, b: 0, a: 0}
 --- !u!114 &7731531874275878345
 MonoBehaviour:
   m_ObjectHideFlags: 0
