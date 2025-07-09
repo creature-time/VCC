@@ -10,7 +10,7 @@ namespace CreatureTime
         [SerializeField] private CtBattleNpcBrain brain;
         [SerializeField] private CtPlayerTurn npcTurn;
 
-        private CtNpcController _npcController;
+        private CtBattleController _controller;
 
         public CtBattleNpcBrain Brain => brain;
 
@@ -33,35 +33,35 @@ namespace CreatureTime
             }
         }
 
-        public CtNpcController NpcController
+        public CtBattleController Controller
         {
-            get => _npcController;
+            get => _controller;
             set
             {
-                if (_npcController)
+                if (_controller)
                 {
-                    _npcController.Brain.Context.SetUShort("EntityId", CtConstants.InvalidId);
-                    _npcController.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
-                    _npcController.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
-                    _npcController.Brain.Context.SetBool("Expert/IsChargingMelee", false);
+                    _controller.Brain.Context.SetUShort("EntityId", CtConstants.InvalidId);
+                    _controller.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
+                    _controller.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
+                    _controller.Brain.Context.SetBool("Expert/IsChargingMelee", false);
                 }
 
-                LogDebug($"NpcController was updated (entityId={Identifier}, prev={_npcController}, next={value}).");
-                _npcController = value;
-                if (_npcController)
+                LogDebug($"NpcController was updated (entityId={Identifier}, prev={_controller}, next={value}).");
+                _controller = value;
+                if (_controller)
                 {
-                    _npcController.Brain.Context.SetUShort("EntityId", Identifier);
-                    _npcController.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
-                    _npcController.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
-                    _npcController.Brain.Context.SetBool("Expert/IsChargingMelee", false);
+                    _controller.Brain.Context.SetUShort("EntityId", Identifier);
+                    _controller.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
+                    _controller.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
+                    _controller.Brain.Context.SetBool("Expert/IsChargingMelee", false);
                 }
             }
         }
 
         public override ushort EntityId => EntityIdCallback;
 
-        public override Vector3 Position => _npcController.transform.position;
-        public override Quaternion Rotation => _npcController.transform.rotation;
+        public override Vector3 Position => _controller.transform.position;
+        public override Quaternion Rotation => _controller.transform.rotation;
 
         public override bool IsPlayer => false;
 

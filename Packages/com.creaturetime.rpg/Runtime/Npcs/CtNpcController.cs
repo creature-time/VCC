@@ -1,8 +1,6 @@
 ﻿
-using UdonSharp;
 using UnityEngine;
 using UnityEngine.AI;
-using VRC.SDKBase;
 
 namespace CreatureTime
 {
@@ -18,36 +16,18 @@ namespace CreatureTime
         Neutral
     }
 
-    public enum ECharacterSignal
+    public enum ENpcControllerSignal
     {
         MovementSpeedChanged,
-        DialogueChanged,
-        SequenceChanged,
-        DamageTrigger,
+        Extensions
     }
 
-    public enum ENpcTurnState
+    public abstract class CtNpcController : CtAbstractSignal
     {
-        Idle,
-        MeleeAttacking,
-        MeleeAttack,
-        MeleeReturn,
-    }
+        [SerializeField] protected NavMeshAgent agent;
+        [SerializeField] protected Animator animator;
 
-    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-    public class CtNpcController : CtAbstractSignal
-    {
-        private const int CharacterFlagsHasDialogue = 1 << 0;
-        private const int CharacterFlagsHasSequence = 1 << 1;
-        private const int CharacterFlagsHalt = 1 << 2;
-
-        [SerializeField] private NavMeshAgent agent;
-        [SerializeField] private Animator animator;
-
-        [Header("Character")]
-        [SerializeField] private string displayName;
-        [SerializeField] private string subTitle;
-        [SerializeField] private AudioClip babbleClip;
+        public abstract string DisplayName { get; }
 
         [Header("Movement")]
         [SerializeField] private ENpcMovementSpeed npcMovementSpeed = ENpcMovementSpeed.Walk;
@@ -56,20 +36,16 @@ namespace CreatureTime
         [SerializeField] private float runSpeed = 5.0f;
         [SerializeField] private float sprintSpeed = 7.0f;
 
-        public string DisplayName => displayName;
-        public string SubTitle => subTitle;
-
         [Header("Characteristics")]
         [SerializeField] private CtNpcBrain brain;
         [SerializeField] private CtNpcFeature[] features = {};
+
+        public CtNpcBrain Brain => brain;
 
         [Header("Skeleton References")]
         [SerializeField] private Transform headBone;
         [SerializeField] private Transform eyeBoneL;
         [SerializeField] private Transform eyeBoneR;
-
-        public AudioClip BabbleClip => babbleClip;
-        public CtNpcBrain Brain => brain;
 
         public Transform HeadBone => headBone;
         public Transform EyeBoneL => eyeBoneL;
@@ -93,7 +69,7 @@ namespace CreatureTime
                         agent.speed = walkSpeed;
                         break;
                 }
-                this.Emit(ECharacterSignal.MovementSpeedChanged);
+                this.Emit(ENpcControllerSignal.MovementSpeedChanged);
             }
         }
 
@@ -119,94 +95,9 @@ namespace CreatureTime
             }
         }
 
-        private int _flags;
+        protected int Flags;
 
-        public bool HasSequence
-        {
-            get => (_flags & CharacterFlagsHasSequence) != 0;
-            set
-            {
-                if (value)
-                    _flags |= CharacterFlagsHasSequence;
-                else
-                    _flags &= ~CharacterFlagsHasSequence;
-                this.Emit(ECharacterSignal.SequenceChanged);
-            }
-        }
-
-        public bool HasDialogue
-        {
-            get => (_flags & CharacterFlagsHasDialogue) != 0;
-            set
-            {
-                if (value)
-                    _flags |= CharacterFlagsHasDialogue;
-                else
-                    _flags &= ~CharacterFlagsHasDialogue;
-                this.Emit(ECharacterSignal.DialogueChanged);
-            }
-        }
-
-        public bool IsHalted
-        {
-            get => (_flags & CharacterFlagsHalt) != 0;
-            set
-            {
-                if (value)
-                {
-                    _flags |= CharacterFlagsHalt;
-                }
-                else
-                {
-                    _flags &= ~CharacterFlagsHalt;
-                }
-            }
-        }
-
-        public CtNpcController Target { get; set; }
-        public Transform HomePosition { get; set; }
-
-        private void MeleeAttackingState()
-        {
-            brain.Context.SetEnum("TurnState", ENpcTurnState.MeleeAttacking);
-        }
-
-        private void _MeleeDoneState()
-        {
-            brain.Context.SetEnum("TurnState", ENpcTurnState.MeleeReturn);
-        }
-
-        public void MeleeAttack()
-        {
-            brain.Context.SetEnum("TurnState", ENpcTurnState.MeleeAttack);
-            animator.SetTrigger("MeleeAttack");
-
-            // TODO: Get the attack animation length?
-            SendCustomEventDelayedSeconds(nameof(_FinishedAttacking), 1.5f);
-        }
-
-        public void _FinishedAttacking()
-        {
-            _MeleeDoneState();
-        }
-
-        public void InitiateAttack(ushort targetId)
-        {
-            brain.Context.SetUShort("TargetId", targetId);
-            MeleeAttackingState();
-        }
-
-        public void ResetAttack()
-        {
-            brain.Context.SetInt("TurnState", 0);
-        }
-
-        private Transform _lookTarget;
-        public Transform LookTarget
-        {
-            get => _lookTarget ? _lookTarget : Target ? Target.HeadBone.transform : null;
-            set => _lookTarget = value;
-        }
+        public Transform LookTarget { get; set; }
 
         private void Start()
         {
@@ -246,11 +137,6 @@ namespace CreatureTime
         {
             for (int i = 0; i < features.Length; i++)
                 features[i].ExecuteLateUpdate(this);
-        }
-
-        public override void OnPlayerTriggerEnter(VRCPlayerApi player)
-        {
-            animator.SetTrigger("IsPushed");
         }
     }
 }

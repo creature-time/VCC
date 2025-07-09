@@ -1,20 +1,21 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CreatureTime.RpgGame
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtNpcUserData : CtUserData
     {
-        [SerializeField] private CtNpcController npcController;
+        [FormerlySerializedAs("npcController")] [SerializeField] private CtBattleController controller;
 
-        public CtNpcController NpcController => npcController;
+        public CtBattleController Controller => controller;
         public ushort TargetId { get; set; } = CtConstants.InvalidId;
 
         public void _DamageTrigger()
         {
-            npcController.Emit(ECharacterSignal.DamageTrigger);
+            controller.Emit(ENpcBattleControllerSignal.DamageTrigger);
         }
     }
 }
