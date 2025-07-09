@@ -2,8 +2,6 @@
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
-using VRC.SDK3.Data;
 using VRC.SDKBase;
 
 namespace CreatureTime
@@ -26,6 +24,14 @@ namespace CreatureTime
         DialogueChanged,
         SequenceChanged,
         DamageTrigger,
+    }
+
+    public enum ENpcTurnState
+    {
+        Idle,
+        MeleeAttacking,
+        MeleeAttack,
+        MeleeReturn,
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
@@ -160,43 +166,19 @@ namespace CreatureTime
         public CtNpcController Target { get; set; }
         public Transform HomePosition { get; set; }
 
-        private DataDictionary _damageValues = new DataDictionary();
-
-        public DataDictionary DamageValues => _damageValues;
-
-        private bool IsChargingMelee
+        private void MeleeAttackingState()
         {
-            // get
-            // {
-            //     brain.Context.TryGetBool("Expert/IsChargingMelee", out var value);
-            //     return value;
-            // }
-            set => brain.Context.SetBool("Expert/IsChargingMelee", value);
+            brain.Context.SetEnum("TurnState", ENpcTurnState.MeleeAttacking);
         }
 
-        private bool IsAttackingMelee
+        private void _MeleeDoneState()
         {
-            // get
-            // {
-            //     brain.Context.TryGetBool("Expert/IsAttackingMelee", out var value);
-            //     return value;
-            // }
-            set => brain.Context.SetBool("Expert/IsAttackingMelee", value);
-        }
-
-        private bool IsDoneAttackingMelee
-        {
-            // get
-            // {
-            //     brain.Context.TryGetBool("Expert/IsAttackingMelee", out var value);
-            //     return value;
-            // }
-            set => brain.Context.SetBool("Expert/IsDoneAttackingMelee", value);
+            brain.Context.SetEnum("TurnState", ENpcTurnState.MeleeReturn);
         }
 
         public void MeleeAttack()
         {
-            IsAttackingMelee = true;
+            brain.Context.SetEnum("TurnState", ENpcTurnState.MeleeAttack);
             animator.SetTrigger("MeleeAttack");
 
             // TODO: Get the attack animation length?
@@ -205,19 +187,18 @@ namespace CreatureTime
 
         public void _FinishedAttacking()
         {
-            IsDoneAttackingMelee = true;
+            _MeleeDoneState();
         }
 
         public void InitiateAttack(ushort targetId)
         {
             brain.Context.SetUShort("TargetId", targetId);
-            IsChargingMelee = true;
+            MeleeAttackingState();
         }
 
         public void ResetAttack()
         {
-            IsChargingMelee = false;
-            IsAttackingMelee = false;
+            brain.Context.SetInt("TurnState", 0);
         }
 
         private Transform _lookTarget;

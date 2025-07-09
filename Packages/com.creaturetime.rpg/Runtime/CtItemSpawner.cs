@@ -35,54 +35,58 @@ namespace CreatureTime.RpgGame
             ulong mainHandWeapon = entityDef.MainHandWeapon;
             if (CtDataBlock.IsValid(mainHandWeapon))
             {
-                ushort weaponId = CtDataBlock.GetWeaponIdentifier(entityDef.MainHandWeapon);
+                ushort weaponId = CtDataBlock.GetWeaponIdentifier(mainHandWeapon);
                 CtWeaponDef weaponDef = data.GetWeaponDef(weaponId);
-                var userData = weaponDef.UserData;
-                if (userData)
+                if (weaponDef)
                 {
-                    playerWeapon.InteractionText = weaponDef.DisplayName;
-                    var interactCollider = playerWeapon.GetComponent<BoxCollider>();
+                    var userData = weaponDef.UserData;
+                    if (userData)
+                    {
+                        playerWeapon.InteractionText = weaponDef.DisplayName;
+                        var interactCollider = playerWeapon.GetComponent<BoxCollider>();
 
-                    _spawnedMainHandWeapon = Instantiate(userData.gameObject, playerWeapon.transform).GetComponent<CtWeaponAttack>();
+                        _spawnedMainHandWeapon = Instantiate(userData.gameObject, playerWeapon.transform)
+                            .GetComponent<CtWeaponAttack>();
 
-                    var tempMeshFilter = _spawnedMainHandWeapon.GetComponent<MeshFilter>();
-                    var tempMeshRenderer = _spawnedMainHandWeapon.GetComponent<MeshRenderer>();
-                    playerWeapon.GetComponent<MeshFilter>().sharedMesh = tempMeshFilter.sharedMesh;
-                    var material = tempMeshRenderer.sharedMaterial;
-                    var meshRenderer = playerWeapon.GetComponent<MeshRenderer>();
-                    meshRenderer.material = material;
+                        var tempMeshFilter = _spawnedMainHandWeapon.GetComponent<MeshFilter>();
+                        var tempMeshRenderer = _spawnedMainHandWeapon.GetComponent<MeshRenderer>();
+                        playerWeapon.GetComponent<MeshFilter>().sharedMesh = tempMeshFilter.sharedMesh;
+                        var material = tempMeshRenderer.sharedMaterial;
+                        var meshRenderer = playerWeapon.GetComponent<MeshRenderer>();
+                        meshRenderer.material = material;
 
-                    _spawnedMainHandWeapon.gameObject.SetActive(true);
-                    _spawnedMainHandWeapon.PlayerTurn = playerTurn;
+                        _spawnedMainHandWeapon.gameObject.SetActive(true);
+                        _spawnedMainHandWeapon.PlayerTurn = playerTurn;
 
-                    var colliders = _spawnedMainHandWeapon.GetComponents<BoxCollider>();
-                    interactCollider.center = colliders[1].center;
-                    interactCollider.size = colliders[1].size;
+                        var colliders = _spawnedMainHandWeapon.GetComponents<BoxCollider>();
+                        interactCollider.center = colliders[1].center;
+                        interactCollider.size = colliders[1].size;
 
-                    Destroy(tempMeshFilter);
-                    Destroy(tempMeshRenderer);
-                    Destroy(colliders[1]);
+                        Destroy(tempMeshFilter);
+                        Destroy(tempMeshRenderer);
+                        Destroy(colliders[1]);
 
-                    const float size = 4f;
-                    const float uvRange = 1.0f / 4f;
+                        const float size = 4f;
+                        const float uvRange = 1.0f / 4f;
 
-                    float palette = _spawnedMainHandWeapon.Palette;
-                    Debug.Log(palette / size);
-                    Debug.Log(uvRange * (palette / size));
-                    var textureVector = new Vector4(
-                        uvRange,
-                        uvRange,
-                        uvRange * (palette % size),
-                        uvRange * Mathf.Floor(palette / size));
-                    MaterialPropertyBlock props = new MaterialPropertyBlock();
-                    props.SetVector("_MainTex_ST", textureVector);
-                    meshRenderer.SetPropertyBlock(props);
+                        float palette = _spawnedMainHandWeapon.Palette;
+                        Debug.Log(palette / size);
+                        Debug.Log(uvRange * (palette / size));
+                        var textureVector = new Vector4(
+                            uvRange,
+                            uvRange,
+                            uvRange * (palette % size),
+                            uvRange * Mathf.Floor(palette / size));
+                        MaterialPropertyBlock props = new MaterialPropertyBlock();
+                        props.SetVector("_MainTex_ST", textureVector);
+                        meshRenderer.SetPropertyBlock(props);
 
-                    _spawnedMainHandWeapon.transform.localPosition = Vector3.zero;
-                    _spawnedMainHandWeapon.transform.localRotation = Quaternion.identity;
-                    _spawnedMainHandWeapon.transform.localScale = Vector3.one;
+                        _spawnedMainHandWeapon.transform.localPosition = Vector3.zero;
+                        _spawnedMainHandWeapon.transform.localRotation = Quaternion.identity;
+                        _spawnedMainHandWeapon.transform.localScale = Vector3.one;
 
-                    _RespawnWeapon();
+                        _RespawnWeapon();
+                    }
                 }
             }
 

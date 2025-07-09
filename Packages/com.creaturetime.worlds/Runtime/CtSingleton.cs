@@ -47,9 +47,12 @@ namespace CreatureTime
             {
                 var type = component.GetType();
                 var fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic).ToList();
-                foreach (var baseType in type.GetNestedTypes(BindingFlags.Instance | BindingFlags.Public))
-                    foreach (var fieldInfo in baseType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
+                do
+                {
+                    foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
                         fields.Add(fieldInfo);
+                    type = type.BaseType;
+                } while (type != null && type != typeof(UdonSharpBehaviour));
 
                 foreach (var fieldInfo in fields)
                 {

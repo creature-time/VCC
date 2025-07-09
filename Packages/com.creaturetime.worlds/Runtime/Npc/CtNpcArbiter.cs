@@ -33,6 +33,9 @@ namespace CreatureTime
 
             if (bestExpert != BestExpert)
             {
+// #if DEBUG_LOGS
+                LogDebug($"Updating base expert from {BestExpert} to {bestExpert}.");
+// #endif
                 BestExpert = bestExpert;
                 return true;
             }
