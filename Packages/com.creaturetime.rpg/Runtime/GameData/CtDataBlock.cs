@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace CreatureTime
 {
     public enum EDataType
@@ -218,7 +220,7 @@ namespace CreatureTime
                 return InvalidData;
             }
 
-            if (modifierStat < 1 || modifierStat > 16)
+            if (modifierStat < 0 || modifierStat > 16)
             {
 #if DEBUG_LOGS
                 CtLogger.LogCritical("Data Mangle", $"Modifier stat must be between 1 and 16 (modifierStat={modifierStat}).");
@@ -247,16 +249,23 @@ namespace CreatureTime
 
         # region Equipment
 
-        private const ulong EquipmentUnusedMask = 0xFFFFFFFFFFF00000;
+        private const ulong EquipmentUnusedMask = 0xFFFFFFFFFF000000;
 
         private const int EquipmentIdBitShift = 4;
         private const ulong EquipmentIdBitMask = 0x00000000000FFFF0;
         private const ulong EquipmentIdBitShiftMask = EquipmentIdBitMask >> EquipmentIdBitShift;
 
+        private const int EquipmentSlotBitShift = 20;
+        private const ulong EquipmentSlotBitMask = 0x0000000000F00000;
+        private const ulong EquipmentSlotBitShiftMask = EquipmentSlotBitMask >> EquipmentSlotBitShift;
+
         public static ushort GetEquipmentIdentifier(ulong data) => 
             (ushort)((data >> EquipmentIdBitShift) & EquipmentIdBitShiftMask);
+        
+        public static EArmorSlot GetEquipmentSlot(ulong data) => 
+            (EArmorSlot)((data >> EquipmentSlotBitShift) & EquipmentSlotBitShiftMask);
 
-        public static ulong CreateEquipmentData(ushort identifier)
+        public static ulong CreateEquipmentData(ushort identifier, EArmorSlot slot)
         {
             if (identifier >= EquipmentIdBitShiftMask)
             {
@@ -266,8 +275,11 @@ namespace CreatureTime
                 return InvalidData;
             }
 
+            int s = Convert.ToInt32(slot);
+
             return
                 EquipmentUnusedMask | // Unused
+                ((ulong)s & EquipmentSlotBitShiftMask) << EquipmentSlotBitShift | // Identifier
                 (identifier & EquipmentIdBitShiftMask) << EquipmentIdBitShift | // Identifier
                 ((ulong)EDataType.Equipment & DataTypeBitMask); // Data type
         }
@@ -544,7 +556,7 @@ namespace CreatureTime
                                                  $"(given={data:x16}, expected={UtMaskValidationExpected:x16})");
 #endif
 
-            data = CreateEquipmentData(UtEquipmentIdentifierExpected);
+            data = CreateEquipmentData(UtEquipmentIdentifierExpected, EArmorSlot.Chest);
 
             ushort equipmentIdentifier = GetEquipmentIdentifier(data);
 #if DEBUG_LOGS

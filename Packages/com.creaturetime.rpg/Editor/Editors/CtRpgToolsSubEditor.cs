@@ -294,43 +294,7 @@ namespace CreatureTime
 
         private static void _UpdateAllGlobalFields()
         {
-            Dictionary<Type, CtSingleton> singletons = new Dictionary<Type, CtSingleton>();
-
-            // Find all objects for each singleton type from all assemblies.
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                foreach (Type typ in
-                         assembly.GetTypes()
-                             .Where(myType =>
-                                 myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(CtSingleton))))
-                {
-                    singletons.Add(typ, (CtSingleton)Object.FindFirstObjectByType(typ, FindObjectsInactive.Include));
-                }
-
-            // Throw error if singleton does not exist in the scene.
-            foreach (var pair in singletons)
-                if (!pair.Value)
-                    throw new Exception($"Failed to find singleton for type ({pair.Key})");
-
-            // Find all the components and their fields and set the value of the singleton if the type is the
-            // singleton.
-            foreach (var component in Object.FindObjectsOfType<UdonSharpBehaviour>(true))
-            {
-                var type = component.GetType();
-                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic).ToList();
-                foreach (var baseType in type.GetBaseTypes())
-                    foreach (var fieldInfo in baseType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
-                        fields.Add(fieldInfo);
-
-                foreach (var fieldInfo in fields)
-                {
-                    if (!singletons.TryGetValue(fieldInfo.FieldType, out var singleton))
-                        continue;
-
-                    fieldInfo.SetValue(component, singleton);
-
-                    EditorUtility.SetDirty(component);
-                }
-            }
+            CtSingleton.AssignSingletons(CtSingleton.GetCurrentSingletonTypes());
         }
 
         private static void _RunAll()

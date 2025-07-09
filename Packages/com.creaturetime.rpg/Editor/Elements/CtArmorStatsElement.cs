@@ -169,7 +169,7 @@ namespace CreatureTime
                 return;
             }
 
-            ulong data = CtDataBlock.CreateEquipmentData(armorSetDef.Identifier);
+            ulong data = CtDataBlock.CreateEquipmentData(armorSetDef.Identifier, AllowedArmorSlot);
             _dataBlock.Value = data;
         }
 

@@ -55,15 +55,13 @@ namespace CreatureTime
     {
         public CtArmorSetDefData armor;
 
-        public ulong DataBlock {
-            get
-            {
-                if (!armor)
-                    return CtDataBlock.InvalidData;
-                if (armor.identifier == CtConstants.InvalidId)
-                    return CtDataBlock.InvalidData;
-                return CtDataBlock.CreateEquipmentData(armor.identifier);
-            }
+        public ulong CreateDataBlock(EArmorSlot slot)
+        {
+            if (!armor)
+                return CtDataBlock.InvalidData;
+            if (armor.identifier == CtConstants.InvalidId)
+                return CtDataBlock.InvalidData;
+            return CtDataBlock.CreateEquipmentData(armor.identifier, slot);
         }
     }
 
@@ -179,8 +177,10 @@ namespace CreatureTime
         [SerializeField] public CtArmorDataBlock handsArmorDataBlock;
         [SerializeField] public CtArmorDataBlock legsArmorDataBlock;
         [SerializeField] public CtArmorDataBlock feetArmorDataBlock;
-        [SerializeField] public CtNpcBehaviorData behavior;
         [SerializeField] public CtSkillsDataBlock skillsBlock;
+        [SerializeField] public CtNpcBehaviorData behavior;
+        [SerializeField] public CtNpcTypeDefData npcType;
+        [SerializeField] public GameObject userData;
 
         // [SerializeField] public ??? defaultEquipment;
         // [SerializeField] public ??? skills;

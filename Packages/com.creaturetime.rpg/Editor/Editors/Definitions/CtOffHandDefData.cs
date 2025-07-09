@@ -16,7 +16,7 @@ namespace CreatureTime
         [SerializeField] public ushort identifier = CtConstants.InvalidId;
         [SerializeField] public string displayName;
         [SerializeField] public Texture icon;
-        [SerializeField] public EOffHandType offHandType = EOffHandType.None;
+        [SerializeField] public EOffHandType offHandType;
         [SerializeField] public CtAttributeDefData attributeType;
         [SerializeField] [Range(0, 9)] public int attributeRequirement;
         [SerializeField] public int minModifierStat = 8;

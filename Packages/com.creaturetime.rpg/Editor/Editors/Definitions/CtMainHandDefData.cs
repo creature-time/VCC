@@ -7,7 +7,7 @@ namespace CreatureTime
     [Serializable]
     public struct CtMainHandUserData
     {
-        public CtUserData userData;
+        public GameObject userData;
         public Material material;
         [Range(0, 15)] public int palette;
     }

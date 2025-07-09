@@ -20,16 +20,7 @@ namespace CreatureTime
         StateChanged,
         HealthChanged,
         EnergyChanged,
-        SkillSlot0Changed,
-        SkillSlot1Changed,
-        SkillSlot2Changed,
-        SkillSlot3Changed,
-        SkillSlot4Changed,
-        SkillSlot5Changed,
-        SkillSlot6Changed,
-        SkillSlot7Changed,
-        SkillSlot8Changed,
-        SkillSlot9Changed,
+        SkillSlotChanged,
         AttributesChanged,
         SkillRechargeChanged,
         SkillAdrenalineChanged,
@@ -240,7 +231,8 @@ namespace CreatureTime
             set
             {
                 skillSlot0 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot0Changed);
+                SetArgs.Add(0);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -263,7 +255,8 @@ namespace CreatureTime
             set
             {
                 skillSlot1 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot1Changed);
+                SetArgs.Add(1);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -286,7 +279,8 @@ namespace CreatureTime
             set
             {
                 skillSlot2 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot2Changed);
+                SetArgs.Add(2);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -309,7 +303,8 @@ namespace CreatureTime
             set
             {
                 skillSlot3 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot3Changed);
+                SetArgs.Add(3);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -332,7 +327,8 @@ namespace CreatureTime
             set
             {
                 skillSlot4 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot4Changed);
+                SetArgs.Add(4);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -355,7 +351,8 @@ namespace CreatureTime
             set
             {
                 skillSlot5 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot5Changed);
+                SetArgs.Add(5);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -378,7 +375,8 @@ namespace CreatureTime
             set
             {
                 skillSlot6 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot6Changed);
+                SetArgs.Add(6);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -401,7 +399,8 @@ namespace CreatureTime
             set
             {
                 skillSlot7 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot7Changed);
+                SetArgs.Add(7);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -424,7 +423,8 @@ namespace CreatureTime
             set
             {
                 skillSlot8 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot8Changed);
+                SetArgs.Add(8);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -447,7 +447,8 @@ namespace CreatureTime
             set
             {
                 skillSlot9 = value;
-                this.Emit(EEntityStatsSignal.SkillSlot9Changed);
+                SetArgs.Add(9);
+                this.Emit(EEntityStatsSignal.SkillSlotChanged);
             }
         }
 
@@ -458,6 +459,24 @@ namespace CreatureTime
             {
                 SkillSlot9Callback = value;
                 RequestSerialization();
+            }
+        }
+
+        public ushort GetSkill(int index)
+        {
+            switch (index)
+            {
+                case 0: return SkillSlot0;
+                case 1: return SkillSlot1;
+                case 2: return SkillSlot2;
+                case 3: return SkillSlot3;
+                case 4: return SkillSlot4;
+                case 5: return SkillSlot5;
+                case 6: return SkillSlot6;
+                case 7: return SkillSlot7;
+                case 8: return SkillSlot8;
+                case 9: return SkillSlot9;
+                default: return CtConstants.InvalidId;
             }
         }
 

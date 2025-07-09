@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e94fb157006e984dbc4cae3c5a6bc24, type: 3}
-  m_Name: qst_00000_defaultbehavior
+  m_Name: bhv_00000_defaultbehavior
   m_EditorClassIdentifier: 
   identifier: 0
   displayName: DefaultBehavior

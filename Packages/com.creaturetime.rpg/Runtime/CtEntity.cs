@@ -259,27 +259,18 @@ namespace CreatureTime
             {
                 if (_entityDef)
                 {
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot0Changed, this, nameof(_OnSkillSlot0Changed));
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot1Changed, this, nameof(_OnSkillSlot1Changed));
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot2Changed, this, nameof(_OnSkillSlot2Changed));
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot3Changed, this, nameof(_OnSkillSlot3Changed));
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot4Changed, this, nameof(_OnSkillSlot4Changed));
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot5Changed, this, nameof(_OnSkillSlot5Changed));
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot6Changed, this, nameof(_OnSkillSlot6Changed));
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot7Changed, this, nameof(_OnSkillSlot7Changed));
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot8Changed, this, nameof(_OnSkillSlot8Changed));
-                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlot9Changed, this, nameof(_OnSkillSlot9Changed));
+                    _entityDef.Disconnect(EEntityStatsSignal.SkillSlotChanged, this, nameof(_OnSkillSlotChangedRaw));
 
-                    _OnSkillChanged(0, CtConstants.InvalidId);
-                    _OnSkillChanged(1, CtConstants.InvalidId);
-                    _OnSkillChanged(2, CtConstants.InvalidId);
-                    _OnSkillChanged(3, CtConstants.InvalidId);
-                    _OnSkillChanged(4, CtConstants.InvalidId);
-                    _OnSkillChanged(5, CtConstants.InvalidId);
-                    _OnSkillChanged(6, CtConstants.InvalidId);
-                    _OnSkillChanged(7, CtConstants.InvalidId);
-                    _OnSkillChanged(8, CtConstants.InvalidId);
-                    _OnSkillChanged(9, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(0, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(1, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(2, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(3, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(4, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(5, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(6, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(7, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(8, CtConstants.InvalidId);
+                    _OnSkillSlotChangedRaw(9, CtConstants.InvalidId);
 
                     Reset();
                 }
@@ -287,27 +278,18 @@ namespace CreatureTime
                 _entityDef = value;
                 if (_entityDef)
                 {
-                    _OnSkillChanged(0, _entityDef.SkillSlot0);
-                    _OnSkillChanged(1, _entityDef.SkillSlot1);
-                    _OnSkillChanged(2, _entityDef.SkillSlot2);
-                    _OnSkillChanged(3, _entityDef.SkillSlot3);
-                    _OnSkillChanged(4, _entityDef.SkillSlot4);
-                    _OnSkillChanged(5, _entityDef.SkillSlot5);
-                    _OnSkillChanged(6, _entityDef.SkillSlot6);
-                    _OnSkillChanged(7, _entityDef.SkillSlot7);
-                    _OnSkillChanged(8, _entityDef.SkillSlot8);
-                    _OnSkillChanged(9, _entityDef.SkillSlot9);
+                    _OnSkillSlotChangedRaw(0, _entityDef.SkillSlot0);
+                    _OnSkillSlotChangedRaw(1, _entityDef.SkillSlot1);
+                    _OnSkillSlotChangedRaw(2, _entityDef.SkillSlot2);
+                    _OnSkillSlotChangedRaw(3, _entityDef.SkillSlot3);
+                    _OnSkillSlotChangedRaw(4, _entityDef.SkillSlot4);
+                    _OnSkillSlotChangedRaw(5, _entityDef.SkillSlot5);
+                    _OnSkillSlotChangedRaw(6, _entityDef.SkillSlot6);
+                    _OnSkillSlotChangedRaw(7, _entityDef.SkillSlot7);
+                    _OnSkillSlotChangedRaw(8, _entityDef.SkillSlot8);
+                    _OnSkillSlotChangedRaw(9, _entityDef.SkillSlot9);
 
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot0Changed, this, nameof(_OnSkillSlot0Changed));
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot1Changed, this, nameof(_OnSkillSlot1Changed));
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot2Changed, this, nameof(_OnSkillSlot2Changed));
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot3Changed, this, nameof(_OnSkillSlot3Changed));
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot4Changed, this, nameof(_OnSkillSlot4Changed));
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot5Changed, this, nameof(_OnSkillSlot5Changed));
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot6Changed, this, nameof(_OnSkillSlot6Changed));
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot7Changed, this, nameof(_OnSkillSlot7Changed));
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot8Changed, this, nameof(_OnSkillSlot8Changed));
-                    _entityDef.Connect(EEntityStatsSignal.SkillSlot9Changed, this, nameof(_OnSkillSlot9Changed));
+                    _entityDef.Connect(EEntityStatsSignal.SkillSlotChanged, this, nameof(_OnSkillSlotChangedRaw));
                 }
 
                 SetArgs.Add(_entityDef);
@@ -315,57 +297,12 @@ namespace CreatureTime
             }
         }
 
-        public void _OnSkillSlot0Changed()
+        public void _OnSkillSlotChanged()
         {
-            _OnSkillChanged(0, _entityDef.SkillSlot0);
+            _OnSkillSlotChangedRaw(GetArgs[0].Int, _entityDef.SkillSlot0);
         }
 
-        public void _OnSkillSlot1Changed()
-        {
-            _OnSkillChanged(1, _entityDef.SkillSlot1);
-        }
-
-        public void _OnSkillSlot2Changed()
-        {
-            _OnSkillChanged(2, _entityDef.SkillSlot2);
-        }
-
-        public void _OnSkillSlot3Changed()
-        {
-            _OnSkillChanged(3, _entityDef.SkillSlot3);
-        }
-
-        public void _OnSkillSlot4Changed()
-        {
-            _OnSkillChanged(4, _entityDef.SkillSlot4);
-        }
-
-        public void _OnSkillSlot5Changed()
-        {
-            _OnSkillChanged(5, _entityDef.SkillSlot5);
-        }
-
-        public void _OnSkillSlot6Changed()
-        {
-            _OnSkillChanged(6, _entityDef.SkillSlot6);
-        }
-
-        public void _OnSkillSlot7Changed()
-        {
-            _OnSkillChanged(7, _entityDef.SkillSlot7);
-        }
-
-        public void _OnSkillSlot8Changed()
-        {
-            _OnSkillChanged(8, _entityDef.SkillSlot8);
-        }
-
-        public void _OnSkillSlot9Changed()
-        {
-            _OnSkillChanged(9, _entityDef.SkillSlot9);
-        }
-
-        public void _OnSkillChanged(int index, ushort skillId)
+        private void _OnSkillSlotChangedRaw(int index, ushort skillId)
         {
             _skillDefs[index] = skillId != CtConstants.InvalidId ? gameData.GetSkillDef(skillId) : null;
         }

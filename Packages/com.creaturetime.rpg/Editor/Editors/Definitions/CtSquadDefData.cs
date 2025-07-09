@@ -37,7 +37,7 @@ namespace CreatureTime
     [Serializable]
     public struct CtSquadUserData
     {
-        public CtUserData userData;
+        public GameObject userData;
     }
 
     [Serializable]

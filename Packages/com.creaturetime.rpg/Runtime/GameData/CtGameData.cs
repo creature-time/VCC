@@ -14,6 +14,7 @@ namespace CreatureTime
         private DataDictionary _armorDefinitions = new DataDictionary();
         private DataDictionary _professionDefinitions = new DataDictionary();
         private DataDictionary _questDefinitions = new DataDictionary();
+        private DataDictionary _squadDefinitions = new DataDictionary();
 
         public CtSkillDef[] Skills { get; private set; }
         public CtProfessionDef[] Professions { get; private set; }
@@ -22,53 +23,59 @@ namespace CreatureTime
         public void Init()
         {
             CtNpcDef[] npcDefs = GetComponentsInChildren<CtNpcDef>(true);
-            Skills = GetComponentsInChildren<CtSkillDef>(true);
-            CtWeaponDef[] weaponDefs = GetComponentsInChildren<CtWeaponDef>(true);
-            CtOffHandDef[] offHandDefs = GetComponentsInChildren<CtOffHandDef>(true);
-            CtArmorSetDef[] armorDefs = GetComponentsInChildren<CtArmorSetDef>(true);
-            Professions = GetComponentsInChildren<CtProfessionDef>(true);
-            Quests = GetComponentsInChildren<CtAbstractQuest>(true);
-
             for (int i = 0; i < npcDefs.Length; i++)
             {
                 var npcDef = npcDefs[i];
                 _npcDefinitions[npcDef.Identifier] = npcDef;
             }
 
+            Skills = GetComponentsInChildren<CtSkillDef>(true);
             for (int i = 0; i < Skills.Length; i++)
             {
                 var skillDef = Skills[i];
                 _skillDefinitions[skillDef.Identifier] = skillDef;
             }
 
+            CtWeaponDef[] weaponDefs = GetComponentsInChildren<CtWeaponDef>(true);
             for (int i = 0; i < weaponDefs.Length; i++)
             {
                 var weaponDef = weaponDefs[i];
                 _weaponDefinitions[weaponDef.Identifier] = weaponDef;
             }
 
+            CtOffHandDef[] offHandDefs = GetComponentsInChildren<CtOffHandDef>(true);
             for (int i = 0; i < offHandDefs.Length; i++)
             {
                 var offHandDef = offHandDefs[i];
                 _offHandDefinitions[offHandDef.Identifier] = offHandDef;
             }
 
+            CtArmorSetDef[] armorDefs = GetComponentsInChildren<CtArmorSetDef>(true);
             for (int i = 0; i < armorDefs.Length; i++)
             {
                 var armorDef = armorDefs[i];
                 _armorDefinitions[armorDef.Identifier] = armorDef;
             }
 
+            Professions = GetComponentsInChildren<CtProfessionDef>(true);
             for (int i = 0; i < Professions.Length; i++)
             {
                 var professionDef = Professions[i];
                 _professionDefinitions[professionDef.Identifier] = professionDef;
             }
 
+            Quests = GetComponentsInChildren<CtAbstractQuest>(true);
             for (int i = 0; i < Quests.Length; i++)
             {
                 var quest = Quests[i];
                 _questDefinitions[quest.Identifier] = quest;
+            }
+
+            CtSquadDef[] squadDefs = GetComponentsInChildren<CtSquadDef>(true);
+            for (int i = 0; i < squadDefs.Length; i++)
+            {
+                var squadDef = squadDefs[i];
+                _squadDefinitions[squadDef.Identifier] = squadDef;
             }
 
 #if DEBUG_LOGS
@@ -158,6 +165,18 @@ namespace CreatureTime
                 return null;
             }
             return (CtAbstractQuest)dataToken.Reference;
+        }
+
+        public CtSquadDef GetSquadDef(ushort identifier)
+        {
+            if (!_squadDefinitions.TryGetValue(identifier, out var dataToken))
+            {
+#if DEBUG_LOGS
+                LogWarning($"Failed to find squad by identifier (identifier={identifier}).");
+#endif
+                return null;
+            }
+            return (CtSquadDef)dataToken.Reference;
         }
     }
 }

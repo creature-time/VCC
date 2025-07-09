@@ -7,7 +7,7 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtOffHandDef : CtInventoryItemDef
     {
-        [SerializeField] private EOffHandType offHandType = EOffHandType.None;
+        [SerializeField] private EOffHandType offHandType;
         [SerializeField] private ushort attributeType = CtConstants.InvalidId;
         [SerializeField] [Range(0, 9)] private int attributeRequirement;
         [SerializeField] private int minModifierStat = 8;
@@ -149,7 +149,17 @@ namespace CreatureTime
 
             weaponName = $"<color={color}>{DisplayName}</color>";
 
-            stats = string.Empty;
+            switch (offHandType)
+            {
+                case EOffHandType.Shield:
+                    stats = $"Armor: {modifierStat}";
+                    break;
+                case EOffHandType.Focus:
+                    stats = string.Empty;
+                    break;
+                default:
+                    return;
+            }
 
             // if (prefix != EWeaponPrefix.None)
             //     stats += $"<color=#008000>{Enum.GetName(typeof(EWeaponPrefix), prefix)}</color>\n";

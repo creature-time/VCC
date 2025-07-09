@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using CreatureTime.RpgGame;
-using Unity.VisualScripting;
+using UdonSharp;
+using UdonSharpEditor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -80,7 +81,9 @@ namespace CreatureTime
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 var propPath = string.IsNullOrEmpty(parentProp) ? field.Name : $"{parentProp}.{field.Name}";
-                if (field.FieldType.IsStruct() && field.FieldType != typeof(Color))
+                // TODO: Reverse these checks and check if type is found otherwise check if is class.
+                bool isStruct = field.FieldType.IsValueType && !field.FieldType.IsPrimitive && !field.FieldType.IsEnum;
+                if (isStruct && field.FieldType != typeof(Color))
                 {
                     variant += 1;
                     _PopulateRow(field.FieldType, ref variant, propPath);
@@ -143,6 +146,16 @@ namespace CreatureTime
                 {
                     var field = (EnumField)element;
                     field.bindingPath = bindingPath;
+
+                    var so = new SerializedObject(Data[i]);
+                    var enumProp = so.FindProperty(bindingPath);
+                    var array = type.GetEnumValues();
+                    if (Array.IndexOf(array, Enum.ToObject(type, enumProp.enumValueIndex)) == -1)
+                    {
+                        enumProp.enumValueIndex = Convert.ToInt32(array.GetValue(0));
+                        so.ApplyModifiedPropertiesWithoutUndo();
+                    }
+
                     _Bind(field, i);
                 };
             }
@@ -395,6 +408,7 @@ namespace CreatureTime
             _CreateView<CtProfessionDefData>("Profession Definitions");
             _CreateView<CtAttributeDefData>("Attribute Definitions");
             _CreateView<CtNpcBehaviorData>("Npc Behavior Definitions");
+            _CreateView<CtNpcTypeDefData>("Npc Type Definitions");
 
             _RefreshViews();
         }
@@ -429,19 +443,62 @@ namespace CreatureTime
             RenameDefinitions<CtProfessionDefData>("pro");
             RenameDefinitions<CtAttributeDefData>("att");
             RenameDefinitions<CtNpcBehaviorData>("bhv");
-            RenameDefinitions<CtNpcBehaviorData>("qst");
+            RenameDefinitions<CtBattleQuestData>("qst");
             RenameDefinitions<CtSquadDefData>("sqd");
+            RenameDefinitions<CtNpcTypeDefData>("typ");
+        }
+
+        private T AddUdonSharpComponentWithUdonBehavior<T>(GameObject gameObject)
+            where T : UdonSharpBehaviour
+        {
+            return (T)AddUdonSharpComponentWithUdonBehavior(gameObject, typeof(T));
+        }
+
+        private UdonSharpBehaviour AddUdonSharpComponentWithUdonBehavior(GameObject gameObject, Type type)
+        {
+            return gameObject.AddUdonSharpComponent(type);
         }
 
         private void _OnGenerateGameData()
         {
             var gameData = Object.FindFirstObjectByType<CtGameData>();
             if (!gameData)
-            {
                 return;
+
+            var userDataPool = gameData.transform.Find("UserDataPool");
+            if (!userDataPool)
+                return;
+
+            {
+                for (int i = userDataPool.childCount - 1; i >= 0; i--)
+                    Object.DestroyImmediate(userDataPool.GetChild(i).gameObject);
             }
 
-            var npcDefLookUp = new Dictionary<CtNpcDefData, CtNpcDef>();
+            var npcTypeLookUp = new Dictionary<CtNpcTypeDefData, CtNpcTypeDef>();
+            {
+                var view = _GetView<CtNpcTypeDefData>();
+
+                var group = gameData.transform.Find("NpcTypes");
+                for (int i = group.transform.childCount - 1; i >= 0; i--)
+                    Object.DestroyImmediate(group.transform.GetChild(i).gameObject);
+
+                foreach (var data in view.Data)
+                {
+                    var gameObject = new GameObject(data.GenerateName);
+                    gameObject.transform.SetParent(group);
+        
+                    var def = AddUdonSharpComponentWithUdonBehavior<CtNpcTypeDef>(gameObject);
+                    var so = new SerializedObject(def);
+        
+                    so.FindProperty("identifier").intValue = data.identifier;
+                    so.FindProperty("displayName").stringValue = data.displayName;
+        
+                    so.ApplyModifiedPropertiesWithoutUndo();
+
+                    npcTypeLookUp.Add(data, def);
+                }
+            }
+
             var behaviors = new Dictionary<CtNpcBehaviorData, CtNpcBehavior>();
             {
                 var view = _GetView<CtNpcBehaviorData>();
@@ -455,6 +512,7 @@ namespace CreatureTime
                     behaviors.Add(data, _GenerateNpcBehaviors(group.transform, data));
             }
 
+            var npcDefLookUp = new Dictionary<CtNpcDefData, CtNpcDef>();
             {
                 var view = _GetView<CtNpcDefData>();
                 view.Data.Sort((a, b) => a.identifier.CompareTo(b.identifier));
@@ -463,15 +521,22 @@ namespace CreatureTime
                 for (int i = group.transform.childCount - 1; i >= 0; i--)
                     Object.DestroyImmediate(group.transform.GetChild(i).gameObject);
 
+                var npcPool = new Dictionary<GameObject, GameObject>();
                 foreach (var data in view.Data)
                 {
+                    if (!data.userData)
+                    {
+                        Debug.LogWarning("Npc did not have user data defined.");
+                        continue;
+                    }
+
                     var gameObject = new GameObject(data.GenerateName);
                     gameObject.transform.SetParent(group);
 
-                    var npcDef = gameObject.AddComponent<CtNpcDef>();
+                    var npcDef = AddUdonSharpComponentWithUdonBehavior<CtNpcDef>(gameObject);
                     npcDefLookUp.Add(data, npcDef);
                     var so = new SerializedObject(npcDef);
-
+ 
                     so.FindProperty("identifier").intValue = data.identifier;
                     so.FindProperty("displayName").stringValue = data.displayName;
                     so.FindProperty("icon").objectReferenceValue = data.icon;
@@ -479,12 +544,11 @@ namespace CreatureTime
                     so.FindProperty("attributeData").ulongValue = data.professionDataBlock.DataBlock;
                     so.FindProperty("mainHandWeaponData").ulongValue = data.mainHandDataBlock.DataBlock;
                     so.FindProperty("offHandWeaponData").ulongValue = data.offHandDataBlock.DataBlock;
-                    so.FindProperty("headSlotData").ulongValue = data.headArmorDataBlock.DataBlock;
-                    so.FindProperty("chestSlotData").ulongValue = data.chestArmorDataBlock.DataBlock;
-                    so.FindProperty("handsSlotData").ulongValue = data.handsArmorDataBlock.DataBlock;
-                    so.FindProperty("legsSlotData").ulongValue = data.legsArmorDataBlock.DataBlock;
-                    so.FindProperty("feetSlotData").ulongValue = data.feetArmorDataBlock.DataBlock;
-                    so.FindProperty("behavior").objectReferenceValue = data.behavior ? behaviors[data.behavior] : null;
+                    so.FindProperty("headSlotData").ulongValue = data.headArmorDataBlock.CreateDataBlock(EArmorSlot.Head);
+                    so.FindProperty("chestSlotData").ulongValue = data.chestArmorDataBlock.CreateDataBlock(EArmorSlot.Chest);
+                    so.FindProperty("handsSlotData").ulongValue = data.handsArmorDataBlock.CreateDataBlock(EArmorSlot.Hands);
+                    so.FindProperty("legsSlotData").ulongValue = data.legsArmorDataBlock.CreateDataBlock(EArmorSlot.Legs);
+                    so.FindProperty("feetSlotData").ulongValue = data.feetArmorDataBlock.CreateDataBlock(EArmorSlot.Feet);
                     so.FindProperty("skillSlot0").intValue =
                         data.skillsBlock.skillDef0 ? data.skillsBlock.skillDef0.identifier : CtConstants.InvalidId;
                     so.FindProperty("skillSlot1").intValue =
@@ -505,6 +569,25 @@ namespace CreatureTime
                         data.skillsBlock.skillDef8 ? data.skillsBlock.skillDef8.identifier : CtConstants.InvalidId;
                     so.FindProperty("skillSlot9").intValue =
                         data.skillsBlock.skillDef9 ? data.skillsBlock.skillDef9.identifier : CtConstants.InvalidId;
+                    behaviors.TryGetValue(data.behavior, out var behavior);
+                    so.FindProperty("behavior").objectReferenceValue = behavior;
+                    npcTypeLookUp.TryGetValue(data.npcType, out var npcTypeDef);
+                    so.FindProperty("npcType").objectReferenceValue = npcTypeDef;
+
+                    GameObject prefabInstance;
+                    if (!npcPool.ContainsKey(data.userData))
+                    {
+                        prefabInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.userData);
+                        prefabInstance.transform.SetParent(userDataPool);
+
+                        npcPool[data.userData] = prefabInstance;
+                    }
+                    else
+                    {
+                        prefabInstance = npcPool[data.userData];
+                    }
+
+                    so.FindProperty("userData").objectReferenceValue = prefabInstance;
 
                     so.ApplyModifiedPropertiesWithoutUndo();
                 }
@@ -518,6 +601,7 @@ namespace CreatureTime
                 for (int i = group.transform.childCount - 1; i >= 0; i--)
                     Object.DestroyImmediate(group.transform.GetChild(i).gameObject);
 
+                var weaponPool = new Dictionary<GameObject, GameObject>();
                 foreach (var data in view.Data)
                 {
                     if (!data.attributeType)
@@ -526,26 +610,45 @@ namespace CreatureTime
                         continue;
                     }
 
+                    if (!data.userData.userData)
+                    {
+                        Debug.LogWarning($"Failed to find user data for main hand (identifier={data.identifier}).");
+                        continue;
+                    }
+
                     var gameObject = new GameObject(data.GenerateName);
                     gameObject.transform.SetParent(group);
 
-                    var weaponDefSo = new SerializedObject(gameObject.AddComponent<CtWeaponDef>());
+                    var weaponDefSo = new SerializedObject(
+                        AddUdonSharpComponentWithUdonBehavior<CtWeaponDef>(gameObject));
+
                     weaponDefSo.FindProperty("identifier").intValue = data.identifier;
                     weaponDefSo.FindProperty("displayName").stringValue = data.displayName;
                     weaponDefSo.FindProperty("icon").objectReferenceValue = data.icon;
                     weaponDefSo.FindProperty("weaponType").enumValueIndex = Convert.ToInt32(data.weaponType);
                     weaponDefSo.FindProperty("attributeType").intValue = data.attributeType.identifier;
 
-                    var prefab = PrefabUtility.InstantiatePrefab(data.userData.userData).GameObject();
-                    prefab.transform.SetParent(gameObject.transform);
-                    weaponDefSo.FindProperty("userData").objectReferenceValue = prefab;
+                    GameObject prefabInstance;
+                    if (!weaponPool.ContainsKey(data.userData.userData))
+                    {
+                        prefabInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.userData.userData);
+                        prefabInstance.transform.SetParent(userDataPool);
 
-                    var userData = prefab.GetComponent<CtWeaponAttack>();
-                    var userDataSo = new SerializedObject(userData);
-                    userDataSo.FindProperty("palette").intValue = data.userData.palette;
-                    userDataSo.ApplyModifiedPropertiesWithoutUndo();
+                        var userData = prefabInstance.GetComponent<CtWeaponAttack>();
+                        var userDataSo = new SerializedObject(userData);
+                        userDataSo.FindProperty("palette").intValue = data.userData.palette;
+                        userDataSo.ApplyModifiedPropertiesWithoutUndo();
 
-                    prefab.GetComponent<MeshRenderer>().material = data.userData.material;
+                        prefabInstance.GetComponent<MeshRenderer>().material = data.userData.material;
+
+                        weaponPool[data.userData.userData] = prefabInstance;
+                    }
+                    else
+                    {
+                        prefabInstance = weaponPool[data.userData.userData];
+                    }
+
+                    weaponDefSo.FindProperty("userData").objectReferenceValue = prefabInstance;
 
                     weaponDefSo.ApplyModifiedPropertiesWithoutUndo();
                 }
@@ -570,11 +673,13 @@ namespace CreatureTime
                     var gameObject = new GameObject(data.GenerateName);
                     gameObject.transform.SetParent(group);
 
-                    var so = new SerializedObject(gameObject.AddComponent<CtOffHandDef>());
+                    var so = new SerializedObject(
+                        AddUdonSharpComponentWithUdonBehavior<CtOffHandDef>(gameObject));
 
                     so.FindProperty("identifier").intValue = data.identifier;
                     so.FindProperty("displayName").stringValue = data.displayName;
                     so.FindProperty("icon").objectReferenceValue = data.icon;
+                    so.FindProperty("offHandType").enumValueIndex = Convert.ToInt32(data.offHandType);
                     so.FindProperty("attributeType").intValue = data.attributeType.identifier;
                     so.FindProperty("attributeRequirement").intValue = data.attributeRequirement;
                     so.FindProperty("minModifierStat").intValue = data.minModifierStat;
@@ -598,7 +703,7 @@ namespace CreatureTime
                     var gameObject = new GameObject(data.GenerateName);
                     gameObject.transform.SetParent(group);
 
-                    var armorSetDef = gameObject.AddComponent<CtArmorSetDef>();
+                    var armorSetDef = AddUdonSharpComponentWithUdonBehavior<CtArmorSetDef>(gameObject);
                     var so = new SerializedObject(armorSetDef);
 
                     so.FindProperty("identifier").intValue = data.identifier;
@@ -634,7 +739,8 @@ namespace CreatureTime
                         var gameObject = new GameObject(data.GenerateName);
                         gameObject.transform.SetParent(group);
 
-                        var so = new SerializedObject(gameObject.AddComponent<CtProfessionDef>());
+                        var so = new SerializedObject(
+                            AddUdonSharpComponentWithUdonBehavior<CtProfessionDef>(gameObject));
 
                         so.FindProperty("identifier").intValue = data.identifier;
                         so.FindProperty("displayName").stringValue = data.displayName;
@@ -673,7 +779,8 @@ namespace CreatureTime
                         var gameObject = new GameObject(data.GenerateName);
                         gameObject.transform.SetParent(attributeDefs[data.attributeType].transform);
 
-                        var so = new SerializedObject(gameObject.AddComponent(data.script.GetClass()));
+                        var so = new SerializedObject(
+                            AddUdonSharpComponentWithUdonBehavior(gameObject, data.script.GetClass()));
 
                         so.FindProperty("identifier").intValue = data.identifier;
                         so.FindProperty("displayName").stringValue = data.displayName;
@@ -695,17 +802,37 @@ namespace CreatureTime
                     for (int i = group.transform.childCount - 1; i >= 0; i--)
                         Object.DestroyImmediate(group.transform.GetChild(i).gameObject);
 
+                    var squadUserDataPool = new Dictionary<GameObject, GameObject>();
                     foreach (var data in view.Data)
                     {
+                        if (!data.userData.userData)
+                        {
+                            Debug.LogWarning("Squad did not have user data defined.");
+                            continue;
+                        }
+
                         var gameObject = new GameObject(data.GenerateName);
                         gameObject.transform.SetParent(group);
 
-                        var squadDef = gameObject.AddComponent<CtSquadDef>();
+                        var squadDef = AddUdonSharpComponentWithUdonBehavior<CtSquadDef>(gameObject);
                         squadDefLookUp.Add(data, squadDef);
                         var so = new SerializedObject(squadDef);
 
                         so.FindProperty("identifier").intValue = data.identifier;
-                        so.FindProperty("userData").objectReferenceValue = data.userData.userData;
+
+                        GameObject prefabInstance;
+                        if (!squadUserDataPool.ContainsKey(data.userData.userData))
+                        {
+                            prefabInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.userData.userData);
+                            prefabInstance.transform.SetParent(userDataPool);
+                            squadUserDataPool[data.userData.userData] = prefabInstance;
+                        }
+                        else
+                        {
+                            prefabInstance = squadUserDataPool[data.userData.userData];
+                        }
+
+                        so.FindProperty("userData").objectReferenceValue = prefabInstance;
 
                         var npcDefs = data.npcDataBlock.NpcDefs;
 
@@ -736,7 +863,7 @@ namespace CreatureTime
                         var gameObject = new GameObject(data.GenerateName);
                         gameObject.transform.SetParent(group);
 
-                        var battleQuest = gameObject.AddComponent<CtBattleQuest>();
+                        var battleQuest = AddUdonSharpComponentWithUdonBehavior<CtBattleQuest>(gameObject);
                         var so = new SerializedObject(battleQuest);
 
                         so.FindProperty("identifier").intValue = data.identifier;
@@ -767,6 +894,8 @@ namespace CreatureTime
                     }
                 }
             }
+
+            CtSingleton.AssignSingletons(CtSingleton.GetCurrentSingletonTypes(), gameData.gameObject);
         }
 
         private CtSquadCategory _GenerateSquadCategory(CtBattleQuest battleQuest, CtSquadCategoryDataBlock data,
@@ -776,7 +905,7 @@ namespace CreatureTime
             if (squadDefs.Length == 0)
                 return null;
 
-            var squadCategory = battleQuest.gameObject.AddComponent<CtSquadCategory>();
+            var squadCategory = AddUdonSharpComponentWithUdonBehavior<CtSquadCategory>(battleQuest.gameObject);
             var so = new SerializedObject(squadCategory);
 
             var squadDefsProp = so.FindProperty("squadDefs");
@@ -784,7 +913,8 @@ namespace CreatureTime
             for (int i = 0; i < squadDefs.Length; i++)
             {
                 var arrayIndexProp = squadDefsProp.GetArrayElementAtIndex(i);
-                arrayIndexProp.objectReferenceValue = squadDefLookUp[squadDefs[i]];
+                if (squadDefLookUp.TryGetValue(squadDefs[i], out var value))
+                    arrayIndexProp.objectReferenceValue = value;
             }
 
             so.ApplyModifiedPropertiesWithoutUndo();
@@ -795,7 +925,7 @@ namespace CreatureTime
         private CtArmorSlotDef _GenerateArmorDefs(
             CtArmorSetDef armorSetDef, ushort identifier, string displayName, CtArmorSlotData data)
         {
-            var def = armorSetDef.gameObject.AddComponent<CtArmorSlotDef>();
+            var def = AddUdonSharpComponentWithUdonBehavior<CtArmorSlotDef>(armorSetDef.gameObject);
             var so = new SerializedObject(def);
 
             so.FindProperty("identifier").intValue = identifier;
@@ -816,7 +946,7 @@ namespace CreatureTime
             var gameObject = new GameObject(data.GenerateName);
             gameObject.transform.SetParent(group);
         
-            var def = gameObject.AddComponent<CtNpcBehavior>();
+            var def = AddUdonSharpComponentWithUdonBehavior<CtNpcBehavior>(gameObject);
             var so = new SerializedObject(def);
         
             so.FindProperty("selfHealingThreshold").floatValue = data.selfHealingThreshold;
@@ -846,7 +976,7 @@ namespace CreatureTime
             var gameObject = new GameObject(data.GenerateName);
             gameObject.transform.SetParent(group);
 
-            var attributeDef = gameObject.AddComponent<CtAttributeDef>();
+            var attributeDef = AddUdonSharpComponentWithUdonBehavior<CtAttributeDef>(gameObject);
             var so = new SerializedObject(attributeDef);
 
             so.FindProperty("identifier").intValue = data.identifier;

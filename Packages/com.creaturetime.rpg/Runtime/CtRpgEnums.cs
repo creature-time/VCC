@@ -33,10 +33,8 @@ namespace CreatureTime
 
     public enum EWeaponType
     {
-        None,
         OneHanded,
-        TwoHanded,
-        // OffHand,
+        TwoHanded
     }
 
     public enum EOffHandPrefix
@@ -60,7 +58,6 @@ namespace CreatureTime
 
     public enum EOffHandType
     {
-        None,
         Shield,
         Focus
     }
