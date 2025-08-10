@@ -10,9 +10,9 @@
     "url": "https://vcc.creaturetime.com/"
   },
   "vpmDependencies" : {
-    "com.vrchat.base": "3.7.5",
-    "com.vrchat.worlds" : "3.x",
-    "com.creaturetime.worlds" : "0.x"
+    "com.vrchat.base": "3.8.2",
+    "com.vrchat.worlds" : "3.8.2",
+    "com.creaturetime.worlds" : "0.1.0"
   },
   "url": "https://vcc.creaturetime.com"
 }
