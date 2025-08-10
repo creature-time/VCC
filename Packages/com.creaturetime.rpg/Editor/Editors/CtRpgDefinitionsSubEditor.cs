@@ -524,17 +524,12 @@ namespace CreatureTime
                 var npcPool = new Dictionary<GameObject, GameObject>();
                 foreach (var data in view.Data)
                 {
-                    if (!data.userData)
-                    {
-                        Debug.LogWarning("Npc did not have user data defined.");
-                        continue;
-                    }
-
                     var gameObject = new GameObject(data.GenerateName);
                     gameObject.transform.SetParent(group);
 
                     var npcDef = AddUdonSharpComponentWithUdonBehavior<CtNpcDef>(gameObject);
                     npcDefLookUp.Add(data, npcDef);
+ 
                     var so = new SerializedObject(npcDef);
  
                     so.FindProperty("identifier").intValue = data.identifier;
@@ -574,20 +569,27 @@ namespace CreatureTime
                     npcTypeLookUp.TryGetValue(data.npcType, out var npcTypeDef);
                     so.FindProperty("npcType").objectReferenceValue = npcTypeDef;
 
-                    GameObject prefabInstance;
-                    if (!npcPool.ContainsKey(data.userData))
+                    if (data.userData)
                     {
-                        prefabInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.userData);
-                        prefabInstance.transform.SetParent(userDataPool);
+                        GameObject prefabInstance;
+                        if (!npcPool.ContainsKey(data.userData))
+                        {
+                            prefabInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.userData);
+                            prefabInstance.transform.SetParent(userDataPool);
 
-                        npcPool[data.userData] = prefabInstance;
+                            npcPool[data.userData] = prefabInstance;
+                        }
+                        else
+                        {
+                            prefabInstance = npcPool[data.userData];
+                        }
+
+                        so.FindProperty("userData").objectReferenceValue = prefabInstance;
                     }
                     else
                     {
-                        prefabInstance = npcPool[data.userData];
+                        Debug.LogWarning("Npc did not have user data defined.");
                     }
-
-                    so.FindProperty("userData").objectReferenceValue = prefabInstance;
 
                     so.ApplyModifiedPropertiesWithoutUndo();
                 }
@@ -805,12 +807,6 @@ namespace CreatureTime
                     var squadUserDataPool = new Dictionary<GameObject, GameObject>();
                     foreach (var data in view.Data)
                     {
-                        if (!data.userData.userData)
-                        {
-                            Debug.LogWarning("Squad did not have user data defined.");
-                            continue;
-                        }
-
                         var gameObject = new GameObject(data.GenerateName);
                         gameObject.transform.SetParent(group);
 
@@ -820,19 +816,26 @@ namespace CreatureTime
 
                         so.FindProperty("identifier").intValue = data.identifier;
 
-                        GameObject prefabInstance;
-                        if (!squadUserDataPool.ContainsKey(data.userData.userData))
+                        if (data.userData.userData)
                         {
-                            prefabInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.userData.userData);
-                            prefabInstance.transform.SetParent(userDataPool);
-                            squadUserDataPool[data.userData.userData] = prefabInstance;
+                            GameObject prefabInstance;
+                            if (!squadUserDataPool.ContainsKey(data.userData.userData))
+                            {
+                                prefabInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.userData.userData);
+                                prefabInstance.transform.SetParent(userDataPool);
+                                squadUserDataPool[data.userData.userData] = prefabInstance;
+                            }
+                            else
+                            {
+                                prefabInstance = squadUserDataPool[data.userData.userData];
+                            }
+
+                            so.FindProperty("userData").objectReferenceValue = prefabInstance;
                         }
                         else
                         {
-                            prefabInstance = squadUserDataPool[data.userData.userData];
+                            Debug.LogWarning("Squad did not have user data defined.");
                         }
-
-                        so.FindProperty("userData").objectReferenceValue = prefabInstance;
 
                         var npcDefs = data.npcDataBlock.NpcDefs;
 
@@ -895,7 +898,7 @@ namespace CreatureTime
                 }
             }
 
-            CtSingleton.AssignSingletons(CtSingleton.GetCurrentSingletonTypes(), gameData.gameObject);
+            CtSingletonEditor.AssignSingletons(CtSingletonEditor.GetCurrentSingletonTypes(), gameData.gameObject);
         }
 
         private CtSquadCategory _GenerateSquadCategory(CtBattleQuest battleQuest, CtSquadCategoryDataBlock data,

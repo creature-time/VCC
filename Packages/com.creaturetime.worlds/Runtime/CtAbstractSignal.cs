@@ -17,15 +17,6 @@ namespace CreatureTime
 
         public CtAbstractSignal Sender => (CtAbstractSignal)_sender[0].Reference;
 
-        // public CtAbstractSignal Sender
-        // {
-        //     get
-        //     {
-        //         LogWarning($"Test {this}");
-        //         return (CtAbstractSignal)_sender[0].Reference;
-        //     }
-        // }
-
         public DataList SetArgs => _setArgs;
         public DataList GetArgs => _getArgs[0].DataList;
 

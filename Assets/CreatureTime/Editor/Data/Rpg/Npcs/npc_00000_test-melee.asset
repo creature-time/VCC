@@ -46,7 +46,6 @@ MonoBehaviour:
     armor: {fileID: 11400000, guid: 99655b1c31e89ec43a88002c9c0e3948, type: 2}
   feetArmorDataBlock:
     armor: {fileID: 11400000, guid: 99655b1c31e89ec43a88002c9c0e3948, type: 2}
-  behavior: {fileID: 11400000, guid: f6c22062a5e398a4e9a34f0de67c91ba, type: 2}
   skillsBlock:
     skillDef0: {fileID: 11400000, guid: e4cad9a93fe60d34aa1f379b0dea5e84, type: 2}
     skillDef1: {fileID: 0}
@@ -58,3 +57,6 @@ MonoBehaviour:
     skillDef7: {fileID: 0}
     skillDef8: {fileID: 0}
     skillDef9: {fileID: 0}
+  behavior: {fileID: 11400000, guid: f6c22062a5e398a4e9a34f0de67c91ba, type: 2}
+  npcType: {fileID: 11400000, guid: 196efd1dc4ecbf54eb85ba7e88e503ed, type: 2}
+  userData: {fileID: 0}

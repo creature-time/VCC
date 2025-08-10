@@ -64,9 +64,9 @@ namespace CreatureTime
             return false;
         }
 
-        public void CreatePlayerEntity(CtPlayerDef playerDef, out CtEntity entity)
+        public void CreatePlayerEntity(int playerId, CtPlayerDef playerDef, out CtEntity entity)
         {
-            var playerEntity = playerEntities[playerDef.PlayerId - 1];
+            var playerEntity = playerEntities[playerId];
             playerEntity.PlayerDef = playerDef;
             // _entityLookup.Add(playerEntity.Identifier, playerEntity);
             entity = playerEntity;
@@ -76,13 +76,13 @@ namespace CreatureTime
 #endif
         }
 
-        public void ReleasePlayerEntity(CtPlayerDef playerDef)
+        public void ReleasePlayerEntity(ushort playerId)
         {
 #if DEBUG_LOGS
-            Log($"Releasing player entity (playerId={playerDef.PlayerId}).");
+            Log($"Releasing player entity (playerId={playerId}).");
 #endif
 
-            var playerEntity = playerEntities[playerDef.PlayerId - 1];
+            var playerEntity = playerEntities[playerId];
             playerEntity.PlayerDef = null;
             // _entityLookup.Remove(playerEntity.Identifier);
         }

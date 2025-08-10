@@ -239,7 +239,7 @@ namespace CreatureTime
         {
             var entityManager = (CtEntityManager)Object.FindObjectOfType(typeof(CtEntityManager));
 
-            _UpdateTemplateCounts<CtEntityManager, CtEntity>(entityManager, "playerEntity", "playerEntities", 1, capacity, 
+            _UpdateTemplateCounts<CtEntityManager, CtEntity>(entityManager, "playerEntity", "playerEntities", 0, capacity, 
                 entityManager.transform.Find("PlayerEntities/_Template"));
 
             // NOTE: Max player party member count minus one.
@@ -294,7 +294,7 @@ namespace CreatureTime
 
         private static void _UpdateAllGlobalFields()
         {
-            CtSingleton.AssignSingletons(CtSingleton.GetCurrentSingletonTypes());
+            CtSingletonEditor.AssignSingletons(CtSingletonEditor.GetCurrentSingletonTypes());
         }
 
         private static void _RunAll()

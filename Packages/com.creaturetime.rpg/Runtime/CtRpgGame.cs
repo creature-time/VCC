@@ -63,8 +63,14 @@ namespace CreatureTime
         {
             var playerId = GetArgs[0].UShort;
 
-            var playerDef = playerManager.GetPlayerDefById(playerId);
-            entityManager.CreatePlayerEntity(playerDef, out var playerEntity);
+            var playerDef = playerManager.GetPlayerDef(playerId);
+            if (!playerDef)
+            {
+                LogCritical($"Player def at playerId ({playerId}) does not exist.");
+                return;
+            }
+
+            entityManager.CreatePlayerEntity(playerId, playerDef, out var playerEntity);
             if (playerDef.IsLocal)
                 LocalEntity = playerEntity;
         }
@@ -90,7 +96,7 @@ namespace CreatureTime
                     _LeaveParty(entity, party);
             }
 
-            entityManager.ReleasePlayerEntity(playerDef);
+            entityManager.ReleasePlayerEntity(playerId);
         }
 
         public void _OnNpcEntityChanged()

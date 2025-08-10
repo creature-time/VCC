@@ -30,7 +30,16 @@ namespace CreatureTime
             // Do nothing?
         }
 
-        public CtPlayerDef GetPlayerDefById(ushort playerId)
+        public CtPlayerDef GetPlayerDefById(int playerId)
+        {
+            var index = GetIndexById(playerId);
+            var playerDef = playerDefs[index];
+            if (playerDef)
+                return playerDef;
+            return null;
+        }
+
+        public int GetIndexById(int playerId)
         {
             for (int i = 0; i < playerDefs.Length; i++)
             {
@@ -43,10 +52,15 @@ namespace CreatureTime
 #endif
 
                 if (playerDef.PlayerId == playerId)
-                    return playerDef;
+                    return i;
             }
 
-            return null;
+            return 0;
+        }
+
+        public CtPlayerDef GetPlayerDef(ushort playerId)
+        {
+            return playerDefs[playerId];
         }
 
         public void Client_OnPlayerAdded(CtPlayerDef playerDef)
@@ -74,18 +88,19 @@ namespace CreatureTime
 
             playerDefs[index] = playerDef;
 
-            SetArgs.Add(playerDef.PlayerId);
+            SetArgs.Add((ushort)index);
             this.Emit(EPlayerManagerSignal.PlayerAdded);
 
-            QueueUpdatePlayerAvatar(playerDef.PlayerId);
+            QueueUpdatePlayerAvatar(index);
         }
 
         public void Client_OnPlayerRemoved(CtPlayerDef playerDef)
         {
-            SetArgs.Add(playerDef.PlayerId);
+            int index = Array.IndexOf(playerDefs, playerDef);
+
+            SetArgs.Add((ushort)index);
             this.Emit(EPlayerManagerSignal.PlayerRemoved);
 
-            int index = Array.IndexOf(playerDefs, playerDef);
             playerDefs[index] = null;
 
             if (playerDef.IsLocal)
@@ -105,22 +120,23 @@ namespace CreatureTime
         {
             for (int i = 0; i < playerRenderTexturesToUpdate.Count; i++)
             {
-                var playerDef = GetPlayerDefById(playerRenderTexturesToUpdate[i].UShort);
+                var index = playerRenderTexturesToUpdate[i].Int;
+                var playerDef = playerDefs[index];
                 if (playerDef)
                     avatarSnapshot.UpdatePlayerIcon(playerDef);
             }
             playerRenderTexturesToUpdate.Clear();
         }
 
-        public void QueueUpdatePlayerAvatar(ushort playerId)
+        public void QueueUpdatePlayerAvatar(int index)
         {
-            playerRenderTexturesToUpdate.Add(playerId);
+            playerRenderTexturesToUpdate.Add(index);
             SendCustomEventDelayedSeconds(nameof(UpdatePlayerAvatar), 5);
         }
 
         public override void OnAvatarChanged(VRCPlayerApi player)
         {
-            QueueUpdatePlayerAvatar((ushort)player.playerId);
+            QueueUpdatePlayerAvatar(GetIndexById(player.playerId));
         }
     }
 }
