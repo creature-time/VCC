@@ -12,7 +12,7 @@
   "vpmDependencies" : {
     "com.vrchat.base": "3.7.5",
     "com.vrchat.worlds" : "3.x",
-    "com.creaturetime.worlds" : "3.x"
+    "com.creaturetime.worlds" : "0.x"
   },
   "url": "https://vcc.creaturetime.com"
 }
