@@ -113,14 +113,10 @@ crashlytics-build.properties
 # Worlds
 !/[Pp]ackages/com.creaturetime.worlds
 !/[Pp]ackages/com.creaturetime.worlds/**
-!/[Pp]ackages/com.creaturetime.worlds.tests
-!/[Pp]ackages/com.creaturetime.worlds.tests/**
 
 # Rpg Game Core
 !/[Pp]ackages/com.creaturetime.rpg
 !/[Pp]ackages/com.creaturetime.rpg/**
-!/[Pp]ackages/com.creaturetime.rpg.tests
-!/[Pp]ackages/com.creaturetime.rpg.tests/**
 
 # Allow only our project settings to be added to git
 !/[Pp]rojectSettings/
