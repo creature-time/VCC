@@ -7,15 +7,14 @@ namespace CreatureTime
     enum EDamageBlockSignal
     {
         DamageSource,
-        DamageApplied
+        DamageApplied,
+        TickApplied
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtDamageMessageBuilder : CtAbstractSignal
     {
         private const int MaxCount = 32;
-
-        [UdonSynced] private long _timestamp;
 
         [UdonSynced] private ushort _sourceId = CtConstants.InvalidId;
         [UdonSynced] private ushort _targetId = CtConstants.InvalidId;
@@ -29,6 +28,20 @@ namespace CreatureTime
         [UdonSynced] private bool[] _isCritical = new bool[MaxCount];
 
         [UdonSynced] private int _count = 0;
+
+        public int Count => _count;
+
+        public void GetDamage(int index, out EDamageSourceType damageSourceType, out ushort skillId,
+            out ushort sourceId, out ushort targetId, out EDamageType damageType, out int damage, out bool isCritical)
+        {
+            damageSourceType = (EDamageSourceType)_damageSourceType[index];
+            skillId = _identifier[index];
+            sourceId = _sourceId;
+            targetId = _target[index];
+            damageType = (EDamageType)_damageType[index];
+            damage = _damage[index];
+            isCritical = _isCritical[index];
+        }
 
         public void SetHeader(ushort sourceId, ushort targetId, ushort skillId)
         {
@@ -67,7 +80,6 @@ namespace CreatureTime
             LogDebug("Commiting damage block...");
 #endif
 
-            _timestamp = DateTime.Now.ToBinary();
             RequestSerialization();
             OnDeserialization();
         }
@@ -84,25 +96,25 @@ namespace CreatureTime
             SetArgs.Add(_skillId);
             this.Emit(EDamageBlockSignal.DamageSource);
 
-#if DEBUG_LOGS
-            LogDebug($"Sending damage blocks... (count={_count})");
-#endif
-
-            for (int i = 0; i < _count; ++i)
-            {
-#if DEBUG_LOGS
-                LogDebug("Sending damage block...");
-#endif
-
-                SetArgs.Add(_damageSourceType[i]);
-                SetArgs.Add(_identifier[i]);
-                SetArgs.Add(_sourceId);
-                SetArgs.Add(_target[i]);
-                SetArgs.Add(_damageType[i]);
-                SetArgs.Add(_damage[i]);
-                SetArgs.Add(_isCritical[i]);
-                this.Emit(EDamageBlockSignal.DamageApplied);
-            }
+// #if DEBUG_LOGS
+//             LogDebug($"Sending damage blocks... (count={_count})");
+// #endif
+//
+//             for (int i = 0; i < _count; ++i)
+//             {
+// #if DEBUG_LOGS
+//                 LogDebug("Sending damage block...");
+// #endif
+//
+//                 SetArgs.Add(_damageSourceType[i]);
+//                 SetArgs.Add(_identifier[i]);
+//                 SetArgs.Add(_sourceId);
+//                 SetArgs.Add(_target[i]);
+//                 SetArgs.Add(_damageType[i]);
+//                 SetArgs.Add(_damage[i]);
+//                 SetArgs.Add(_isCritical[i]);
+//                 this.Emit(EDamageBlockSignal.DamageApplied);
+//             }
         }
     }
 }

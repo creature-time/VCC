@@ -21,6 +21,7 @@ namespace CreatureTime
         [SerializeField] private CtAvatarSnapshot avatarSnapshot;
 
         public CtPlayerDef LocalPlayerDef { get; private set; }
+        public ushort LocalPlayerId { get; private set; }
 
         [SerializeField, HideInInspector] private RenderTexture[] playerRenderTextures;
         private DataList playerRenderTexturesToUpdate = new DataList();
@@ -83,6 +84,7 @@ namespace CreatureTime
             if (playerDef.IsLocal)
             {
                 LocalPlayerDef = playerDef;
+                LocalPlayerId = (ushort)index;
                 this.Emit(EPlayerManagerSignal.LocalPlayerChanged);
             }
 
@@ -106,6 +108,7 @@ namespace CreatureTime
             if (playerDef.IsLocal)
             {
                 LocalPlayerDef = null;
+                LocalPlayerId = CtConstants.InvalidId;
                 this.Emit(EPlayerManagerSignal.LocalPlayerChanged);
             }
 

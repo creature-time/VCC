@@ -64,7 +64,7 @@ namespace CreatureTime
                 return ENodeStatus.Failure;
             }
 
-            if (!battleState.TryGetEntity(targetId, out var targetEntity))
+            if (!battleState.TryGetEntity(targetId, out var target))
             {
 #if DEBUG_LOGS
                 LogError($"Failed to get target entity (targetId={targetId}).");
@@ -72,16 +72,15 @@ namespace CreatureTime
                 return ENodeStatus.Success;
             }
 
-            battleState.BeginDamageBlock(battleState, entity, targetEntity, skillId);
+            battleState.BeginDamageBlock(entity, target, skillId);
 
             if (skillId == CtConstants.InvalidId)
             {
-                CtSkillDef.MeleeAttack(gameData, targetEntity, entity);
+                entity.UseWeapon(target);
             }
             else
             {
-                var skillDef = gameData.GetSkillDef(skillId);
-                skillDef.OnUse(gameData, targetEntity, entity);
+                entity.UseSkill(skillId, target);
             }
 
             battleState.EndDamageBlock();

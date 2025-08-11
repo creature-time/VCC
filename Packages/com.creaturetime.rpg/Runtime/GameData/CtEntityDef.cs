@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 
@@ -460,6 +461,25 @@ namespace CreatureTime
                 SkillSlot9Callback = value;
                 RequestSerialization();
             }
+        }
+
+        public bool TryGetSkillIndex(ushort skillId, out int index)
+        {
+            var skills = new ushort[]
+            {
+                SkillSlot0,
+                SkillSlot1,
+                SkillSlot2,
+                SkillSlot3,
+                SkillSlot4,
+                SkillSlot5,
+                SkillSlot6,
+                SkillSlot7,
+                SkillSlot8,
+                SkillSlot9
+            };
+            index = Array.IndexOf(skills, skillId);
+            return index != -1;
         }
 
         public ushort GetSkill(int index)

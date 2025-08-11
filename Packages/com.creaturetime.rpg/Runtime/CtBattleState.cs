@@ -15,7 +15,8 @@ namespace CreatureTime
         AllyPartyChanged,
         EnemyPartyChanged,
         DamageSource,
-        DamageApplied
+        DamageApplied,
+        TickApplied
     }
 
     public enum EBattleState
@@ -38,6 +39,7 @@ namespace CreatureTime
         [SerializeField] private CtEntityManager entityManager;
 
         [SerializeField] private CtDamageMessageBuilder damageMessageBuilder;
+        [SerializeField] private CtStatusEffectsMessageBuilder statusEffectsMessageBuilder;
 
         [SerializeField] private CtBattleStartState startState;
         [SerializeField] private CtBattleWaitState waitState;
@@ -45,7 +47,14 @@ namespace CreatureTime
         [SerializeField] private CtBattleNextTurnState nextTurnState;
         [SerializeField] private CtBattleEndState endState;
 
-        // public ushort Identifier => identifier;
+        public int DamageBlockCount => damageMessageBuilder.Count;
+
+        public void GetDamage(int index, out EDamageSourceType damageSourceType, out ushort skillId,
+            out ushort sourceId, out ushort targetId, out EDamageType damageType, out int damage, out bool isCritical)
+        {
+            damageMessageBuilder.GetDamage(index, out damageSourceType, out skillId, out sourceId, out targetId,
+                out damageType, out damage, out isCritical);
+        }
 
         #region Synced Variables
 
@@ -325,6 +334,7 @@ namespace CreatureTime
         {
             damageMessageBuilder.Connect(EDamageBlockSignal.DamageSource, this, nameof(_OnDamageSourceChanged));
             damageMessageBuilder.Connect(EDamageBlockSignal.DamageApplied, this, nameof(_OnDamageBlockChanged));
+            statusEffectsMessageBuilder.Connect(EStatusEffectBlockSignal.DamageApplied, this, nameof(_OnStatusEffectDamageApplied));
         }
 
         public void _OnDamageSourceChanged()
@@ -353,6 +363,22 @@ namespace CreatureTime
             SetArgs.Add(GetArgs[5].Int);
             SetArgs.Add(GetArgs[6].Boolean);
             this.Emit(EBattleStateSignal.DamageApplied);
+        }
+
+        public void _OnStatusEffectDamageApplied()
+        {
+#if DEBUG_LOGS
+            LogDebug("Tick block forwarded.");
+#endif
+
+            SetArgs.Add(GetArgs[0].UShort);
+            SetArgs.Add(GetArgs[1].UShort);
+            SetArgs.Add(GetArgs[2].UShort);
+            SetArgs.Add(GetArgs[3].UShort);
+            SetArgs.Add(GetArgs[4].UShort);
+            SetArgs.Add(GetArgs[5].Int);
+            SetArgs.Add(GetArgs[6].Boolean);
+            this.Emit(EBattleStateSignal.TickApplied);
         }
 
         public CtStateBase GetState()
@@ -511,10 +537,25 @@ namespace CreatureTime
             return _IsPartyDead(_enemyParty);
         }
 
-        public void BeginDamageBlock(CtBattleState battleState, CtEntity sourceEntity, CtEntity targetEntity, 
+        public void BeginTickBlock()
+        {
+            statusEffectsMessageBuilder.SetHeader();
+        }
+
+        public void EndTickBlock()
+        {
+            statusEffectsMessageBuilder.CommitDamage();
+        }
+
+        public void BeginDamageBlock(CtEntity sourceEntity, CtEntity targetEntity, 
             ushort skillId)
         {
             damageMessageBuilder.SetHeader(sourceEntity.Identifier, targetEntity.Identifier, skillId);
+        }
+
+        public void EndDamageBlock()
+        {
+            damageMessageBuilder.CommitDamage();
         }
 
         public void _HandleAppliedDamage()
@@ -525,7 +566,7 @@ namespace CreatureTime
 
             var damageSourceTypeValue = GetArgs[0].Int;
             var skillId = GetArgs[1].UShort;
-            // var instigator = (CtEntity)GetArgs[2].Reference;
+            var instigator = (CtEntity)GetArgs[2].Reference;
             var target = (CtEntity)GetArgs[3].Reference;
             var damageTypeValue = GetArgs[4].Int;
             var damage = GetArgs[5].Int;
@@ -533,13 +574,19 @@ namespace CreatureTime
 
             var damageSourceType = (EDamageSourceType)damageSourceTypeValue;
             var damageType = (EDamageType)damageTypeValue;
-            damageMessageBuilder.AddDamageCommand(
-                damageSourceType, skillId, target.Identifier, damageType, damage, isCritical);
-        }
 
-        public void EndDamageBlock()
-        {
-            damageMessageBuilder.CommitDamage();
+            switch (State)
+            {
+                case EBattleState.Attack:
+                    damageMessageBuilder.AddDamageCommand(
+                        damageSourceType, skillId, target.Identifier, damageType, damage, isCritical);
+                    break;
+                case EBattleState.NextTurn:
+                    statusEffectsMessageBuilder.AddDamageCommand(
+                        damageSourceType, skillId, target.Identifier, instigator.Identifier, damageType, damage, 
+                        isCritical);
+                    break;
+            }
         }
 
         // public void Reset()

@@ -983,6 +983,22 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5307099889620005564, guid: 8afe0b245039e5147b4677d863ff3ab1,
         type: 3}
+    - target: {fileID: 5600878819162533203, guid: 8afe0b245039e5147b4677d863ff3ab1,
+        type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 2551832606478613634}
+    - target: {fileID: 5600878819162533203, guid: 8afe0b245039e5147b4677d863ff3ab1,
+        type: 3}
+      propertyPath: logger
+      value: 
+      objectReference: {fileID: 42926953542081061}
+    - target: {fileID: 5600878819162533203, guid: 8afe0b245039e5147b4677d863ff3ab1,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 5600878819162533203, guid: 8afe0b245039e5147b4677d863ff3ab1,
+        type: 3}
     - target: {fileID: 5713273844636986763, guid: 8afe0b245039e5147b4677d863ff3ab1,
         type: 3}
       propertyPath: m_Enabled

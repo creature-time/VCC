@@ -1,8 +1,10 @@
-﻿
+﻿#define DEBUG_LOGS
+
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Components;
 using VRC.SDKBase;
+using VRC.Udon.Common;
 
 namespace CreatureTime.RpgGame
 {
@@ -16,6 +18,33 @@ namespace CreatureTime.RpgGame
         [SerializeField] private Transform weaponSpawner;
 
         private CtWeaponAttack _spawnedMainHandWeapon;
+        private VRC_Pickup.PickupHand _pickupHand;
+
+        private bool CanMelee
+        {
+            set
+            {
+                _spawnedMainHandWeapon.CanMelee = value;
+
+                var meshRenderer = playerWeapon.GetComponent<MeshRenderer>();
+
+                MaterialPropertyBlock props = new MaterialPropertyBlock();
+                props.SetVector("_Color", _spawnedMainHandWeapon.CanMelee ? new Vector4(1, 0, 0, 1) :  new Vector4(1, 1, 1, 1));
+
+                const float size = 4f;
+                const float uvRange = 1.0f / 4f;
+
+                float palette = _spawnedMainHandWeapon.Palette;
+                var textureVector = new Vector4(
+                    uvRange,
+                    uvRange,
+                    uvRange * (palette % size),
+                    uvRange * Mathf.Floor(palette / size));
+                props.SetVector("_MainTex_ST", textureVector);
+
+                meshRenderer.SetPropertyBlock(props);
+            }
+        }
 
         void Start()
         {
@@ -70,8 +99,6 @@ namespace CreatureTime.RpgGame
                         const float uvRange = 1.0f / 4f;
 
                         float palette = _spawnedMainHandWeapon.Palette;
-                        Debug.Log(palette / size);
-                        Debug.Log(uvRange * (palette / size));
                         var textureVector = new Vector4(
                             uvRange,
                             uvRange,
@@ -119,6 +146,32 @@ namespace CreatureTime.RpgGame
             {
                 _RespawnWeapon();
             }
+        }
+
+        public override void OnPickup()
+        {
+#if DEBUG_LOGS
+            LogDebug($"Pickup weapon (currentHand={playerWeapon.currentHand}).");
+#endif
+            _pickupHand = playerWeapon.currentHand;
+        }
+
+        public override void OnDrop()
+        {
+#if DEBUG_LOGS
+            LogDebug($"Drop weapon (currentHand={playerWeapon.currentHand}).");
+#endif
+            _pickupHand = VRC_Pickup.PickupHand.None;
+            if (_spawnedMainHandWeapon)
+                CanMelee = false;
+        }
+
+        public override void InputUse(bool value, UdonInputEventArgs args)
+        {
+            if (!_spawnedMainHandWeapon) return;
+            if (_pickupHand == VRC_Pickup.PickupHand.None) return;
+            if (args.handType == HandType.LEFT && _pickupHand != VRC_Pickup.PickupHand.Left) return;
+            CanMelee = args.boolValue;
         }
     }
 }

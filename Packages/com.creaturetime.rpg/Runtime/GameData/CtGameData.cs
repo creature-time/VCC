@@ -7,9 +7,6 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtGameData : CtSingleton
     {
-        // TODO: Profile getting data from objects. Udon is known to be slow but unsure if it will affect this at all.
-        //       Can we collapse all these objects into "structs" within this object for quicker lookup?
-
         private DataDictionary _npcDefinitions = new DataDictionary();
         private DataDictionary _skillDefinitions = new DataDictionary();
         private DataDictionary _weaponDefinitions = new DataDictionary();

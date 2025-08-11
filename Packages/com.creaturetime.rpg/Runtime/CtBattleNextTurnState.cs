@@ -34,13 +34,39 @@ namespace CreatureTime
 #if DEBUG_LOGS
                 LogError($"Failed to find entity (identifier={identifier}).");
 #endif
-                return ENodeStatus.Success;
+                return ENodeStatus.Failure;
             }
 
             if (entity.HasAttackReady())
                 return ENodeStatus.Running;
 
+            battleState.BeginTickBlock();
+            var isDead = entity.ProcessStatusTick();
+            battleState.EndTickBlock();
+
+            if (isDead && battleState.IsAllyTeamDead() || battleState.IsEnemyTeamDead())
+                return ENodeStatus.Success;
+
             battleState.NextTurn();
+            identifier = battleState.Initiatives[battleState.TurnIndex];
+            if (!battleState.TryGetEntity(identifier, out entity))
+            {
+#if DEBUG_LOGS
+                LogError($"Failed to find next turn's entity (identifier={identifier}).");
+#endif
+                return ENodeStatus.Failure;
+            }
+
+            var initiatives = battleState.Initiatives;
+            for (int i = 0; i < initiatives.Length; i++)
+            {
+                if (!battleState.TryGetEntity(initiatives[i], out var otherEntity))
+                    return ENodeStatus.Failure;
+                otherEntity.RemoveExpiredStatusEffects(entity);
+            }
+
+            entity.UpdateStatsAndSkills();
+
             return ENodeStatus.Success;
         }
     }

@@ -476,6 +476,63 @@ namespace CreatureTime
 
         #endregion
 
+        # region Effect
+
+        private const ulong EffectUnusedMask = 0xFFFFFF0000000000;
+
+        private const int EffectIdBitShift = 0;
+        private const ulong EffectIdBitMask = 0x000000000000FFFF;
+        private const ulong EffectIdBitShiftMask = EffectIdBitMask >> EffectIdBitShift;
+
+        private const int EffectSourceShiftBit = EffectIdBitShift + 16;
+        private const ulong EffectSourceBitMask = 0x00000000FFFF0000;
+        private const ulong EffectSourceBitShiftMask = EffectSourceBitMask >> EffectSourceShiftBit;
+
+        private const int EffectTurnsShiftBit = EffectSourceShiftBit + 16;
+        private const ulong EffectTurnsBitMask = 0x000000FF00000000;
+        private const ulong EffectTurnsBitShiftMask = EffectTurnsBitMask >> EffectTurnsShiftBit;
+
+        public static ushort GetEffectIdentifier(ulong data) => 
+            (ushort)((data >> EffectIdBitShift) & EffectIdBitShiftMask);
+
+        public static ushort GetEffectSource(ulong data) =>
+            (ushort)((data >> EffectSourceShiftBit) & EffectSourceBitShiftMask);
+
+        public static int GetEffectTurns(ulong data) =>
+            (int)((data >> EffectTurnsShiftBit) & EffectTurnsBitShiftMask);
+
+        public static void SetEffectTurns(int turns, ref ulong data)
+        {
+            if (!IsValid(data))
+            {
+#if DEBUG_LOGS
+                CtLogger.LogCritical("Data Mangle", $"Data was invalid (data={data}).");
+#endif
+                return;
+            }
+
+            data = ((ulong)turns & EffectTurnsBitMask) << EffectTurnsShiftBit | data & ~EffectTurnsBitMask;
+        }
+
+        public static ulong CreateEffectData(ushort identifier, ushort sourceId, int turns)
+        {
+            if (identifier >= EffectIdBitShiftMask)
+            {
+#if DEBUG_LOGS
+                CtLogger.LogCritical("Data Mangle", $"Identifier greater than mask allowed (identifier={identifier}).");
+#endif
+                return InvalidData;
+            }
+
+            return
+                EffectUnusedMask | // Unused
+                ((ulong)turns & EffectTurnsBitShiftMask) << EffectTurnsShiftBit | // Turns
+                (sourceId & EffectSourceBitShiftMask) << EffectSourceShiftBit | // Source Identifier
+                (identifier & EffectIdBitShiftMask) << EffectIdBitShift; // Identifier
+        }
+
+        # endregion
+
         private const ulong UtMaskValidationExpected = 0xFFFFFFFFFFFFFFFF;
 
         private const ushort UtWeaponIdentifierExpected = 1234;

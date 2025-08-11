@@ -1,5 +1,8 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 namespace CreatureTime
@@ -17,10 +20,10 @@ namespace CreatureTime
         public ushort AttributeType => attributeType;
         public ECombatEffectFlags Flags => flags;
 
-        public bool IsUse => ((int)Flags & (int)ECombatEffectFlags.Use) != 0;
-        public bool IsPersistentEffect => ((int)Flags & (int)ECombatEffectFlags.PersistentEffect) != 0;
-        public bool IsSkillUsedEffect => ((int)Flags & (int)ECombatEffectFlags.SkillUsedEffect) != 0;
-        public bool IsTickEffect => ((int)Flags & (int)ECombatEffectFlags.TickEffect) != 0;
+        public bool HasUse => ((int)flags & (int)ECombatEffectFlags.Use) != 0;
+        public bool HasPersistentEffect => ((int)flags & (int)ECombatEffectFlags.PersistentEffect) != 0;
+        public bool HasSkillUsedEffect => ((int)flags & (int)ECombatEffectFlags.SkillUsedEffect) != 0;
+        public bool HasTickEffect => ((int)flags & (int)ECombatEffectFlags.TickEffect) != 0;
 
         public virtual bool IsBeneficial => false;
         public virtual ESkillType Type => ESkillType.Energy;
@@ -221,43 +224,6 @@ namespace CreatureTime
             target.ApplyDamage(damage, damageType, EDamageSourceType.Skill, skillId, source, false);
         }
 
-        public static void ApplyStatus(CtEntity target, CtEntity source, int identifier, int turns)
-        {
-            // bool skipApply = false;
-            // int count = target.CombatEffectData.EffectCount;
-            // for (int i = 0; i < count; i++)
-            // {
-            //     if (!target.CombatEffectData.IsValid(i))
-            //         continue;
-            //
-            //     int id = target.CombatEffectData.GetIdentifier(i);
-            //     if (id == identifier)
-            //     {
-            //         int currentTurns = target.CombatEffectData.GetTurns(i);
-            //         if (turns > currentTurns)
-            //         {
-            //             target.CombatEffectData.RemoveEffect(i);
-            //         }
-            //         else
-            //         {
-            //             skipApply = true;
-            //         }
-            //
-            //         break;
-            //     }
-            // }
-            //
-            // if (skipApply)
-            //     return;
-            //
-            // target.CombatEffectData.AddEffect(
-            //     instanceId,
-            //     source.Identifier,
-            //     turns,
-            //     0,
-            //     (ushort)identifier);
-        }
-
         public static int CalcAttributePoints(int level)
         {
             int attributePoints = 0;
@@ -291,6 +257,49 @@ namespace CreatureTime
                     return CtDataBlock.GetAttributeRank(entityStats.AttributeData, i);
 
             return 0;
+        }
+
+        public static void AssignSkillFlags(GameObject root = null)
+        {
+            Dictionary<ECombatEffectFlags, string> methodFlags = new Dictionary<ECombatEffectFlags, string>
+            {
+                { ECombatEffectFlags.Use, "OnUse" },
+                { ECombatEffectFlags.PersistentEffect, "OnPersistentEffect" },
+                { ECombatEffectFlags.SkillUsedEffect, "OnSkillUsed" },
+                { ECombatEffectFlags.TickEffect, "OnTickEffect" },
+            };
+
+            CtSkillDef[] skillDefinitions;
+            skillDefinitions = root ? 
+                root.GetComponentsInChildren<CtSkillDef>(true) : 
+                FindObjectsOfType<CtSkillDef>(true);
+
+            foreach (CtSkillDef skillDefinition in skillDefinitions)
+            {
+                var serializedObject = new SerializedObject(skillDefinition);
+                var flagsProp = serializedObject.FindProperty("flags");
+
+                var flags = ECombatEffectFlags.None;
+
+                foreach (KeyValuePair<ECombatEffectFlags, string> entry in methodFlags)
+                {
+                    var methodInfo = skillDefinition.GetType().GetMethod(entry.Value);
+                    if (methodInfo == null)
+                    {
+                        throw new Exception($"Failed to find method (method={entry.Value}).");
+                    }
+
+                    if (methodInfo.GetBaseDefinition().DeclaringType != methodInfo.DeclaringType)
+                    {
+                        flags |= entry.Key;
+                    }
+                }
+
+                flagsProp.enumValueFlag = Convert.ToInt32(flags);
+                serializedObject.ApplyModifiedProperties();
+
+                Debug.Log($"[EnterPlaymode] {skillDefinition.DisplayName} set flags to {skillDefinition.Flags}");
+            }
         }
     }
 }

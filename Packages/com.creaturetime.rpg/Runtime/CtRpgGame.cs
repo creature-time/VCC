@@ -1,4 +1,5 @@
-﻿
+﻿#define DEBUG_LOGS
+
 using System;
 using UdonSharp;
 using UnityEngine;
@@ -276,7 +277,7 @@ namespace CreatureTime
         private void _StartBattle(CtParty party, CtSquadDef squadDef)
         {
 #if DEBUG_LOGS
-            LogDebug($"Starting battle (party={party}, npcDefs={npcDefs.Length}).");
+            LogDebug($"Starting battle (party={party}, squadDef={squadDef.Identifier}).");
 #endif
 
             if (!partyManager.TryGetAvailableEnemyParty(out var enemyParty))

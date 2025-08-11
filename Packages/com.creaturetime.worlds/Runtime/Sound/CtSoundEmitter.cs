@@ -1,5 +1,4 @@
-﻿
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Components;
 
@@ -15,12 +14,16 @@ namespace CreatureTime
 
         public bool IsPlaying => audioSource.isPlaying;
 
-        public void Initialize(AudioClip clip, bool isLooping, bool playOnAwake, float pitch)
+        public void Initialize(Vector3 position, AudioClip clip, bool isLooping, bool playOnAwake, float pitch, float volume, bool is2d)
         {
+            transform.position = position;
+
             audioSource.clip = clip;
             audioSource.loop = isLooping;
             audioSource.playOnAwake = playOnAwake;
             audioSource.pitch = pitch;
+            audioSource.volume = volume;
+            audioSource.spatialBlend = is2d ? 0f : 1f;
         }
 
         public void Play()

@@ -968,7 +968,7 @@ namespace CreatureTime
             so.FindProperty("attackWeight").floatValue = data.selfHealingThreshold;
             so.FindProperty("attackCoolDownWeight").floatValue = data.selfHealingThreshold;
             so.FindProperty("focusTargetWeight").floatValue = data.selfHealingThreshold;
-        
+
             so.ApplyModifiedPropertiesWithoutUndo();
         
             return def;
