@@ -576,6 +576,7 @@ namespace CreatureTime
                         {
                             prefabInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.userData);
                             prefabInstance.transform.SetParent(userDataPool);
+                            prefabInstance.SetActive(false);
 
                             npcPool[data.userData] = prefabInstance;
                         }
