@@ -88,7 +88,7 @@ namespace CreatureTime
                 if ((inventory[i] & 0x0000FFFF) == identifier)
                     return i;
             }
-        
+
             return -1;
         }
 

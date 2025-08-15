@@ -13,6 +13,7 @@ namespace CreatureTime
         private DataDictionary _offHandDefinitions = new DataDictionary();
         private DataDictionary _armorDefinitions = new DataDictionary();
         private DataDictionary _professionDefinitions = new DataDictionary();
+        private DataDictionary _attributeDefinitions = new DataDictionary();
         private DataDictionary _questDefinitions = new DataDictionary();
         private DataDictionary _squadDefinitions = new DataDictionary();
 
@@ -62,6 +63,9 @@ namespace CreatureTime
             {
                 var professionDef = Professions[i];
                 _professionDefinitions[professionDef.Identifier] = professionDef;
+
+                foreach (var attributeDef in professionDef.Attributes)
+                    _attributeDefinitions[attributeDef.Identifier] = attributeDef;
             }
 
             Quests = GetComponentsInChildren<CtAbstractQuest>(true);
@@ -153,6 +157,18 @@ namespace CreatureTime
                 return null;
             }
             return (CtProfessionDef)dataToken.Reference;
+        }
+
+        public CtAttributeDef GetAttributeDef(ushort identifier)
+        {
+            if (!_attributeDefinitions.TryGetValue(identifier, out var dataToken))
+            {
+#if DEBUG_LOGS
+                LogWarning($"Failed to find attribute by identifier (identifier={identifier}).");
+#endif
+                return null;
+            }
+            return (CtAttributeDef)dataToken.Reference;
         }
 
         public CtAbstractQuest GetQuestDef(ushort identifier)

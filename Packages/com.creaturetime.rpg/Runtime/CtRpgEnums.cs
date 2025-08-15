@@ -37,6 +37,14 @@ namespace CreatureTime
         TwoHanded
     }
 
+    public enum EWeaponAttackType
+    {
+        None,
+        Melee,
+        Magic,
+        Ranged
+    }
+
     public enum EOffHandPrefix
     {
         None = 0,

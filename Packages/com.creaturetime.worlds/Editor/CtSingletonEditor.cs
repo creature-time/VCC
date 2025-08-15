@@ -57,9 +57,11 @@ namespace CreatureTime
                     if (!singletons.TryGetValue(fieldInfo.FieldType, out var singleton))
                         continue;
 
-                    fieldInfo.SetValue(component, singleton);
-
-                    EditorUtility.SetDirty(component);
+                    if (!ReferenceEquals(fieldInfo.GetValue(component), singleton))
+                    {
+                        fieldInfo.SetValue(component, singleton);
+                        EditorUtility.SetDirty(component);
+                    }
                 }
             }
         }

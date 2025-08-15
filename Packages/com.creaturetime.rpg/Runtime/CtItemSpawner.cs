@@ -1,5 +1,5 @@
-﻿#define DEBUG_LOGS
-
+﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Components;
@@ -11,25 +11,30 @@ namespace CreatureTime.RpgGame
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtItemSpawner : CtAbstractSignal
     {
-        [SerializeField] private CtGameData data;
+        [SerializeField] private CtGameData gameData;
         [SerializeField] private CtEntityDef entityDef;
         [SerializeField] private CtPlayerTurn playerTurn;
         [SerializeField] private VRCPickup playerWeapon;
         [SerializeField] private Transform weaponSpawner;
+        [SerializeField] private LineRenderer lineRenderer;
+        [SerializeField] private CtSelectionModel friendlySelectionModel;
+        [SerializeField] private CtSelectionModel enemySelectionModel;
 
         private CtWeaponAttack _spawnedMainHandWeapon;
         private VRC_Pickup.PickupHand _pickupHand;
+        private EWeaponAttackType _attackType = EWeaponAttackType.None;
+        private ushort _hovered = CtConstants.InvalidId;
 
         private bool CanMelee
         {
             set
             {
-                _spawnedMainHandWeapon.CanMelee = value;
+                _spawnedMainHandWeapon.AttackType = value ? _attackType : EWeaponAttackType.None;
 
                 var meshRenderer = playerWeapon.GetComponent<MeshRenderer>();
 
                 MaterialPropertyBlock props = new MaterialPropertyBlock();
-                props.SetVector("_Color", _spawnedMainHandWeapon.CanMelee ? new Vector4(1, 0, 0, 1) :  new Vector4(1, 1, 1, 1));
+                props.SetVector("_Color", value ? new Vector4(1, 0, 0, 1) :  new Vector4(1, 1, 1, 1));
 
                 const float size = 4f;
                 const float uvRange = 1.0f / 4f;
@@ -61,13 +66,16 @@ namespace CreatureTime.RpgGame
                 _spawnedMainHandWeapon = null;
             }
 
+            _attackType = EWeaponAttackType.None;
             ulong mainHandWeapon = entityDef.MainHandWeapon;
             if (CtDataBlock.IsValid(mainHandWeapon))
             {
                 ushort weaponId = CtDataBlock.GetWeaponIdentifier(mainHandWeapon);
-                CtWeaponDef weaponDef = data.GetWeaponDef(weaponId);
+                CtWeaponDef weaponDef = gameData.GetWeaponDef(weaponId);
                 if (weaponDef)
                 {
+                    _attackType = weaponDef.AttackType;
+
                     var userData = weaponDef.UserData;
                     if (userData)
                     {
@@ -148,6 +156,78 @@ namespace CreatureTime.RpgGame
             }
         }
 
+        private void FixedUpdate()
+        {
+            if (_attackType != EWeaponAttackType.None)
+            {
+                Vector3 origin;
+                Vector3 direction;
+
+                var localPlayer = Networking.LocalPlayer;
+                var isUserInVr = localPlayer.IsUserInVR();
+                if (isUserInVr)
+                {
+                    var trackingData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
+                    origin = trackingData.position;
+                    direction = trackingData.rotation * Quaternion.Euler(0, 45f, 0) * Vector3.forward;
+                }
+                else
+                {
+                    var trackingData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+                    origin = trackingData.position;
+                    direction = trackingData.rotation * Vector3.forward;
+                }
+
+                // Debug.DrawLine(origin, origin + direction * 50, Color.red, 1f);
+
+                var result = Physics.Raycast(new Ray(origin, direction), out var hitInfo, 30f);
+                result = result && hitInfo.collider;
+                // result = isUserInVr && result && hitInfo.collider;
+                _hovered = CtConstants.InvalidId;
+                if (result)
+                {
+                    var npcUserData = hitInfo.collider.GetComponent<CtNpcUserData>();
+                    result = npcUserData;
+                    if (npcUserData)
+                    {
+                        lineRenderer.SetPosition(0, origin);
+                        lineRenderer.SetPosition(1, hitInfo.point);
+
+                        _hovered = npcUserData.TargetId;
+                    }
+                }
+
+                lineRenderer.enabled = result;
+            }
+        }
+
+        // private void FixedUpdate()
+        // {
+        //     var localPlayer = Networking.LocalPlayer;
+        //     var viewportPosition = localPlayer.GetBonePosition(HumanBodyBones.Head);
+        //     var rotation = localPlayer.GetBoneRotation(HumanBodyBones.Head);
+        //     var forwardDirection = rotation * Vector3.forward;
+        //     if (Physics.Raycast(viewportPosition, forwardDirection, out var hit, 50f))
+        //     {
+        //         lineRenderer.SetPosition(0, _spawnedMainHandWeapon.transform.position);
+        //         lineRenderer.SetPosition(1, hit.point);
+        //     }
+        //
+        //     switch (_spawnedMainHandWeapon.AttackType)
+        //     {
+        //         case EWeaponAttackType.None:
+        //             break;
+        //         case EWeaponAttackType.Melee:
+        //             break;
+        //         case EWeaponAttackType.Magic:
+        //             break;
+        //         case EWeaponAttackType.Ranged:
+        //             break;
+        //         // default:
+        //         //     throw new ArgumentOutOfRangeException();
+        //     }
+        // }
+
         public override void OnPickup()
         {
 #if DEBUG_LOGS
@@ -168,6 +248,18 @@ namespace CreatureTime.RpgGame
 
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
+            if (args.boolValue)
+            {
+                if (_hovered != CtConstants.InvalidId)
+                {
+                    var curr = enemySelectionModel.Selection;
+                    if (curr.Count > 0 && curr[0].UShort == _hovered)
+                        enemySelectionModel.Clear();
+                    else
+                        enemySelectionModel.SetSelection(_hovered, ESelectionFlags.ClearSelection);
+                }
+            }
+
             if (!_spawnedMainHandWeapon) return;
             if (_pickupHand == VRC_Pickup.PickupHand.None) return;
             if (args.handType == HandType.LEFT && _pickupHand != VRC_Pickup.PickupHand.Left) return;

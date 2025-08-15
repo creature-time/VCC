@@ -11,14 +11,14 @@ namespace CreatureTime.RpgGame
         [SerializeField, Range(1, 15)] private int palette;
 
         public int Palette => palette;
-        public bool CanMelee { get; set; }
+        public EWeaponAttackType AttackType { get; set; }
 
         public CtPlayerTurn PlayerTurn { private get; set; }
 
         private void OnTriggerEnter(Collider other)
         {
             if (!Networking.IsOwner(gameObject)) return;
-            if (!CanMelee) return;
+            if (AttackType != EWeaponAttackType.Melee) return;
 
             // TODO: Get the battle controller that would probably have the reference to the entity identifier.
             var npcUserData = other.GetComponent<CtNpcUserData>();

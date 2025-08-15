@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using UdonSharp;
@@ -10,9 +11,10 @@ using UnityEngine.UIElements;
 using VRC.Core;
 using VRC.SDKBase;
 using VRC.SDKBase.Editor.Api;
+using VRC.Udon.Serialization.OdinSerializer.Utilities;
 using Object = UnityEngine.Object;
 
-namespace CreatureTime
+namespace CreatureTime.RpgGame
 {
     public class CtRpgToolsSubEditor : CtCreatureTimeSubEditor
     {
@@ -73,37 +75,7 @@ namespace CreatureTime
 
         private static void _UpdateSkills()
         {
-            Dictionary<ECombatEffectFlags, string> methodFlags = new Dictionary<ECombatEffectFlags, string>
-            {
-                { ECombatEffectFlags.Use, "OnUse" },
-                { ECombatEffectFlags.PersistentEffect, "OnPersistentEffect" },
-                { ECombatEffectFlags.SkillUsedEffect, "OnSkillUsed" },
-                { ECombatEffectFlags.TickEffect, "OnTickEffect" },
-            };
-
-            CtSkillDef[] skillDefinitions =
-                GameObject.FindObjectsByType<CtSkillDef>(FindObjectsSortMode.None);
-            foreach (CtSkillDef skillDefinition in skillDefinitions)
-            {
-                var serializedObject = new SerializedObject(skillDefinition);
-                var flagsProp = serializedObject.FindProperty("flags");
-
-                var flags = ECombatEffectFlags.None;
-
-                foreach (KeyValuePair<ECombatEffectFlags, string> entry in methodFlags)
-                {
-                    MethodInfo methodInfo = skillDefinition.GetType().GetMethod(entry.Value);
-                    if (methodInfo.GetBaseDefinition().DeclaringType != methodInfo.DeclaringType)
-                    {
-                        flags |= entry.Key;
-                    }
-                }
-
-                flagsProp.enumValueFlag = Convert.ToInt32(flags);
-                serializedObject.ApplyModifiedProperties();
-
-                Debug.Log($"[EnterPlaymode] {skillDefinition.DisplayName} set flags to {skillDefinition.Flags}");
-            }
+            CtSkillDefFuncs.AssignSkillFlags();
         }
 
         private static void _UpdateRenderTargets(int capacity)

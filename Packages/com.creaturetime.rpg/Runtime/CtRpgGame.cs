@@ -7,6 +7,11 @@ using VRC.SDKBase;
 
 namespace CreatureTime
 {
+    public enum ERpgGameSignal
+    {
+        LocalPlayerChanged
+    }
+
     [DefaultExecutionOrder(-1)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtRpgGame : CtSingleton
@@ -39,7 +44,17 @@ namespace CreatureTime
         public CtEntityManager EntityManager => entityManager;
         public CtDialogueManager DialogueManager => dialogueManager;
 
-        public CtEntity LocalEntity { get; private set; }
+        private CtEntity _localEntity;
+
+        public CtEntity LocalEntity
+        {
+            get => _localEntity;
+            private set
+            {
+                _localEntity = value;
+                this.Emit(ERpgGameSignal.LocalPlayerChanged);
+            }
+        }
 
         private void Start()
         {

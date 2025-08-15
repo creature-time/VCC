@@ -8,7 +8,9 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtWeaponDef : CtInventoryItemDef
     {
+        // TODO: Combined weaponType and attackType.
         [SerializeField] private EWeaponType weaponType;
+        [SerializeField] private EWeaponAttackType attackType;
         [SerializeField] private ushort attributeType = CtConstants.InvalidId;
         [SerializeField] [Range(0, 9)] private int attributeRequirement = 0;
         [SerializeField] private EDamageType damageType = EDamageType.Piercing;
@@ -18,6 +20,7 @@ namespace CreatureTime
         [SerializeField] private CtUserData userData;
 
         public EWeaponType WeaponType => weaponType;
+        public EWeaponAttackType AttackType => attackType;
         public ushort AttributeType => attributeType;
         public int AttributeRequirement => attributeRequirement;
         public EDamageType DamageType => damageType;

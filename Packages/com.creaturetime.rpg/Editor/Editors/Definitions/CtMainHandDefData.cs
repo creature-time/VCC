@@ -25,6 +25,7 @@ namespace CreatureTime
         [SerializeField] public string displayName;
         [SerializeField] public Texture icon;
         [SerializeField] public EWeaponType weaponType;
+        [SerializeField] public EWeaponAttackType attackType;
         [SerializeField] public CtAttributeDefData attributeType;
         [SerializeField] [Range(0, 9)] private int attributeRequirement = 0;
         [SerializeField] public EDamageType damageType = EDamageType.Piercing;

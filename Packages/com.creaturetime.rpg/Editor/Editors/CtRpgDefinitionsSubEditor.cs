@@ -629,6 +629,7 @@ namespace CreatureTime
                     weaponDefSo.FindProperty("displayName").stringValue = data.displayName;
                     weaponDefSo.FindProperty("icon").objectReferenceValue = data.icon;
                     weaponDefSo.FindProperty("weaponType").enumValueIndex = Convert.ToInt32(data.weaponType);
+                    weaponDefSo.FindProperty("attackType").enumValueIndex = Convert.ToInt32(data.attackType);
                     weaponDefSo.FindProperty("attributeType").intValue = data.attributeType.identifier;
 
                     GameObject prefabInstance;
