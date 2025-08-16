@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtOffHandDef
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 690d520180d121b43a66f2c00763d863, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 72d6730f120eccf48a525be0c122e264,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 3b3bfde09bb6efb44925c4bdfeb5f2d9, type: 3}

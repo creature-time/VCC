@@ -118,7 +118,7 @@ namespace CreatureTime
                 npcContext.SetFloat($"Skills.Values[{i}]/ConditionScore", 0);
                 npcContext.SetFloat($"Skills.Values[{i}]/DamageScore", 0);
 
-                float recharge = entity.GetRecharge(i);
+                float recharge = entity.SkillInstances.GetRecharge(i);
                 if (recharge > 0)
                     continue;
 
@@ -137,7 +137,7 @@ namespace CreatureTime
                             continue;
                         break;
                     case ESkillType.Adrenaline:
-                        if (entity.GetAdrenaline(i) < skillDef.Value)
+                        if (entity.SkillInstances.GetAdrenaline(i) < skillDef.Value)
                             continue;
                         break;
                     default:

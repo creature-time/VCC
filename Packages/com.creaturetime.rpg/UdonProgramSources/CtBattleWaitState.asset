@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtBattleWaitState
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: edfa0a9eca144e44c94c66dfd27e5811, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: b54817fd9c6f6ee4eacf420d8d14fdab,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: b1b69a50a09c9eb4eae3dae88e7701d0, type: 3}

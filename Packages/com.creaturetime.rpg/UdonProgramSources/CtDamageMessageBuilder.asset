@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtDamageMessageBuilder
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 8f7979d481ecd0040b8b013935dd86d3, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 7c65581140247d04face08a58a46708f,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 1468e339bc9b92e43ad899a352a02260, type: 3}

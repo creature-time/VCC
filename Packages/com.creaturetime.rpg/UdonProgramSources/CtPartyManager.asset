@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtPartyManager
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 9a2f8d83da0d5f94b886340c994cd826, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 63ae1e7d77e16c441bb473f770ea27d3,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 526592401c1dc384296e76dea72875c4, type: 3}

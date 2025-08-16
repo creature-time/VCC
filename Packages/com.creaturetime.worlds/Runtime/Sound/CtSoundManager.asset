@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtSoundManager
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: d6ec0b06fafbbe847858270c8b0fdc6b, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: f948963f2365f384fb7bde71c32017f5,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 7710fda3b39bc67489cc7acb88dc8ecb, type: 3}

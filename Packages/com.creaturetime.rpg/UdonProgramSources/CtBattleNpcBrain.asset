@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtBattleNpcBrain
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 590578bd4757746458fa38fe70503d93, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 30523c64bde258d46ac99a59a6797447,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: b7f5a019409e96d4cbac132bdd323638, type: 3}

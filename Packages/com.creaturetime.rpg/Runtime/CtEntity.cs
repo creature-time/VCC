@@ -18,17 +18,20 @@ namespace CreatureTime
         IdentifierChanged,
         HealthChanged,
         EnergyChanged,
-        SkillRechargeChanged,
-        SkillAdrenalineChanged,
-        EffectChanged,
-        EntityStatsChanged,
+        EntityDefChanged,
         DamageApplied
     }
 
     public abstract class CtEntity : CtEntityBase
     {
         [Header("Global Variables")]
+
         [SerializeField] protected CtGameData gameData;
+        [SerializeField] protected CtSkillInstances skillInstances;
+        [SerializeField] protected CtStatusEffectInstances statusEffectInstances;
+
+        public CtSkillInstances SkillInstances => skillInstances;
+        public CtStatusEffectInstances StatusEffectInstances => statusEffectInstances;
 
         public ECombatState State
         {
@@ -88,537 +91,6 @@ namespace CreatureTime
         {
             get => EnergyCallback;
             private set => EnergyCallback = value;
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge0Callback))] private int _skillRecharge0;
-
-        public int SkillRecharge0Callback
-        {
-            get => _skillRecharge0;
-            set
-            {
-                _skillRecharge0 = value;
-                SetArgs.Add(0);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge0
-        {
-            get => SkillRecharge0Callback;
-            set
-            {
-                SkillRecharge0Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge1Callback))] private int _skillRecharge1;
-
-        public int SkillRecharge1Callback
-        {
-            get => _skillRecharge1;
-            set
-            {
-                _skillRecharge1 = value;
-                SetArgs.Add(1);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge1
-        {
-            get => SkillRecharge1Callback;
-            set
-            {
-                SkillRecharge1Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge2Callback))] private int _skillRecharge2;
-
-        public int SkillRecharge2Callback
-        {
-            get => _skillRecharge2;
-            set
-            {
-                _skillRecharge2 = value;
-                SetArgs.Add(2);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge2
-        {
-            get => SkillRecharge2Callback;
-            set
-            {
-                SkillRecharge2Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge3Callback))] private int _skillRecharge3;
-
-        public int SkillRecharge3Callback
-        {
-            get => _skillRecharge3;
-            set
-            {
-                _skillRecharge3 = value;
-                SetArgs.Add(3);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge3
-        {
-            get => SkillRecharge3Callback;
-            set
-            {
-                SkillRecharge3Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge4Callback))] private int _skillRecharge4;
-
-        public int SkillRecharge4Callback
-        {
-            get => _skillRecharge4;
-            set
-            {
-                _skillRecharge4 = value;
-                SetArgs.Add(4);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge4
-        {
-            get => SkillRecharge4Callback;
-            set
-            {
-                SkillRecharge4Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge5Callback))] private int _skillRecharge5;
-
-        public int SkillRecharge5Callback
-        {
-            get => _skillRecharge5;
-            set
-            {
-                _skillRecharge5 = value;
-                SetArgs.Add(5);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge5
-        {
-            get => SkillRecharge5Callback;
-            set
-            {
-                SkillRecharge5Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge6Callback))] private int _skillRecharge6;
-
-        public int SkillRecharge6Callback
-        {
-            get => _skillRecharge6;
-            set
-            {
-                _skillRecharge6 = value;
-                SetArgs.Add(6);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge6
-        {
-            get => SkillRecharge6Callback;
-            set
-            {
-                SkillRecharge6Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge7Callback))] private int _skillRecharge7;
-
-        public int SkillRecharge7Callback
-        {
-            get => _skillRecharge7;
-            set
-            {
-                _skillRecharge0 = value;
-                SetArgs.Add(7);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge7
-        {
-            get => SkillRecharge7Callback;
-            set
-            {
-                SkillRecharge7Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge8Callback))] private int _skillRecharge8;
-
-        public int SkillRecharge8Callback
-        {
-            get => _skillRecharge8;
-            set
-            {
-                _skillRecharge8 = value;
-                SetArgs.Add(8);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge8
-        {
-            get => SkillRecharge8Callback;
-            set
-            {
-                SkillRecharge8Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge9Callback))] private int _skillRecharge9;
-
-        public int SkillRecharge9Callback
-        {
-            get => _skillRecharge9;
-            set
-            {
-                _skillRecharge9 = value;
-                SetArgs.Add(9);
-                this.Emit(EEntitySignal.SkillRechargeChanged);
-            }
-        }
-
-        public int SkillRecharge9
-        {
-            get => SkillRecharge9Callback;
-            set
-            {
-                SkillRecharge9Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        public int GetRecharge(int index)
-        {
-            switch (index)
-            {
-                case 0: return SkillRecharge0;
-                case 1: return SkillRecharge1;
-                case 2: return SkillRecharge2;
-                case 3: return SkillRecharge3;
-                case 4: return SkillRecharge4;
-                case 5: return SkillRecharge5;
-                case 6: return SkillRecharge6;
-                case 7: return SkillRecharge7;
-                case 8: return SkillRecharge8;
-                case 9: return SkillRecharge9;
-                default: return CtConstants.InvalidId;
-            }
-        }
-
-        private void _SetRecharge(int index, int value)
-        {
-            switch (index)
-            {
-                case 0: SkillRecharge0 = value; return;
-                case 1: SkillRecharge1 = value; return;
-                case 2: SkillRecharge2 = value; return;
-                case 3: SkillRecharge3 = value; return;
-                case 4: SkillRecharge4 = value; return;
-                case 5: SkillRecharge5 = value; return;
-                case 6: SkillRecharge6 = value; return;
-                case 7: SkillRecharge7 = value; return;
-                case 8: SkillRecharge8 = value; return;
-                case 9: SkillRecharge9 = value; return;
-                default: return;
-            }
-        }
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline0Callback))] private int _skillAdrenaline0;
-
-        public int SkillAdrenaline0Callback
-        {
-            get => _skillAdrenaline0;
-            set
-            {
-                _skillAdrenaline0 = value;
-                SetArgs.Add(0);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline0
-        {
-            get => SkillAdrenaline0Callback;
-            set
-            {
-                SkillAdrenaline0Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline1Callback))] private int _skillAdrenaline1;
-
-        public int SkillAdrenaline1Callback
-        {
-            get => _skillAdrenaline1;
-            set
-            {
-                _skillAdrenaline1 = value;
-                SetArgs.Add(1);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline1
-        {
-            get => SkillAdrenaline1Callback;
-            set
-            {
-                SkillAdrenaline1Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline2Callback))] private int _skillAdrenaline2;
-
-        public int SkillAdrenaline2Callback
-        {
-            get => _skillAdrenaline2;
-            set
-            {
-                _skillAdrenaline2 = value;
-                SetArgs.Add(2);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline2
-        {
-            get => SkillAdrenaline2Callback;
-            set
-            {
-                SkillAdrenaline2Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline3Callback))] private int _skillAdrenaline3;
-
-        public int SkillAdrenaline3Callback
-        {
-            get => _skillAdrenaline3;
-            set
-            {
-                _skillAdrenaline3 = value;
-                SetArgs.Add(3);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline3
-        {
-            get => SkillAdrenaline3Callback;
-            set
-            {
-                SkillAdrenaline3Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline4Callback))] private int _skillAdrenaline4;
-
-        public int SkillAdrenaline4Callback
-        {
-            get => _skillAdrenaline4;
-            set
-            {
-                _skillAdrenaline4 = value;
-                SetArgs.Add(4);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline4
-        {
-            get => SkillAdrenaline4Callback;
-            set
-            {
-                SkillAdrenaline4Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline5Callback))] private int _skillAdrenaline5;
-
-        public int SkillAdrenaline5Callback
-        {
-            get => _skillAdrenaline5;
-            set
-            {
-                _skillAdrenaline5 = value;
-                SetArgs.Add(5);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline5
-        {
-            get => SkillAdrenaline5Callback;
-            set
-            {
-                SkillAdrenaline5Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline6Callback))] private int _skillAdrenaline6;
-
-        public int SkillAdrenaline6Callback
-        {
-            get => _skillAdrenaline6;
-            set
-            {
-                _skillAdrenaline6 = value;
-                SetArgs.Add(6);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline6
-        {
-            get => SkillAdrenaline6Callback;
-            set
-            {
-                SkillAdrenaline6Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline7Callback))] private int _skillAdrenaline7;
-
-        public int SkillAdrenaline7Callback
-        {
-            get => _skillAdrenaline7;
-            set
-            {
-                _skillAdrenaline0 = value;
-                SetArgs.Add(7);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline7
-        {
-            get => SkillAdrenaline7Callback;
-            set
-            {
-                SkillAdrenaline7Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline8Callback))] private int _skillAdrenaline8;
-
-        public int SkillAdrenaline8Callback
-        {
-            get => _skillAdrenaline8;
-            set
-            {
-                _skillAdrenaline8 = value;
-                SetArgs.Add(8);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline8
-        {
-            get => SkillAdrenaline8Callback;
-            set
-            {
-                SkillAdrenaline8Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(SkillAdrenaline9Callback))] private int _skillAdrenaline9;
-
-        public int SkillAdrenaline9Callback
-        {
-            get => _skillAdrenaline9;
-            set
-            {
-                _skillAdrenaline9 = value;
-                SetArgs.Add(9);
-                this.Emit(EEntitySignal.SkillAdrenalineChanged);
-            }
-        }
-
-        public int SkillAdrenaline9
-        {
-            get => SkillAdrenaline9Callback;
-            set
-            {
-                SkillAdrenaline9Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        public int GetAdrenaline(int index)
-        {
-            switch (index)
-            {
-                case 0: return SkillAdrenaline0;
-                case 1: return SkillAdrenaline1;
-                case 2: return SkillAdrenaline2;
-                case 3: return SkillAdrenaline3;
-                case 4: return SkillAdrenaline4;
-                case 5: return SkillAdrenaline5;
-                case 6: return SkillAdrenaline6;
-                case 7: return SkillAdrenaline7;
-                case 8: return SkillAdrenaline8;
-                case 9: return SkillAdrenaline9;
-                default: return -1;
-            }
-        }
-
-        private void _SetAdrenaline(int index, int value)
-        {
-            switch (index)
-            {
-                case 0: SkillAdrenaline0 = value; return;
-                case 1: SkillAdrenaline1 = value; return;
-                case 2: SkillAdrenaline2 = value; return;
-                case 3: SkillAdrenaline3 = value; return;
-                case 4: SkillAdrenaline4 = value; return;
-                case 5: SkillAdrenaline5 = value; return;
-                case 6: SkillAdrenaline6 = value; return;
-                case 7: SkillAdrenaline7 = value; return;
-                case 8: SkillAdrenaline8 = value; return;
-                case 9: SkillAdrenaline9 = value; return;
-                default: return;
-            }
         }
 
         # region Offensive
@@ -817,7 +289,7 @@ namespace CreatureTime
                 }
 
                 SetArgs.Add(_entityDef);
-                this.Emit(EEntitySignal.EntityStatsChanged);
+                this.Emit(EEntitySignal.EntityDefChanged);
             }
         }
 
@@ -867,27 +339,27 @@ namespace CreatureTime
 
         private void _ResetSkillInstanceData()
         {
-            SkillRecharge0 = 0;
-            SkillRecharge1 = 0;
-            SkillRecharge2 = 0;
-            SkillRecharge3 = 0;
-            SkillRecharge4 = 0;
-            SkillRecharge5 = 0;
-            SkillRecharge6 = 0;
-            SkillRecharge7 = 0;
-            SkillRecharge8 = 0;
-            SkillRecharge9 = 0;
+            skillInstances.SkillRecharge0 = (char)0;
+            skillInstances.SkillRecharge1 = (char)0;
+            skillInstances.SkillRecharge2 = (char)0;
+            skillInstances.SkillRecharge3 = (char)0;
+            skillInstances.SkillRecharge4 = (char)0;
+            skillInstances.SkillRecharge5 = (char)0;
+            skillInstances.SkillRecharge6 = (char)0;
+            skillInstances.SkillRecharge7 = (char)0;
+            skillInstances.SkillRecharge8 = (char)0;
+            skillInstances.SkillRecharge9 = (char)0;
 
-            SkillAdrenaline0 = 0;
-            SkillAdrenaline1 = 0;
-            SkillAdrenaline2 = 0;
-            SkillAdrenaline3 = 0;
-            SkillAdrenaline4 = 0;
-            SkillAdrenaline5 = 0;
-            SkillAdrenaline6 = 0;
-            SkillAdrenaline7 = 0;
-            SkillAdrenaline8 = 0;
-            SkillAdrenaline9 = 0;
+            skillInstances.SkillAdrenaline0 = 0;
+            skillInstances.SkillAdrenaline1 = 0;
+            skillInstances.SkillAdrenaline2 = 0;
+            skillInstances.SkillAdrenaline3 = 0;
+            skillInstances.SkillAdrenaline4 = 0;
+            skillInstances.SkillAdrenaline5 = 0;
+            skillInstances.SkillAdrenaline6 = 0;
+            skillInstances.SkillAdrenaline7 = 0;
+            skillInstances.SkillAdrenaline8 = 0;
+            skillInstances.SkillAdrenaline9 = 0;
         }
 
         public override void ApplyDamage(int damage, EDamageType damageType, 
@@ -1030,431 +502,15 @@ namespace CreatureTime
             {
                 var skillDef = skillDefs[i];
                 if (skillDef && skillDef.Type == ESkillType.Adrenaline)
-                    _SetAdrenaline(i, Mathf.Min(GetAdrenaline(i) + adrenaline, skillDef.Value));
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect0Callback))] private ulong _statusEffect0 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect0Callback
-        {
-            get => _statusEffect0;
-            set
-            {
-                _statusEffect0 = value;
-                SetArgs.Add(0);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect0
-        {
-            get => StatusEffect0Callback;
-            set
-            {
-                StatusEffect0Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect1Callback))] private ulong _statusEffect1 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect1Callback
-        {
-            get => _statusEffect1;
-            set
-            {
-                _statusEffect1 = value;
-                SetArgs.Add(1);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect1
-        {
-            get => StatusEffect1Callback;
-            set
-            {
-                StatusEffect1Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect2Callback))] private ulong _statusEffect2 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect2Callback
-        {
-            get => _statusEffect2;
-            set
-            {
-                _statusEffect2 = value;
-                SetArgs.Add(2);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect2
-        {
-            get => StatusEffect2Callback;
-            set
-            {
-                StatusEffect2Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect3Callback))] private ulong _statusEffect3 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect3Callback
-        {
-            get => _statusEffect3;
-            set
-            {
-                _statusEffect3 = value;
-                SetArgs.Add(3);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect3
-        {
-            get => StatusEffect3Callback;
-            set
-            {
-                StatusEffect3Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect4Callback))] private ulong _statusEffect4 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect4Callback
-        {
-            get => _statusEffect4;
-            set
-            {
-                _statusEffect4 = value;
-                SetArgs.Add(4);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect4
-        {
-            get => StatusEffect4Callback;
-            set
-            {
-                StatusEffect4Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect5Callback))] private ulong _statusEffect5 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect5Callback
-        {
-            get => _statusEffect5;
-            set
-            {
-                _statusEffect5 = value;
-                SetArgs.Add(5);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect5
-        {
-            get => StatusEffect5Callback;
-            set
-            {
-                StatusEffect5Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect6Callback))] private ulong _statusEffect6 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect6Callback
-        {
-            get => _statusEffect6;
-            set
-            {
-                _statusEffect6 = value;
-                SetArgs.Add(6);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect6
-        {
-            get => StatusEffect6Callback;
-            set
-            {
-                StatusEffect6Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect7Callback))] private ulong _statusEffect7 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect7Callback
-        {
-            get => _statusEffect7;
-            set
-            {
-                _statusEffect7 = value;
-                SetArgs.Add(7);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect7
-        {
-            get => StatusEffect7Callback;
-            set
-            {
-                StatusEffect7Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect8Callback))] private ulong _statusEffect8 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect8Callback
-        {
-            get => _statusEffect8;
-            set
-            {
-                _statusEffect8 = value;
-                SetArgs.Add(8);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect8
-        {
-            get => StatusEffect8Callback;
-            set
-            {
-                StatusEffect8Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect9Callback))] private ulong _statusEffect9 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect9Callback
-        {
-            get => _statusEffect9;
-            set
-            {
-                _statusEffect9 = value;
-                SetArgs.Add(9);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect9
-        {
-            get => StatusEffect9Callback;
-            set
-            {
-                StatusEffect9Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect10Callback))] private ulong _statusEffect10 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect10Callback
-        {
-            get => _statusEffect10;
-            set
-            {
-                _statusEffect10 = value;
-                SetArgs.Add(10);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect10
-        {
-            get => StatusEffect10Callback;
-            set
-            {
-                StatusEffect10Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect11Callback))] private ulong _statusEffect11 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect11Callback
-        {
-            get => _statusEffect11;
-            set
-            {
-                _statusEffect11 = value;
-                SetArgs.Add(11);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect11
-        {
-            get => StatusEffect11Callback;
-            set
-            {
-                StatusEffect11Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect12Callback))] private ulong _statusEffect12 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect12Callback
-        {
-            get => _statusEffect12;
-            set
-            {
-                _statusEffect12 = value;
-                SetArgs.Add(12);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect12
-        {
-            get => StatusEffect12Callback;
-            set
-            {
-                StatusEffect12Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect13Callback))] private ulong _statusEffect13 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect13Callback
-        {
-            get => _statusEffect13;
-            set
-            {
-                _statusEffect13 = value;
-                SetArgs.Add(13);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect13
-        {
-            get => StatusEffect13Callback;
-            set
-            {
-                StatusEffect13Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect14Callback))] private ulong _statusEffect14 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect14Callback
-        {
-            get => _statusEffect14;
-            set
-            {
-                _statusEffect14 = value;
-                SetArgs.Add(14);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect14
-        {
-            get => StatusEffect14Callback;
-            set
-            {
-                StatusEffect14Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        [UdonSynced, FieldChangeCallback(nameof(StatusEffect15Callback))] private ulong _statusEffect15 = CtDataBlock.InvalidData;
-
-        public ulong StatusEffect15Callback
-        {
-            get => _statusEffect15;
-            set
-            {
-                _statusEffect15 = value;
-                SetArgs.Add(15);
-                this.Emit(EEntitySignal.EffectChanged);
-            }
-        }
-
-        public ulong StatusEffect15
-        {
-            get => StatusEffect15Callback;
-            set
-            {
-                StatusEffect15Callback = value;
-                RequestSerialization();
-            }
-        }
-
-        public ulong GetStatusEffect(int index)
-        {
-            switch (index)
-            {
-                case 0: return StatusEffect0;
-                case 1: return StatusEffect1;
-                case 2: return StatusEffect2;
-                case 3: return StatusEffect3;
-                case 4: return StatusEffect4;
-                case 5: return StatusEffect5;
-                case 6: return StatusEffect6;
-                case 7: return StatusEffect7;
-                case 8: return StatusEffect8;
-                case 9: return StatusEffect9;
-                case 10: return StatusEffect10;
-                case 11: return StatusEffect11;
-                case 12: return StatusEffect12;
-                case 13: return StatusEffect13;
-                case 14: return StatusEffect14;
-                case 15: return StatusEffect15;
-                default: return CtDataBlock.InvalidData;
-            }
-        }
-
-        public void SetStatusEffect(int index, ulong value)
-        {
-            switch (index)
-            {
-                case 0: StatusEffect0 = value; break;
-                case 1: StatusEffect1 = value; break;
-                case 2: StatusEffect2 = value; break;
-                case 3: StatusEffect3 = value; break;
-                case 4: StatusEffect4 = value; break;
-                case 5: StatusEffect5 = value; break;
-                case 6: StatusEffect6 = value; break;
-                case 7: StatusEffect7 = value; break;
-                case 8: StatusEffect8 = value; break;
-                case 9: StatusEffect9 = value; break;
-                case 10: StatusEffect10 = value; break;
-                case 11: StatusEffect11 = value; break;
-                case 12: StatusEffect12 = value; break;
-                case 13: StatusEffect13 = value; break;
-                case 14: StatusEffect14 = value; break;
-                case 15: StatusEffect15 = value; break;
-                default: return;
+                    skillInstances.SetAdrenaline(i, Mathf.Min(skillInstances.GetAdrenaline(i) + adrenaline, skillDef.Value));
             }
         }
 
         public void ApplyStatus(CtSkillDef skillDef, CtEntity source, int turns)
         {
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < statusEffectInstances.Count; i++)
             {
-                var statusEffect = GetStatusEffect(i);
+                var statusEffect = statusEffectInstances.GetStatusEffect(i);
                 if (statusEffect != CtDataBlock.InvalidData)
                 {
                     var identifier = CtDataBlock.GetEffectIdentifier(statusEffect);
@@ -1472,13 +528,13 @@ namespace CreatureTime
                 }
             }
 
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < statusEffectInstances.Count; i++)
             {
-                var statusEffect = GetStatusEffect(i);
+                var statusEffect = statusEffectInstances.GetStatusEffect(i);
                 if (statusEffect == CtDataBlock.InvalidData)
                 {
                     LogDebug($"Applying Status (skillDef={skillDef}, source={source}, turns={turns})");
-                    SetStatusEffect(i, CtDataBlock.CreateEffectData(skillDef.Identifier, source.Identifier, turns));
+                    statusEffectInstances.SetStatusEffect(i, CtDataBlock.CreateEffectData(skillDef.Identifier, source.Identifier, turns));
                     return;
                 }
             }
@@ -1489,7 +545,7 @@ namespace CreatureTime
             CtEntity source;
             for (int i = 0; i < 16; i++)
             {
-                var statusEffect = GetStatusEffect(i);
+                var statusEffect = statusEffectInstances.GetStatusEffect(i);
                 if (statusEffect != CtDataBlock.InvalidData)
                 {
                     var identifier = CtDataBlock.GetEffectIdentifier(statusEffect);
@@ -1517,7 +573,7 @@ namespace CreatureTime
         {
             for (int i = 0; i < 16; i++)
             {
-                var statusEffect = GetStatusEffect(i);
+                var statusEffect = statusEffectInstances.GetStatusEffect(i);
                 if (statusEffect != CtDataBlock.InvalidData)
                 {
                     var sourceId = CtDataBlock.GetEffectSource(statusEffect);
@@ -1527,14 +583,14 @@ namespace CreatureTime
                         if (turns > 0)
                         {
                             CtDataBlock.SetEffectTurns(turns, ref statusEffect);
-                            SetStatusEffect(i, statusEffect);
+                            statusEffectInstances.SetStatusEffect(i, statusEffect);
                         }
                         else
                         {
                             var identifier = CtDataBlock.GetEffectIdentifier(statusEffect);
                             LogDebug($"Removing expired status effect (effect={identifier}, source={sourceId}).");
 
-                            SetStatusEffect(i, CtDataBlock.InvalidData);
+                            statusEffectInstances.SetStatusEffect(i, CtDataBlock.InvalidData);
                         }
                     }
                 }
@@ -1563,13 +619,13 @@ namespace CreatureTime
                     Energy = Mathf.Max(0, Energy - usedSkillDef.Cost);
                     break;
                 case ESkillType.Adrenaline:
-                    _SetAdrenaline(index, 0);
+                    skillInstances.SetAdrenaline(index, 0);
                     break;
             }
 
             for (int i = 0; i < 16; i++)
             {
-                var statusEffect = GetStatusEffect(i);
+                var statusEffect = statusEffectInstances.GetStatusEffect(i);
                 if (statusEffect != CtDataBlock.InvalidData)
                 {
                     var identifier = CtDataBlock.GetEffectIdentifier(statusEffect);
@@ -1588,7 +644,7 @@ namespace CreatureTime
                 }
             }
 
-            _SetRecharge(index, usedSkillDef.RechargeTime);
+            skillInstances.SetRecharge(index, usedSkillDef.RechargeTime);
         }
 
         public virtual void OnStartBattle()
@@ -1608,9 +664,9 @@ namespace CreatureTime
             int rechargeSpeed = 1;
             for (int i = 0; i < 10; i++)
             {
-                var recharge = GetRecharge(i);
+                var recharge = skillInstances.GetRecharge(i);
                 if (recharge > 0)
-                    _SetRecharge(i, Mathf.Max(recharge - rechargeSpeed, 0));
+                    skillInstances.SetRecharge(i, Mathf.Max(recharge - rechargeSpeed, 0));
             }
         }
 

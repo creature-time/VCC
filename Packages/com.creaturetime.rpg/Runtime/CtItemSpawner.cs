@@ -1,5 +1,4 @@
 ﻿
-using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Components;
@@ -16,14 +15,10 @@ namespace CreatureTime.RpgGame
         [SerializeField] private CtPlayerTurn playerTurn;
         [SerializeField] private VRCPickup playerWeapon;
         [SerializeField] private Transform weaponSpawner;
-        [SerializeField] private LineRenderer lineRenderer;
-        [SerializeField] private CtSelectionModel friendlySelectionModel;
-        [SerializeField] private CtSelectionModel enemySelectionModel;
 
         private CtWeaponAttack _spawnedMainHandWeapon;
         private VRC_Pickup.PickupHand _pickupHand;
         private EWeaponAttackType _attackType = EWeaponAttackType.None;
-        private ushort _hovered = CtConstants.InvalidId;
 
         private bool CanMelee
         {
@@ -156,51 +151,6 @@ namespace CreatureTime.RpgGame
             }
         }
 
-        private void FixedUpdate()
-        {
-            if (_attackType != EWeaponAttackType.None)
-            {
-                Vector3 origin;
-                Vector3 direction;
-
-                var localPlayer = Networking.LocalPlayer;
-                var isUserInVr = localPlayer.IsUserInVR();
-                if (isUserInVr)
-                {
-                    var trackingData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-                    origin = trackingData.position;
-                    direction = trackingData.rotation * Quaternion.Euler(0, 45f, 0) * Vector3.forward;
-                }
-                else
-                {
-                    var trackingData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-                    origin = trackingData.position;
-                    direction = trackingData.rotation * Vector3.forward;
-                }
-
-                // Debug.DrawLine(origin, origin + direction * 50, Color.red, 1f);
-
-                var result = Physics.Raycast(new Ray(origin, direction), out var hitInfo, 30f);
-                result = result && hitInfo.collider;
-                // result = isUserInVr && result && hitInfo.collider;
-                _hovered = CtConstants.InvalidId;
-                if (result)
-                {
-                    var npcUserData = hitInfo.collider.GetComponent<CtNpcUserData>();
-                    result = npcUserData;
-                    if (npcUserData)
-                    {
-                        lineRenderer.SetPosition(0, origin);
-                        lineRenderer.SetPosition(1, hitInfo.point);
-
-                        _hovered = npcUserData.TargetId;
-                    }
-                }
-
-                lineRenderer.enabled = result;
-            }
-        }
-
         // private void FixedUpdate()
         // {
         //     var localPlayer = Networking.LocalPlayer;
@@ -248,18 +198,6 @@ namespace CreatureTime.RpgGame
 
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            if (args.boolValue)
-            {
-                if (_hovered != CtConstants.InvalidId)
-                {
-                    var curr = enemySelectionModel.Selection;
-                    if (curr.Count > 0 && curr[0].UShort == _hovered)
-                        enemySelectionModel.Clear();
-                    else
-                        enemySelectionModel.SetSelection(_hovered, ESelectionFlags.ClearSelection);
-                }
-            }
-
             if (!_spawnedMainHandWeapon) return;
             if (_pickupHand == VRC_Pickup.PickupHand.None) return;
             if (args.handType == HandType.LEFT && _pickupHand != VRC_Pickup.PickupHand.Left) return;

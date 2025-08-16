@@ -1,4 +1,5 @@
-﻿
+﻿#define DEBUG_LOGS
+
 using UdonSharp;
 using UnityEngine;
 
@@ -22,6 +23,10 @@ namespace CreatureTime
             get => _entityId;
             set
             {
+#if DEBUG_LOGS
+                LogDebug($"Npc entity definition identifier updated (prev={_entityId}, next={value}).");
+#endif
+
                 var previousId = _entityId;
                 _entityId = value;
 
@@ -67,7 +72,11 @@ namespace CreatureTime
 
         public ushort NpcId
         {
-            set => EntityIdCallback = value;
+            set
+            {
+                EntityIdCallback = value;
+                RequestSerialization();
+            }
         }
 
         [UdonSynced, FieldChangeCallback(nameof(HealingCoolDownCallback))]

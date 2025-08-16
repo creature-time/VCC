@@ -34,6 +34,8 @@ namespace CreatureTime
             if (!selected.IsNull)
                 _selection.Add(selected);
 
+            LogDebug($"Updating selection (prev={prev.Count}, curr={_selection.Count}).");
+
             SetArgs.Add(prev);
             SetArgs.Add(_selection.DeepClone());
             this.Emit(ESelectionModelSignal.SelectionChanged);
@@ -41,6 +43,8 @@ namespace CreatureTime
 
         public void Clear()
         {
+            LogDebug("Clearing selection.");
+
             SetArgs.Add(_selection.DeepClone());
             _selection.Clear();
             SetArgs.Add(_selection.DeepClone());

@@ -1,4 +1,5 @@
-﻿
+﻿#define DEBUG_LOGS
+
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
