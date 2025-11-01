@@ -1,0 +1,25 @@
+{
+    "name": "com.creaturetime.rpg.editor.dialoguegraph",
+    "rootNamespace": "CreatureTime.Editor.Graph.DialogueGraph",
+    "references": [
+        "GUID:16cbe4cee437c5f41b25e0d3851d9f04",
+        "GUID:c5501d9f94970fb46a25d15b7d2033fe",
+        "GUID:ab0c1c22959d5c74ea1c72294ff641bf",
+        "GUID:0a65e24c423417d4c85538fe7a87271d",
+        "GUID:1dc973957b1996b4d9a2a2734b95ac62",
+        "GUID:6a4ae1e1153a24d49b2e12e52a9052e6",
+        "GUID:99835874ee819da44948776e0df4ff1d",
+        "GUID:84265b35cca3905448e623ef3903f0ff"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

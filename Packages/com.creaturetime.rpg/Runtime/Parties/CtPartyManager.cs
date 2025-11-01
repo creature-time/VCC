@@ -59,26 +59,21 @@ namespace CreatureTime
                 return false;
             }
 
-            if (entity.IsPlayer)
+            foreach (var other in playerParties)
             {
-                foreach (var other in playerParties)
+                if (other.HasMember(entity))
                 {
-                    if (other.HasMember(entity))
-                    {
-                        party = other;
-                        return true;
-                    }
+                    party = other;
+                    return true;
                 }
             }
-            else
+
+            foreach (var other in enemyParties)
             {
-                foreach (var other in enemyParties)
+                if (other.HasMember(entity))
                 {
-                    if (other.HasMember(entity))
-                    {
-                        party = other;
-                        return true;
-                    }
+                    party = other;
+                    return true;
                 }
             }
 

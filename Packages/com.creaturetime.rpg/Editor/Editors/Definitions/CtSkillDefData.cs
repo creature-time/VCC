@@ -1,4 +1,3 @@
-
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -18,6 +17,7 @@ namespace CreatureTime
         [SerializeField] public MonoScript script;
         [SerializeField] public string displayName;
         [SerializeField] public Texture2D icon;
+        [SerializeField] public bool isWeaponSkill;
         [SerializeField] public CtAttributeDefData attributeType;
     }
 }

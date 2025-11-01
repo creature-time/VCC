@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtPlayerDef
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 6a0a452b7647ca34c8db10b7a7582102,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: efe22870654804948a179e655b531943, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 28d0b1ce93fba1c4d8165961042797d8, type: 3}
@@ -1850,7 +1849,7 @@ MonoBehaviour:
       Data: 132|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: CreatureTime.CtUserData, com.creaturetime.rpg
+      Data: CreatureTime.CtUserData, com.creaturetime.worlds
     - Name: 
       Entry: 8
       Data: 

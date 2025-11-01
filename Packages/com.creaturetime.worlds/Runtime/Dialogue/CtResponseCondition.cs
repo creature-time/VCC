@@ -1,9 +1,7 @@
 ﻿
-using UdonSharp;
-
 namespace CreatureTime
 {
-    public abstract class CtResponseCondition : UdonSharpBehaviour
+    public abstract class CtResponseCondition : CtLoggerUdonScript
     {
         public virtual bool IsValid() { return false; }
     }

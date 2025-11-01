@@ -264,9 +264,6 @@ namespace CreatureTime
             party.Leave(recruit);
 
             entityManager.ReleaseRecruitEntity(recruit);
-
-            if (!_HasPlayers(party))
-                party.Clear();
         }
 
         public void JoinQuest(CtParty party, CtAbstractQuest quest)
@@ -636,6 +633,7 @@ namespace CreatureTime
 
         public void RequestLeaveNpc(CtEntity npcEntity)
         {
+            Debug.LogWarning(npcEntity);
             int size = 0;
 
             byte[] messageId = BitConverter.GetBytes(MessageRecruitLeave);

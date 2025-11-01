@@ -9,7 +9,6 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VRC.Udon.Serialization.OdinSerializer.Utilities;
 using Object = UnityEngine.Object;
 
 namespace CreatureTime
@@ -90,7 +89,7 @@ namespace CreatureTime
                 }
                 else
                 {
-                    _GenerateColumn(field.FieldType, ObjectNames.NicifyVariableName(field.GetNiceName()), propPath, levelVariant);
+                    _GenerateColumn(field.FieldType, ObjectNames.NicifyVariableName(field.Name), propPath, levelVariant);
                 }
             }
         }
@@ -789,6 +788,7 @@ namespace CreatureTime
                         so.FindProperty("identifier").intValue = data.identifier;
                         so.FindProperty("displayName").stringValue = data.displayName;
                         so.FindProperty("icon").objectReferenceValue = data.icon;
+                        so.FindProperty("isWeaponSkill").boolValue = data.isWeaponSkill;
                         so.FindProperty("attributeType").intValue = data.attributeType.identifier;
 
                         so.ApplyModifiedPropertiesWithoutUndo();

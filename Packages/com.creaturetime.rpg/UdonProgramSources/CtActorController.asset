@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtActorController
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 0ebe9b403c20d714287b7b288038b7f8,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: a2909d89742910a4193c75f192b79ac9, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 72f3c8a59eb0fe1499328f8191ce8386, type: 3}
@@ -1211,7 +1210,7 @@ MonoBehaviour:
       Data: 73|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: CreatureTime.CtDialogueActor, com.creaturetime.rpg
+      Data: CreatureTime.CtDialogueActor, com.creaturetime.worlds
     - Name: 
       Entry: 8
       Data: 

@@ -6,7 +6,6 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VRC.SDK3.Editor;
 
 namespace CreatureTime
 {
@@ -148,7 +147,7 @@ namespace CreatureTime
 
             _icon.image = texture;
             _title.text = displayName;
-            _stats.SetVisible(false);
+            _stats.visible = false;
             _stats.text = stats;
 
             _weaponSelect.SetValueWithoutNotify(found);

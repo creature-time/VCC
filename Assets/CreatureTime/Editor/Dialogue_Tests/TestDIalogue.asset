@@ -1,0 +1,393 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6249a25c3b8162e4186b7d24cb7d71cd, type: 3}
+  m_Name: TestDialogue
+  m_EditorClassIdentifier: 
+  graph:
+    nodes:
+    - rid: 8761692757487517696
+    - rid: 8761692757487517697
+    - rid: 8761692757487517698
+    - rid: 8761692757487517699
+    - rid: 8761692757487517700
+    - rid: 8761692757487517701
+    - rid: 8761692757487517702
+    - rid: 8761692757487517703
+    - rid: 8761692757487517704
+    - rid: 8761692757487517705
+    - rid: 8761692757487517706
+    - rid: 8761692757487517707
+    - rid: 8761692757487517708
+    - rid: 8761692757487517709
+    - rid: 8761692757487517710
+    - rid: 8761692757487517711
+    - rid: 8761692757487517712
+    - rid: 8761692757487517713
+    edges:
+    - guid: bb1c6c67-1665-4584-9f8b-26a5d45d56dd
+      outputId: e212f1a2-d53b-4a92-a522-6466a92ffcff
+      outputPortId: condition
+      inputId: 4d694ef1-2661-4ef7-8e7e-78a1b2427531
+      inputPortId: d584b505-9c92-482b-8bb4-7a2f59a68e16
+    - guid: 12dc90e1-6d98-42ba-aa24-ad93fd037d82
+      outputId: 93e55608-30a3-441f-a475-8e17b6b410e4
+      outputPortId: consequence
+      inputId: 4d694ef1-2661-4ef7-8e7e-78a1b2427531
+      inputPortId: 614ca4b5-f768-4f7e-9182-2df03ee46708
+    - guid: 3157950c-146c-410b-8e57-41798af153d0
+      outputId: 721cb1a0-ba42-4f19-8662-5022e168d5ba
+      outputPortId: condition
+      inputId: f3cd2e01-8878-4118-8893-79b971120fe3
+      inputPortId: 70ebde15-c5fc-4269-8ffc-5d4f90b68606
+    - guid: 789aa972-0aeb-4e6f-bf98-2e1310d3b6e5
+      outputId: fa9ab223-0318-4c34-8a9b-61086cf59263
+      outputPortId: consequence
+      inputId: f3cd2e01-8878-4118-8893-79b971120fe3
+      inputPortId: 2ba464c8-cf84-43ae-b07e-722b04a1ab61
+    - guid: 8e9a712b-df06-4fd9-837f-d1266fdb427a
+      outputId: afcd3e9b-8c36-4b25-8cea-623b94568dbb
+      outputPortId: response
+      inputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      inputPortId: 5ea112d6-2e26-4dad-8c61-874eb5bdfd85
+    - guid: 14d3771b-3eea-42fd-99f6-5bd05a9c79c7
+      outputId: 79ab1c8b-7307-4284-a5bf-1ed07a67d305
+      outputPortId: response
+      inputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      inputPortId: ba3fb966-84d9-4ffe-b657-809bdf7d0f39
+    - guid: cde19b80-4446-4063-bc04-bf2afc79bbda
+      outputId: 4d694ef1-2661-4ef7-8e7e-78a1b2427531
+      outputPortId: response
+      inputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      inputPortId: 9cabe391-c568-472f-a598-4b0748a8412b
+    - guid: 76832117-00d3-456c-ae28-bad832fb2d75
+      outputId: f3cd2e01-8878-4118-8893-79b971120fe3
+      outputPortId: response
+      inputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      inputPortId: 2b78a4c7-1ce8-4ba0-8705-e8b9b29f5567
+    - guid: 991a172f-4170-4e10-8c79-252d72f40e36
+      outputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      outputPortId: 5ea112d6-2e26-4dad-8c61-874eb5bdfd85
+      inputId: cd0dd6b1-722c-4525-9661-786376d727e7
+      inputPortId: flowinput_cd0dd6b1-722c-4525-9661-786376d727e7
+    - guid: 17311461-aac7-4e59-a661-b3a842fd5afc
+      outputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      outputPortId: ba3fb966-84d9-4ffe-b657-809bdf7d0f39
+      inputId: 7a80a8fd-5c22-400f-8d75-f91a59615261
+      inputPortId: flowinput_7a80a8fd-5c22-400f-8d75-f91a59615261
+    - guid: d85127ee-b741-4146-b43f-bf8758c19f99
+      outputId: 618c316d-6054-4288-8926-4de5646ecbc9
+      outputPortId: response
+      inputId: 7a80a8fd-5c22-400f-8d75-f91a59615261
+      inputPortId: dad7f976-3839-438d-9916-d8b28425218d
+    - guid: 2c01d1b2-d35d-43b7-bf58-28055c8d261e
+      outputId: 04415bdc-c858-4b1b-a317-25e26f2099f4
+      outputPortId: response
+      inputId: 7a80a8fd-5c22-400f-8d75-f91a59615261
+      inputPortId: f7586741-0d82-4acb-ab63-ed7f702918d9
+    - guid: 82a55e6f-2ff8-487d-8d58-91d0e07ecd58
+      outputId: 7a80a8fd-5c22-400f-8d75-f91a59615261
+      outputPortId: dad7f976-3839-438d-9916-d8b28425218d
+      inputId: 86826a78-e777-4748-880e-a3abc05f395b
+      inputPortId: flowinput_86826a78-e777-4748-880e-a3abc05f395b
+    - guid: a2bcc75b-bfe5-43a5-947c-82fcea3b7301
+      outputId: 7a80a8fd-5c22-400f-8d75-f91a59615261
+      outputPortId: f7586741-0d82-4acb-ab63-ed7f702918d9
+      inputId: 4d1863d1-84c5-40ce-97d9-dbb3b3d13bd2
+      inputPortId: flowinput_4d1863d1-84c5-40ce-97d9-dbb3b3d13bd2
+    - guid: 2ef53602-3d2a-4646-9df7-e480e6e4b3a8
+      outputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      outputPortId: 9cabe391-c568-472f-a598-4b0748a8412b
+      inputId: abc8bcd8-7001-4f20-8289-ce4723663849
+      inputPortId: flowinput_abc8bcd8-7001-4f20-8289-ce4723663849
+    - guid: 150400bb-6ef6-4fd9-b825-6ade88cc7ba0
+      outputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      outputPortId: 2b78a4c7-1ce8-4ba0-8705-e8b9b29f5567
+      inputId: d5aac216-ed34-4de0-9e14-8b63e8179ed5
+      inputPortId: flowinput_d5aac216-ed34-4de0-9e14-8b63e8179ed5
+    - guid: 189e49bb-ff40-4cc7-91a8-a672cafdd85c
+      outputId: 5a3e1789-05d8-444a-ac79-c108cb36bfe4
+      outputPortId: flowoutput_5a3e1789-05d8-444a-ac79-c108cb36bfe4
+      inputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      inputPortId: flowinput_e149b713-4fe0-4006-87ea-ff337bfde7a3
+    - guid: 76ab35c6-be66-4f13-9b1d-06834c38b5be
+      outputId: abc8bcd8-7001-4f20-8289-ce4723663849
+      outputPortId: flowoutput_abc8bcd8-7001-4f20-8289-ce4723663849
+      inputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      inputPortId: flowinput_e149b713-4fe0-4006-87ea-ff337bfde7a3
+    - guid: 0d697775-2c39-4bec-97f3-cd0e6b4c675e
+      outputId: d5aac216-ed34-4de0-9e14-8b63e8179ed5
+      outputPortId: flowoutput_d5aac216-ed34-4de0-9e14-8b63e8179ed5
+      inputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      inputPortId: flowinput_e149b713-4fe0-4006-87ea-ff337bfde7a3
+  references:
+    version: 2
+    RefIds:
+    - rid: 8761692757487517696
+      type: {class: CtStartNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 5a3e1789-05d8-444a-ac79-c108cb36bfe4
+        position:
+          serializedVersion: 2
+          x: 405.3333
+          y: -141.33334
+          width: 75.33334
+          height: 78.66667
+    - rid: 8761692757487517697
+      type: {class: CtDialogueNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: e149b713-4fe0-4006-87ea-ff337bfde7a3
+        position:
+          serializedVersion: 2
+          x: 800
+          y: 36
+          width: 307.3333
+          height: 262.66666
+        responses:
+        - 5ea112d6-2e26-4dad-8c61-874eb5bdfd85
+        - ba3fb966-84d9-4ffe-b657-809bdf7d0f39
+        - 9cabe391-c568-472f-a598-4b0748a8412b
+        - 2b78a4c7-1ce8-4ba0-8705-e8b9b29f5567
+        dialogue: Hello! What can I do for you?
+        actor: {fileID: 0}
+        conversant: {fileID: 0}
+    - rid: 8761692757487517698
+      type: {class: CtRecruitConditionNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.rpg.editor.dialoguegraph}
+      data:
+        guid: e212f1a2-d53b-4a92-a522-6466a92ffcff
+        position:
+          serializedVersion: 2
+          x: 153.33334
+          y: 408.66666
+          width: 151.99998
+          height: 118.66666
+        condition: 
+        npcIdentifier: 1
+        recruitLeave: 0
+    - rid: 8761692757487517699
+      type: {class: CtResponseNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 4d694ef1-2661-4ef7-8e7e-78a1b2427531
+        position:
+          serializedVersion: 2
+          x: 405.3333
+          y: 408.66666
+          width: 280.66666
+          height: 193.33334
+        conditions:
+        - d584b505-9c92-482b-8bb4-7a2f59a68e16
+        consequences:
+        - 614ca4b5-f768-4f7e-9182-2df03ee46708
+        response: 042c9560-4f1e-430e-bf32-8d16a17334f7
+        dialogue: I would like to recruit you!
+        responseType: 1
+    - rid: 8761692757487517700
+      type: {class: CtRecruitConsequenceNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.rpg.editor.dialoguegraph}
+      data:
+        guid: 93e55608-30a3-441f-a475-8e17b6b410e4
+        position:
+          serializedVersion: 2
+          x: 153.33334
+          y: 542.6667
+          width: 151.99998
+          height: 118.666626
+        consequence: 
+        npcIdentifier: 1
+        recruitLeave: 1
+    - rid: 8761692757487517701
+      type: {class: CtRecruitConsequenceNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.rpg.editor.dialoguegraph}
+      data:
+        guid: fa9ab223-0318-4c34-8a9b-61086cf59263
+        position:
+          serializedVersion: 2
+          x: 153.33334
+          y: 830.6667
+          width: 151.99998
+          height: 118.666626
+        consequence: 
+        npcIdentifier: 1
+        recruitLeave: 0
+    - rid: 8761692757487517702
+      type: {class: CtRecruitConditionNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.rpg.editor.dialoguegraph}
+      data:
+        guid: 721cb1a0-ba42-4f19-8662-5022e168d5ba
+        position:
+          serializedVersion: 2
+          x: 153.33334
+          y: 696.6667
+          width: 151.99998
+          height: 118.666626
+        condition: 
+        npcIdentifier: 1
+        recruitLeave: 1
+    - rid: 8761692757487517703
+      type: {class: CtResponseNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: f3cd2e01-8878-4118-8893-79b971120fe3
+        position:
+          serializedVersion: 2
+          x: 405.3333
+          y: 696.6667
+          width: 236.00003
+          height: 193.33331
+        conditions:
+        - 70ebde15-c5fc-4269-8ffc-5d4f90b68606
+        consequences:
+        - 2ba464c8-cf84-43ae-b07e-722b04a1ab61
+        response: 955c18ad-0496-4e0e-a29c-3a04b3aab869
+        dialogue: Please stay here!
+        responseType: 1
+    - rid: 8761692757487517704
+      type: {class: CtResponseNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 79ab1c8b-7307-4284-a5bf-1ed07a67d305
+        position:
+          serializedVersion: 2
+          x: 405.3333
+          y: 231.33334
+          width: 222.00003
+          height: 145.33331
+        conditions: []
+        consequences: []
+        response: c0f27965-3046-409b-87ff-de4ddde9dba6
+        dialogue: What are you?
+        responseType: 0
+    - rid: 8761692757487517705
+      type: {class: CtResponseNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: afcd3e9b-8c36-4b25-8cea-623b94568dbb
+        position:
+          serializedVersion: 2
+          x: 405.3333
+          y: 36
+          width: 218.00003
+          height: 145.33333
+        conditions: []
+        consequences: []
+        response: 3d397e80-c1bd-4dbb-a13f-0adfe57b42fe
+        dialogue: Who are you?
+        responseType: 0
+    - rid: 8761692757487517706
+      type: {class: CtDialogueNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: cd0dd6b1-722c-4525-9661-786376d727e7
+        position:
+          serializedVersion: 2
+          x: 1398.6666
+          y: -171.33333
+          width: 307.33337
+          height: 166.66666
+        responses: []
+        dialogue: My name is Rawlf!
+        actor: {fileID: 0}
+        conversant: {fileID: 0}
+    - rid: 8761692757487517707
+      type: {class: CtDialogueNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 7a80a8fd-5c22-400f-8d75-f91a59615261
+        position:
+          serializedVersion: 2
+          x: 1620
+          y: 74
+          width: 307.33325
+          height: 214.66666
+        responses:
+        - dad7f976-3839-438d-9916-d8b28425218d
+        - f7586741-0d82-4acb-ab63-ed7f702918d9
+        dialogue: I am a Wulf!
+        actor: {fileID: 0}
+        conversant: {fileID: 0}
+    - rid: 8761692757487517708
+      type: {class: CtResponseNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 618c316d-6054-4288-8926-4de5646ecbc9
+        position:
+          serializedVersion: 2
+          x: 1265.3333
+          y: 96.66667
+          width: 266.66675
+          height: 145.33333
+        conditions: []
+        consequences: []
+        response: 6c7faccb-9c6a-45b2-ba95-5f072968aed6
+        dialogue: Are there more of you?
+        responseType: 0
+    - rid: 8761692757487517709
+      type: {class: CtResponseNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 04415bdc-c858-4b1b-a317-25e26f2099f4
+        position:
+          serializedVersion: 2
+          x: 1265.3333
+          y: 288.66666
+          width: 222.66675
+          height: 145.33334
+        conditions: []
+        consequences: []
+        response: 91ee5b33-1916-4989-b002-a0172c1581e3
+        dialogue: Are you fluffy?
+        responseType: 0
+    - rid: 8761692757487517710
+      type: {class: CtDialogueNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 86826a78-e777-4748-880e-a3abc05f395b
+        position:
+          serializedVersion: 2
+          x: 2022
+          y: 74
+          width: 307.33337
+          height: 166.66666
+        responses: []
+        dialogue: Of course!
+        actor: {fileID: 0}
+        conversant: {fileID: 0}
+    - rid: 8761692757487517711
+      type: {class: CtDialogueNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 4d1863d1-84c5-40ce-97d9-dbb3b3d13bd2
+        position:
+          serializedVersion: 2
+          x: 2022
+          y: 311.33334
+          width: 307.33337
+          height: 166.66666
+        responses: []
+        dialogue: Yep!
+        actor: {fileID: 0}
+        conversant: {fileID: 0}
+    - rid: 8761692757487517712
+      type: {class: CtDialogueNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: abc8bcd8-7001-4f20-8289-ce4723663849
+        position:
+          serializedVersion: 2
+          x: 1265.3333
+          y: 472
+          width: 320.66675
+          height: 166.66669
+        responses: []
+        dialogue: I will join you on your adventures!
+        actor: {fileID: 0}
+        conversant: {fileID: 0}
+    - rid: 8761692757487517713
+      type: {class: CtDialogueNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: d5aac216-ed34-4de0-9e14-8b63e8179ed5
+        position:
+          serializedVersion: 2
+          x: 1265.3333
+          y: 696.6667
+          width: 307.33337
+          height: 166.66663
+        responses: []
+        dialogue: Okay! I will stay here!
+        actor: {fileID: 0}
+        conversant: {fileID: 0}

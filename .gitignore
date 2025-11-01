@@ -99,11 +99,7 @@ crashlytics-build.properties
 !/[Aa]ssets/CreatureTime.meta
 !/[Aa]ssets/CreatureTime/Editor
 !/[Aa]ssets/CreatureTime/Editor.meta
-!/[Aa]ssets/CreatureTime/Editor/Data
-!/[Aa]ssets/CreatureTime/Editor/Data.meta
-!/[Aa]ssets/CreatureTime/Editor/Data/Rpg
-!/[Aa]ssets/CreatureTime/Editor/Data/Rpg.meta
-!/[Aa]ssets/CreatureTime/Editor/Data/Rpg/**
+!/[Aa]ssets/CreatureTime/Editor/**
 
 # Vmp
 !/.github/**

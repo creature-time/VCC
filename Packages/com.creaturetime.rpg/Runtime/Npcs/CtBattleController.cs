@@ -1,5 +1,4 @@
-﻿
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 
 namespace CreatureTime
@@ -39,23 +38,31 @@ namespace CreatureTime
 
         public void MeleeAttack()
         {
-            Brain.Context.SetEnum("TurnState", ENpcTurnState.MeleeAttack);
             animator.SetTrigger("MeleeAttack");
-
-            // TODO: Get the attack animation length?
-            SendCustomEventDelayedSeconds(nameof(_FinishedAttacking), 1.5f);
         }
 
-        public void _FinishedAttacking()
+        public float UseSkill(bool isMeleeSkill)
         {
-            _MeleeDoneState();
+            if (isMeleeSkill)
+            {
+                MeleeAttack();
+                return 0f;
+            }
+
+            animator.SetTrigger("MeleeAttack");
+            return 2f;
         }
 
-        public void InitiateAttack(ushort targetId)
-        {
-            Brain.Context.SetUShort("TargetId", targetId);
-            MeleeAttackingState();
-        }
+        // public void _FinishedAttacking()
+        // {
+        //     _MeleeDoneState();
+        // }
+        //
+        // public void InitiateAttack(ushort targetId)
+        // {
+        //     Brain.Context.SetUShort("TargetId", targetId);
+        //     MeleeAttackingState();
+        // }
 
         public void ResetAttack()
         {

@@ -36,6 +36,14 @@ namespace CreatureTime
             get
             {
                 var speaker = _entry.Actor;
+                if (!speaker)
+                {
+#if DEBUG_LOGS
+                    LogWarning($"Actor doesn't exist: {_entry.Identifier}");
+#endif
+                    return null;
+                }
+
                 switch (speaker.ActorType)
                 {
                     case EActorType.Player:
