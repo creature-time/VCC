@@ -5,7 +5,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace CreatureTime
+namespace CreatureTime.Editor.Rpg
 {
     [CustomEditor(typeof(CtEntityDef), true)]
     public class CtEntityDefEditor : CtAbstractElement
@@ -307,7 +307,7 @@ namespace CreatureTime
             };
             rootVisualElement.Add(foldout);
 
-            Type fallbackEditorType = typeof(Editor).Assembly.GetType("UnityEditor.GenericInspector");
+            Type fallbackEditorType = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GenericInspector");
             VisualElement defaultElements = CreateEditor(targets, fallbackEditorType).CreateInspectorGUI();
             foldout.Add(defaultElements);
 

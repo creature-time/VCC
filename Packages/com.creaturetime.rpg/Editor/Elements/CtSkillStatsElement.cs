@@ -26,7 +26,7 @@ namespace CreatureTime
             style.flexDirection = FlexDirection.Row;
 
             _skillInternal = new IntegerField();
-            _skillInternal.SetVisible(false);
+            _skillInternal.visible = false;
             Add(_skillInternal);
 
             _skillIcon = new Button

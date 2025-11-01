@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtStatusEffectsMessageBuilder
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 65165f05dc5c4564d8249fe9d65b10ba,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 7a7a6a8ac67c66349ae7e30c593c8ea0, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: cd535e9b963ae1e4b958bfad160eec09, type: 3}

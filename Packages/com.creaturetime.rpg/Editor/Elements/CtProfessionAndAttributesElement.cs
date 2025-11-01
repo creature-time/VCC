@@ -71,7 +71,7 @@ namespace CreatureTime
             };
             _unused.SetEnabled(false);
             Add(_unused);
-            _unused.RegisterValueChangedCallback(evt => _unusedPointError.SetVisible(evt.newValue < 0));
+            _unused.RegisterValueChangedCallback(evt => _unusedPointError.visible = evt.newValue < 0);
 
             _attributeContainer = new Foldout
             {
@@ -84,7 +84,7 @@ namespace CreatureTime
             Add(_attributeContainer);
 
             _dataBlock = new CtDataBlockElement();
-            _dataBlock.SetVisible(false);
+            _dataBlock.visible = false;
             _dataBlock.DataBlockElement.RegisterValueChangedCallback(_ => OnAttributeDataChanged());
             Add(_dataBlock);
 

@@ -40,15 +40,15 @@ namespace CreatureTime
             _inventoryType.RegisterValueChangedCallback(_UpdateInventoryType);
 
             _weaponStats = new CtWeaponStatsElement();
-            _weaponStats.SetVisible(false);
+            _weaponStats.visible = false;
             Add(_weaponStats);
 
             _armorStats = new CtArmorStatsElement();
-            _armorStats.SetVisible(false);
+            _armorStats.visible = false;
             Add(_armorStats);
 
             _offHandStats = new CtOffHandStatsElement();
-            _offHandStats.SetVisible(false);
+            _offHandStats.visible = false;
             Add(_offHandStats);
         }
 
@@ -79,7 +79,7 @@ namespace CreatureTime
         {
             if (_currentDataBlock != null)
             {
-                _currentDataBlock.SetVisible(false);
+                _currentDataBlock.visible = false;
             }
 
             switch ((EDataType)_inventoryType.value)
@@ -90,17 +90,17 @@ namespace CreatureTime
                     _currentDataBlock = null;
                     break;
                 case EDataType.Weapon:
-                    _weaponStats.SetVisible(true);
+                    _weaponStats.visible = true;
                     _weaponStats.DataBlock.Value = CtDataBlock.InvalidData;
                     _currentDataBlock = _weaponStats;
                     break;
                 case EDataType.Equipment:
-                    _armorStats.SetVisible(true);
+                    _armorStats.visible = true;
                     _armorStats.DataBlock.Value = CtDataBlock.InvalidData;
                     _currentDataBlock = _armorStats;
                     break;
                 case EDataType.OffHand:
-                    _offHandStats.SetVisible(true);
+                    _offHandStats.visible = true;
                     _offHandStats.DataBlock.Value = CtDataBlock.InvalidData;
                     _currentDataBlock = _offHandStats;
                     break;

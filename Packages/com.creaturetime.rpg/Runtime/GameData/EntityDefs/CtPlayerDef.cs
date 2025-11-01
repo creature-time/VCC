@@ -24,6 +24,11 @@ namespace CreatureTime
             playerTurn.Submit(CTBattleInteractType.Attack, skillId, target.Identifier);
         }
 
+        public void Run()
+        {
+            playerTurn.Submit(CTBattleInteractType.Run, CtConstants.InvalidId, CtConstants.InvalidId);
+        }
+
         [SerializeField, UdonSynced, FieldChangeCallback(nameof(_BarksCallback))]
         private ulong barks;
 

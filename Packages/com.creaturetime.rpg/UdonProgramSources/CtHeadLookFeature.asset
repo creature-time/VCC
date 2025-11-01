@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtHeadLookFeature
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 6c228cd41ed37f7449e06d99e8256b6c,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: f0e833dcb8b6f974bb1bbcd7bd10f3d1, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: f43c84ae90836fe419337155afcf7502, type: 3}

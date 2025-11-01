@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtNpcBrainBehaviorTree
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 058ffc91f38ea7e47b9a52e6df502ef8,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: b4895876d42af7246a7ddc2670031dc1, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: d74e25eb159e65449bc90ce1ac39bf46, type: 3}

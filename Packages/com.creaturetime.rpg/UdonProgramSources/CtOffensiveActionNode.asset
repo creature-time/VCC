@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtOffensiveActionNode
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: e00194666e63df44992c70b50c6523b3,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 254dbc5d78bfc0644968f57e2df27bd9, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 5d952244698664447ba5465d30bcb0c1, type: 3}

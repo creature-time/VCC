@@ -1,8 +1,5 @@
 
-using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine.UIElements;
-using VRC.SDK3.Editor;
 
 namespace CreatureTime
 {
@@ -74,7 +71,7 @@ namespace CreatureTime
             _dataBlock.RegisterValueChangedCallback(evt =>
             {
                 ulong value = (ulong)evt.newValue;
-                _helpBox.SetVisible(!CtDataBlock.IsValid(value));
+                _helpBox.visible = !CtDataBlock.IsValid(value);
                 _hexDisplay.value = $"0x{value:x16}";
             });
         }

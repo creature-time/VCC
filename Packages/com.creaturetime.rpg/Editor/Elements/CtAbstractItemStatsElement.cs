@@ -102,7 +102,7 @@ namespace CreatureTime
             contentLayout.Add(_container);
 
             _dataBlock = new CtDataBlockElement();
-            _dataBlock.SetVisible(false);
+            _dataBlock.visible = false;
             _container.Add(_dataBlock);
         }
 

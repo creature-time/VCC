@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtVrController
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: f48f5149ffc48ed4c81986b0c6e8debd,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 35e02b11fe2601e4eb3f1f9edf4512a4, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 5cda2edec3646834882a3a8ae987534c, type: 3}

@@ -162,7 +162,7 @@ namespace CreatureTime
 
             _icon.image = texture;
             _title.text = displayName;
-            _stats.SetVisible(false);
+            _stats.visible = false;
             _stats.text = stats;
 
             _offHandSelect.SetValueWithoutNotify(found);
