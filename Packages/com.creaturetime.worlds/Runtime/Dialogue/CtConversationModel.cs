@@ -21,9 +21,15 @@ namespace CreatureTime
             get => _entryId;
             set
             {
+                if (_entry)
+                    _entry.OnExitTriggers();
+
                 _entryId = value;
                 if (dialogueDatabase.TryGetDialogueEntry(_entryId, out _entry))
                     State = EConversationState.Processing;
+
+                if (_entry)
+                    _entry.OnEnterTriggers();
 
                 this.Emit(EConversationModelSignal.EntryChanged);
             }

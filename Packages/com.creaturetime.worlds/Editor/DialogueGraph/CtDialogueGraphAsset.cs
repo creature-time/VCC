@@ -26,11 +26,13 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
         private CtDialogueDatabase _dialogueDatabase;
         private GameObject _conversationGameObject;
         private Transform _conversationsGroup;
+        private Transform _triggersGroup;
         private CtConversation _conversation;
         private GameObject _gameObject;
         private Stack<CtDialogueEntry> _dialogueEntry = new Stack<CtDialogueEntry>();
         private Dictionary<string, CtDialogueEntry> _visitedNodes = new Dictionary<string, CtDialogueEntry>();
         private CtDialogueResponse _dialogueResponse;
+        private string _triggerArrayProperty;
 
         public void Init()
         {
@@ -48,6 +50,8 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             _conversationsGroup = _dialogueDatabase.transform.Find("Conversations");
             for (int i = _conversationsGroup.childCount - 1; i >= 0; i--)
                 DestroyImmediate(_conversationsGroup.GetChild(i).gameObject);
+
+            _triggersGroup = _dialogueDatabase.transform.Find("Triggers");
         }
 
         public bool TryGetNodeFromInput(string nodeId, string portId, out CtDialogueNodeBase node)
@@ -161,6 +165,38 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             conversationProperty.objectReferenceValue = _conversation;
 
             so.ApplyModifiedProperties();
+        }
+
+        public void SetTrigger(string triggerArrayProperty)
+        {
+            _triggerArrayProperty = triggerArrayProperty;
+        }
+
+        public void CreateTrigger(string path, string eventTrigger)
+        {
+            var targetTransform = _triggersGroup.Find(path);
+            if (!targetTransform) return;
+
+            foreach (var udonScript in targetTransform.GetComponents<UdonSharpBehaviour>())
+            {
+                var type = udonScript.GetType();
+                var methodInfo = type.GetMethod(eventTrigger);
+                if (methodInfo == null) continue;
+
+                var trigger =
+                    AddUdonSharpComponentWithUdonBehavior<CtDialogueTrigger>(_dialogueEntry.Peek().gameObject);
+                var so = new SerializedObject(trigger);
+                so.FindProperty("target").objectReferenceValue = udonScript;
+                so.FindProperty("eventTrigger").stringValue = eventTrigger;
+                so.ApplyModifiedProperties();
+
+                so = new SerializedObject(_dialogueEntry.Peek());
+                var responses = so.FindProperty(_triggerArrayProperty);
+                responses.InsertArrayElementAtIndex(responses.arraySize);
+                var response = responses.GetArrayElementAtIndex(responses.arraySize - 1);
+                response.objectReferenceValue = trigger;
+                so.ApplyModifiedProperties();
+            }
         }
 
         public bool CreateDialogue(string guid, string dialogue, ushort actorId, ushort conversantId)

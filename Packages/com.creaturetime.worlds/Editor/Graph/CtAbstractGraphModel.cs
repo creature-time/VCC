@@ -324,6 +324,26 @@ namespace CreatureTime.Editor.Graph
             }
         }
 
+        public string GetInputPortName(string nodeId, string portId)
+        {
+            if (!portDataLookup.TryGetValue(nodeId, out var lookup))
+                return null;
+            if (!lookup.TryGetValue(portId, out var portData))
+                return null;
+            if (portData.InputType == typeof(CtGraphPortTypes.FlowPort)) return null;
+            return string.IsNullOrEmpty(portData.ParentId) ? portData.Id : null;
+        }
+
+        public string GetOutputPortName(string nodeId, string portId)
+        {
+            if (!portDataLookup.TryGetValue(nodeId, out var lookup))
+                return null;
+            if (!lookup.TryGetValue(portId, out var portData))
+                return null;
+            if (portData.OutputType == typeof(CtGraphPortTypes.FlowPort)) return null;
+            return string.IsNullOrEmpty(portData.ParentId) ? portData.Id : null;
+        }
+
         public Type GetInputPortType(string nodeId, string portId)
         {
             if (!portDataLookup.TryGetValue(nodeId, out var lookup))

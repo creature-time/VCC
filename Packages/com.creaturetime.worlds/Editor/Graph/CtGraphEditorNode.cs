@@ -64,7 +64,7 @@ namespace CreatureTime.Editor.Graph
 
         public string bindingPath { get; set; }
 
-        private CtGraphEditorPort CreatePort(string portName, Direction direction, Type type, SerializedProperty serializedProperty)
+        private CtGraphEditorPort CreatePort(string portName, Direction direction, Type type)
         {
             var port = CtGraphEditorPort.Create<Edge>(this, Orientation.Horizontal, direction, type);
             if (type != null)
@@ -116,7 +116,8 @@ namespace CreatureTime.Editor.Graph
 
             foreach (var portId in _view.Model.GetInputPorts(nodeId))
             {
-                var port = CreatePort(null, Direction.Input, _view.Model.GetInputPortType(nodeId, portId), null);
+                string portName = _view.Model.GetInputPortName(nodeId, portId);
+                var port = CreatePort(portName, Direction.Input, _view.Model.GetInputPortType(nodeId, portId));
                 port.viewDataKey = portId;
                 _inputPorts.Add(port);
                 inputContainer.Add(port);
@@ -124,7 +125,8 @@ namespace CreatureTime.Editor.Graph
 
             foreach (var portId in _view.Model.GetOutputPorts(nodeId))
             {
-                var port = CreatePort(null, Direction.Output, _view.Model.GetOutputPortType(nodeId, portId), null);
+                string portName = _view.Model.GetOutputPortName(nodeId, portId);
+                var port = CreatePort(portName, Direction.Output, _view.Model.GetOutputPortType(nodeId, portId));
                 port.viewDataKey = portId;
                 _outputPorts.Add(port);
                 outputContainer.Add(port);
@@ -139,7 +141,7 @@ namespace CreatureTime.Editor.Graph
         {
             var nodeId = _nodeProperty.FindPropertyRelative("guid").stringValue;
             var portType = _view.Model.GetInputPortType(nodeId, portId);
-            var port = CreatePort(null, Direction.Input, portType, null);
+            var port = CreatePort(null, Direction.Input, portType);
             port.viewDataKey = portId;
             _inputPorts.Insert(index, port);
             inputContainer.Insert(index, port);
@@ -149,7 +151,7 @@ namespace CreatureTime.Editor.Graph
         {
             var nodeId = _nodeProperty.FindPropertyRelative("guid").stringValue;
             var portType = _view.Model.GetOutputPortType(nodeId, portId);
-            var port = CreatePort(null, Direction.Output, portType, null);
+            var port = CreatePort(null, Direction.Output, portType);
             port.viewDataKey = portId;
             _outputPorts.Insert(index, port);
             outputContainer.Insert(index, port);
@@ -217,30 +219,30 @@ namespace CreatureTime.Editor.Graph
             _nodeProperty.serializedObject.ApplyModifiedProperties();
         }
 
-        public void OnDynamicInputAdded(string fieldName, int index)
-        {
-            // var dynamicNodeProperties = (NodeProperties)dynamicPort.userData;
-            // var elementProperty = dynamicNodeProperties.FieldProperty.GetArrayElementAtIndex(index);
-
-            // var elementProperty = AddElement(dynamicNodeProperties.FieldProperty);
-            // var nodeProperties = new NodeProperties(dynamicNodeProperties.DynamicPort, dynamicNodeProperties.FieldProperty, dynamicNodeProperties.InputPortInfo, dynamicNodeProperties.OutputPortInfo);
-
-            if (_dynamicInputPortLookup.TryGetValue(fieldName, out var dynamicPort))
-            {
-                var dynamicNodeProperties = (NodeProperties)dynamicPort.userData;
-                var elementProperty = dynamicNodeProperties.FieldProperty.GetArrayElementAtIndex(index);
-                CreateDynamicPort(dynamicNodeProperties.FieldProperty, elementProperty,
-                    _dynamicInputPortLookup[fieldName], _inputPorts, inputContainer, dynamicNodeProperties);
-            }
-
-            if (_dynamicOutputPortLookup.TryGetValue(fieldName, out dynamicPort))
-            {
-                var dynamicNodeProperties = (NodeProperties)dynamicPort.userData;
-                var elementProperty = dynamicNodeProperties.FieldProperty.GetArrayElementAtIndex(index);
-                CreateDynamicPort(dynamicNodeProperties.FieldProperty, elementProperty,
-                    _dynamicOutputPortLookup[fieldName], _outputPorts, outputContainer, dynamicNodeProperties);
-            }
-        }
+        // public void OnDynamicInputAdded(string fieldName, int index)
+        // {
+        //     // var dynamicNodeProperties = (NodeProperties)dynamicPort.userData;
+        //     // var elementProperty = dynamicNodeProperties.FieldProperty.GetArrayElementAtIndex(index);
+        //
+        //     // var elementProperty = AddElement(dynamicNodeProperties.FieldProperty);
+        //     // var nodeProperties = new NodeProperties(dynamicNodeProperties.DynamicPort, dynamicNodeProperties.FieldProperty, dynamicNodeProperties.InputPortInfo, dynamicNodeProperties.OutputPortInfo);
+        //
+        //     if (_dynamicInputPortLookup.TryGetValue(fieldName, out var dynamicPort))
+        //     {
+        //         var dynamicNodeProperties = (NodeProperties)dynamicPort.userData;
+        //         var elementProperty = dynamicNodeProperties.FieldProperty.GetArrayElementAtIndex(index);
+        //         CreateDynamicPort(dynamicNodeProperties.FieldProperty, elementProperty,
+        //             _dynamicInputPortLookup[fieldName], _inputPorts, inputContainer, dynamicNodeProperties);
+        //     }
+        //
+        //     if (_dynamicOutputPortLookup.TryGetValue(fieldName, out dynamicPort))
+        //     {
+        //         var dynamicNodeProperties = (NodeProperties)dynamicPort.userData;
+        //         var elementProperty = dynamicNodeProperties.FieldProperty.GetArrayElementAtIndex(index);
+        //         CreateDynamicPort(dynamicNodeProperties.FieldProperty, elementProperty,
+        //             _dynamicOutputPortLookup[fieldName], _outputPorts, outputContainer, dynamicNodeProperties);
+        //     }
+        // }
 
         // public Port OnDynamicOutputAdded(Port port)
         // {
@@ -258,47 +260,47 @@ namespace CreatureTime.Editor.Graph
         //     CreateDynamicPort(dynamicNodeProperties.FieldProperty, elementProperty, _dynamicInputPortLookup[fieldName], _inputPorts, inputContainer, dynamicNodeProperties);
         // }
 
-        public void DestroyDynamicInputPortData(CtGraphEditorPort port)
-        {
-            var fieldName = "";
-
-            var nodeProperties = (NodeProperties)port.userData;
-            if (nodeProperties.DynamicPort == null) return;
-
-            var arraySize = nodeProperties.FieldProperty.arraySize;
-            int index = RemoveElement(nodeProperties.FieldProperty, port, _inputPorts, _dynamicInputPortLookup);
-
-            if (nodeProperties.InputPortInfo != null)
-            {
-                DestroyDynamicPort(index, arraySize, _dynamicInputPortLookup[fieldName], _inputPorts, inputContainer);
-            }
-
-            if (nodeProperties.OutputPortInfo != null)
-            {
-                DestroyDynamicPort(index, arraySize, _dynamicOutputPortLookup[fieldName], _outputPorts, outputContainer);
-            }
-        }
-
-        public void DestroyDynamicOutputPortData(CtGraphEditorPort port)
-        {
-            var fieldName = "";
-
-            var nodeProperties = (NodeProperties)port.userData;
-            if (nodeProperties.DynamicPort == null) return;
-
-            var arraySize = nodeProperties.FieldProperty.arraySize;
-            var index = RemoveElement(nodeProperties.FieldProperty, port, _outputPorts, _dynamicOutputPortLookup);
-
-            if (nodeProperties.InputPortInfo != null)
-            {
-                DestroyDynamicPort(index, arraySize, _dynamicInputPortLookup[fieldName], _inputPorts, inputContainer);
-            }
-
-            if (nodeProperties.OutputPortInfo != null)
-            {
-                DestroyDynamicPort(index, arraySize, _dynamicOutputPortLookup[fieldName], _outputPorts, outputContainer);
-            }
-        }
+        // public void DestroyDynamicInputPortData(CtGraphEditorPort port)
+        // {
+        //     var fieldName = "";
+        //
+        //     var nodeProperties = (NodeProperties)port.userData;
+        //     if (nodeProperties.DynamicPort == null) return;
+        //
+        //     var arraySize = nodeProperties.FieldProperty.arraySize;
+        //     int index = RemoveElement(nodeProperties.FieldProperty, port, _inputPorts, _dynamicInputPortLookup);
+        //
+        //     if (nodeProperties.InputPortInfo != null)
+        //     {
+        //         DestroyDynamicPort(index, arraySize, _dynamicInputPortLookup[fieldName], _inputPorts, inputContainer);
+        //     }
+        //
+        //     if (nodeProperties.OutputPortInfo != null)
+        //     {
+        //         DestroyDynamicPort(index, arraySize, _dynamicOutputPortLookup[fieldName], _outputPorts, outputContainer);
+        //     }
+        // }
+        //
+        // public void DestroyDynamicOutputPortData(CtGraphEditorPort port)
+        // {
+        //     var fieldName = "";
+        //
+        //     var nodeProperties = (NodeProperties)port.userData;
+        //     if (nodeProperties.DynamicPort == null) return;
+        //
+        //     var arraySize = nodeProperties.FieldProperty.arraySize;
+        //     var index = RemoveElement(nodeProperties.FieldProperty, port, _outputPorts, _dynamicOutputPortLookup);
+        //
+        //     if (nodeProperties.InputPortInfo != null)
+        //     {
+        //         DestroyDynamicPort(index, arraySize, _dynamicInputPortLookup[fieldName], _inputPorts, inputContainer);
+        //     }
+        //
+        //     if (nodeProperties.OutputPortInfo != null)
+        //     {
+        //         DestroyDynamicPort(index, arraySize, _dynamicOutputPortLookup[fieldName], _outputPorts, outputContainer);
+        //     }
+        // }
 
         // private SerializedProperty AddElement(SerializedProperty fieldProperty)
         // {
@@ -310,34 +312,34 @@ namespace CreatureTime.Editor.Graph
         //     return elementProperty;
         // }
 
-        private int RemoveElement(SerializedProperty fieldProperty, CtGraphEditorPort port, List<CtGraphEditorPort> ports, Dictionary<string, CtGraphEditorPort> lookup)
-        {
-            var dynamicPort = lookup[fieldProperty.name];
-            var startIndex = ports.IndexOf(dynamicPort) - fieldProperty.arraySize;
-            int index = ports.IndexOf(port) - startIndex;
-            fieldProperty.DeleteArrayElementAtIndex(index);
-            fieldProperty.serializedObject.ApplyModifiedProperties();
-            return index;
-        }
-
-        private Port CreateDynamicPort(SerializedProperty fieldProperty, SerializedProperty elementProperty, CtGraphEditorPort dynamicPort, List<CtGraphEditorPort> ports, VisualElement container, NodeProperties nodeProperties)
-        {
-            int index = ports.IndexOf(dynamicPort);
-            var port = CreatePort(null, dynamicPort.direction, dynamicPort.portType, fieldProperty);
-            port.viewDataKey = elementProperty.stringValue;
-            port.userData = nodeProperties;
-            ports.Insert(index, port);
-            container.Insert(index, port);
-            return port;
-        }
-
-        private void DestroyDynamicPort(int elementIndex, int arraySize, CtGraphEditorPort dynamicPort, List<CtGraphEditorPort> ports, VisualElement container)
-        {
-            var startIndex = ports.IndexOf(dynamicPort) - arraySize;
-            var index = startIndex + elementIndex;
-            ports.RemoveAt(index);
-            container.RemoveAt(index);
-        }
+        // private int RemoveElement(SerializedProperty fieldProperty, CtGraphEditorPort port, List<CtGraphEditorPort> ports, Dictionary<string, CtGraphEditorPort> lookup)
+        // {
+        //     var dynamicPort = lookup[fieldProperty.name];
+        //     var startIndex = ports.IndexOf(dynamicPort) - fieldProperty.arraySize;
+        //     int index = ports.IndexOf(port) - startIndex;
+        //     fieldProperty.DeleteArrayElementAtIndex(index);
+        //     fieldProperty.serializedObject.ApplyModifiedProperties();
+        //     return index;
+        // }
+        //
+        // private Port CreateDynamicPort(SerializedProperty fieldProperty, SerializedProperty elementProperty, CtGraphEditorPort dynamicPort, List<CtGraphEditorPort> ports, VisualElement container, NodeProperties nodeProperties)
+        // {
+        //     int index = ports.IndexOf(dynamicPort);
+        //     var port = CreatePort(null, dynamicPort.direction, dynamicPort.portType, fieldProperty);
+        //     port.viewDataKey = elementProperty.stringValue;
+        //     port.userData = nodeProperties;
+        //     ports.Insert(index, port);
+        //     container.Insert(index, port);
+        //     return port;
+        // }
+        //
+        // private void DestroyDynamicPort(int elementIndex, int arraySize, CtGraphEditorPort dynamicPort, List<CtGraphEditorPort> ports, VisualElement container)
+        // {
+        //     var startIndex = ports.IndexOf(dynamicPort) - arraySize;
+        //     var index = startIndex + elementIndex;
+        //     ports.RemoveAt(index);
+        //     container.RemoveAt(index);
+        // }
 
         public void Connect(Node output, Port outputPort, Node input, Port inputPort)
         {

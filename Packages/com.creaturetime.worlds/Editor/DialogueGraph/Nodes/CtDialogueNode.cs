@@ -1,9 +1,18 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace CreatureTime.Editor.Graph.DialogueGraph
 {
+    [Serializable]
+    public struct DialogueTrigger
+    {
+        [SerializeField] private GameObject prefab;
+        [SerializeField] private string eventTrigger;
+
+        public GameObject Prefab => prefab;
+        public string EventTrigger => eventTrigger;
+    }
+
     [Serializable]
     [CtNodeInfo("Dialogue", "#0c2340", "Dialogue")]
     public class CtDialogueNode : CtDialogueNodeBase
@@ -13,9 +22,20 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
         [CtOutputPortInfo(null, typeof(CtGraphPortTypes.FlowPort))]
         private string[] responses;
 
+        [SerializeField]
+        [CtInputPortInfo(null, typeof(CtDialoguePortTypes.TriggerPort))]
+        private string[] onEnterTriggers;
+        
+        [SerializeField]
+        [CtInputPortInfo(null, typeof(CtDialoguePortTypes.TriggerPort))]
+        private string[] onExitTriggers;
+
         [CtExposedProperty, SerializeField] private string dialogue;
         [CtExposedProperty, SerializeField] private CtDialogueActor actor;
         [CtExposedProperty, SerializeField] private CtDialogueActor conversant;
+
+        // [CtExposedProperty, SerializeField] private DialogueTrigger[] onEnterTriggers;
+        // [CtExposedProperty, SerializeField] private DialogueTrigger[] onExitTriggers;
 
         public override void Process(CtDialogueGraphAsset asset)
         {
@@ -35,6 +55,22 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
                     if (asset.TryGetNodeFromOutput(Guid, response, out node))
                         node.Process(asset);
                 }
+
+                asset.SetTrigger("onEnterTriggers");
+                foreach (var trigger in onEnterTriggers)
+                {
+                    if (asset.TryGetNodeFromInput(Guid, trigger, out node))
+                        node.Process(asset);
+                }
+
+                asset.SetTrigger("onExitTriggers");
+                foreach (var trigger in onExitTriggers)
+                {
+                    if (asset.TryGetNodeFromInput(Guid, trigger, out node))
+                        node.Process(asset);
+                }
+
+                asset.SetTrigger(null);
             }
 
             asset.PopDialogue();

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6249a25c3b8162e4186b7d24cb7d71cd, type: 3}
-  m_Name: TestDialogue
+  m_Name: TestDIalogue
   m_EditorClassIdentifier: 
   graph:
     nodes:
@@ -32,6 +32,10 @@ MonoBehaviour:
     - rid: 8761692757487517711
     - rid: 8761692757487517712
     - rid: 8761692757487517713
+    - rid: 8761692762915733504
+    - rid: 8761692762915733506
+    - rid: 8761692762915733510
+    - rid: 8761692762915733511
     edges:
     - guid: bb1c6c67-1665-4584-9f8b-26a5d45d56dd
       outputId: e212f1a2-d53b-4a92-a522-6466a92ffcff
@@ -128,6 +132,26 @@ MonoBehaviour:
       outputPortId: flowoutput_d5aac216-ed34-4de0-9e14-8b63e8179ed5
       inputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
       inputPortId: flowinput_e149b713-4fe0-4006-87ea-ff337bfde7a3
+    - guid: 364130a8-6ac9-4ca5-b1e2-48d03d8616c9
+      outputId: 59124e03-6cca-4c79-83f6-b630cff25d0a
+      outputPortId: response
+      inputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      inputPortId: f095a546-9ec3-4e93-a4ad-3ddac0497105
+    - guid: e293c5ca-e3d6-4554-ae1d-1b49265159b4
+      outputId: e149b713-4fe0-4006-87ea-ff337bfde7a3
+      outputPortId: f095a546-9ec3-4e93-a4ad-3ddac0497105
+      inputId: e59196c9-37fd-4827-ac54-56db157b3880
+      inputPortId: flowinput_e59196c9-37fd-4827-ac54-56db157b3880
+    - guid: bffa8415-4698-4da1-9cd6-96f7d7093830
+      outputId: d87713e6-148d-494c-b0be-09a3b385aaf3
+      outputPortId: trigger
+      inputId: e59196c9-37fd-4827-ac54-56db157b3880
+      inputPortId: 814b2ba1-9b18-4e36-9330-69e93903ed6c
+    - guid: cf655f06-5f7e-4d75-8265-6dfd3fb7e004
+      outputId: 5ad45cdc-9009-478a-b211-af02e1761f7d
+      outputPortId: trigger
+      inputId: e59196c9-37fd-4827-ac54-56db157b3880
+      inputPortId: 292750ec-b39f-4cad-ac67-1c3061726607
   references:
     version: 2
     RefIds:
@@ -156,6 +180,9 @@ MonoBehaviour:
         - ba3fb966-84d9-4ffe-b657-809bdf7d0f39
         - 9cabe391-c568-472f-a598-4b0748a8412b
         - 2b78a4c7-1ce8-4ba0-8705-e8b9b29f5567
+        - f095a546-9ec3-4e93-a4ad-3ddac0497105
+        onEnterTriggers: []
+        onExitTriggers: []
         dialogue: Hello! What can I do for you?
         actor: {fileID: 0}
         conversant: {fileID: 0}
@@ -281,11 +308,13 @@ MonoBehaviour:
         guid: cd0dd6b1-722c-4525-9661-786376d727e7
         position:
           serializedVersion: 2
-          x: 1398.6666
-          y: -171.33333
+          x: 1493.3333
+          y: -232
           width: 307.33337
-          height: 166.66666
+          height: 234.66667
         responses: []
+        onEnterTriggers: []
+        onExitTriggers: []
         dialogue: My name is Rawlf!
         actor: {fileID: 0}
         conversant: {fileID: 0}
@@ -295,13 +324,15 @@ MonoBehaviour:
         guid: 7a80a8fd-5c22-400f-8d75-f91a59615261
         position:
           serializedVersion: 2
-          x: 1620
-          y: 74
-          width: 307.33325
-          height: 214.66666
+          x: 1714.6666
+          y: 13.333332
+          width: 307.33337
+          height: 282.66666
         responses:
         - dad7f976-3839-438d-9916-d8b28425218d
         - f7586741-0d82-4acb-ab63-ed7f702918d9
+        onEnterTriggers: []
+        onExitTriggers: []
         dialogue: I am a Wulf!
         actor: {fileID: 0}
         conversant: {fileID: 0}
@@ -311,9 +342,9 @@ MonoBehaviour:
         guid: 618c316d-6054-4288-8926-4de5646ecbc9
         position:
           serializedVersion: 2
-          x: 1265.3333
-          y: 96.66667
-          width: 266.66675
+          x: 1360
+          y: 36
+          width: 266.66663
           height: 145.33333
         conditions: []
         consequences: []
@@ -326,9 +357,9 @@ MonoBehaviour:
         guid: 04415bdc-c858-4b1b-a317-25e26f2099f4
         position:
           serializedVersion: 2
-          x: 1265.3333
-          y: 288.66666
-          width: 222.66675
+          x: 1360
+          y: 228
+          width: 222.66663
           height: 145.33334
         conditions: []
         consequences: []
@@ -341,11 +372,13 @@ MonoBehaviour:
         guid: 86826a78-e777-4748-880e-a3abc05f395b
         position:
           serializedVersion: 2
-          x: 2022
-          y: 74
-          width: 307.33337
-          height: 166.66666
+          x: 2116.6667
+          y: 13.333332
+          width: 307.33325
+          height: 234.66667
         responses: []
+        onEnterTriggers: []
+        onExitTriggers: []
         dialogue: Of course!
         actor: {fileID: 0}
         conversant: {fileID: 0}
@@ -355,11 +388,13 @@ MonoBehaviour:
         guid: 4d1863d1-84c5-40ce-97d9-dbb3b3d13bd2
         position:
           serializedVersion: 2
-          x: 2022
-          y: 311.33334
-          width: 307.33337
-          height: 166.66666
+          x: 2116.6667
+          y: 250.66666
+          width: 307.33325
+          height: 234.66666
         responses: []
+        onEnterTriggers: []
+        onExitTriggers: []
         dialogue: Yep!
         actor: {fileID: 0}
         conversant: {fileID: 0}
@@ -369,11 +404,13 @@ MonoBehaviour:
         guid: abc8bcd8-7001-4f20-8289-ce4723663849
         position:
           serializedVersion: 2
-          x: 1265.3333
-          y: 472
-          width: 320.66675
-          height: 166.66669
+          x: 1360
+          y: 411.33334
+          width: 320.66663
+          height: 234.66666
         responses: []
+        onEnterTriggers: []
+        onExitTriggers: []
         dialogue: I will join you on your adventures!
         actor: {fileID: 0}
         conversant: {fileID: 0}
@@ -383,11 +420,72 @@ MonoBehaviour:
         guid: d5aac216-ed34-4de0-9e14-8b63e8179ed5
         position:
           serializedVersion: 2
-          x: 1265.3333
-          y: 696.6667
-          width: 307.33337
-          height: 166.66663
+          x: 1360
+          y: 636
+          width: 307.33325
+          height: 234.66669
         responses: []
+        onEnterTriggers: []
+        onExitTriggers: []
         dialogue: Okay! I will stay here!
         actor: {fileID: 0}
         conversant: {fileID: 0}
+    - rid: 8761692762915733504
+      type: {class: CtResponseNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 59124e03-6cca-4c79-83f6-b630cff25d0a
+        position:
+          serializedVersion: 2
+          x: 405.3333
+          y: 970
+          width: 239.33334
+          height: 145.33337
+        conditions: []
+        consequences: []
+        response: c8d68c8b-f47e-420b-8215-bc7169842a49
+        dialogue: Show me a menu!
+        responseType: 0
+    - rid: 8761692762915733506
+      type: {class: CtDialogueNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: e59196c9-37fd-4827-ac54-56db157b3880
+        position:
+          serializedVersion: 2
+          x: 1360
+          y: 890
+          width: 307.33325
+          height: 206.66663
+        responses: []
+        onEnterTriggers:
+        - 814b2ba1-9b18-4e36-9330-69e93903ed6c
+        onExitTriggers:
+        - 292750ec-b39f-4cad-ac67-1c3061726607
+        dialogue: What can I do for you?
+        actor: {fileID: 0}
+        conversant: {fileID: 0}
+    - rid: 8761692762915733510
+      type: {class: CtTriggerNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: d87713e6-148d-494c-b0be-09a3b385aaf3
+        position:
+          serializedVersion: 2
+          x: 990.6667
+          y: 890
+          width: 206.66663
+          height: 120
+        trigger: 42a921c0-9341-46ef-b560-c05e57339f52
+        path: TestMenuTrigger
+        eventTrigger: _LoadMenu
+    - rid: 8761692762915733511
+      type: {class: CtTriggerNode, ns: CreatureTime.Editor.Graph.DialogueGraph, asm: com.creaturetime.worlds.editor.dialoguegraph}
+      data:
+        guid: 5ad45cdc-9009-478a-b211-af02e1761f7d
+        position:
+          serializedVersion: 2
+          x: 990.6667
+          y: 1032.6666
+          width: 218
+          height: 120
+        trigger: abd3354f-ae06-414b-8a34-aa7c01cb021a
+        path: TestMenuTrigger
+        eventTrigger: _UnloadMenu

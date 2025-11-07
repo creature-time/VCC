@@ -9,5 +9,7 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
         public class ConditionPort {}
         [CtPortTypeInfo("#5aa754")]
         public class ConsequencePort {}
+        [CtPortTypeInfo("#003153")]
+        public class TriggerPort {}
     }
 }
