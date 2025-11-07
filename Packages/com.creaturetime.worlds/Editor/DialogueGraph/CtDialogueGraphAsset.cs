@@ -69,6 +69,7 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             _nodeLookup.Clear();
             _inputLookup.Clear();
             _outputLookup.Clear();
+            _visitedNodes.Clear();
 
             var startNodes = new List<CtStartNode>();
 
