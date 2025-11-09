@@ -1,6 +1,6 @@
 {
   "name": "com.creaturetime.rpg",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "displayName": "CreatureTime-Rpg",
   "description": "Code for Turn-based RPG game",
   "unity": "2022.3",
@@ -10,7 +10,7 @@
     "url": "https://vcc.creaturetime.com/"
   },
   "vpmDependencies" : {
-    "com.creaturetime.worlds" : "0.1.4"
+    "com.creaturetime.worlds" : "0.1.5"
   },
   "url": "https://vcc.creaturetime.com"
 }

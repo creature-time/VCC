@@ -46,7 +46,7 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             {
                 text = "Generate"
             };
-            generate.clicked += _GenerateOnclicked;
+            generate.clicked += CtDialogueGraphAsset.GenerateDialogue;
             rootVisualElement.Add(generate);
 
             _graphView = new CtGraphView(this);
@@ -59,12 +59,6 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             };
             _model.Bind(_serializedObject);
             _graphView.Model = _model;
-        }
-
-        private void _GenerateOnclicked()
-        {
-            _asset.Init();
-            _asset.Process();
         }
 
         private GraphViewChange OnGraphChanged(GraphViewChange graphViewChange)

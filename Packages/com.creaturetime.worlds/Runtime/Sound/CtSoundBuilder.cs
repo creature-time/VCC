@@ -55,11 +55,11 @@ namespace CreatureTime
 
         public void Play()
         {
-            if (_emitter)
-            {
-                _emitter.Stop();
-                _emitter = null;
-            }
+            // if (_emitter)
+            // {
+            //     _emitter.Stop();
+            //     _emitter = null;
+            // }
 
             if (!soundManager.TryGet(out _emitter)) return;
 

@@ -4,16 +4,6 @@ using UnityEngine;
 namespace CreatureTime.Editor.Graph.DialogueGraph
 {
     [Serializable]
-    public struct DialogueTrigger
-    {
-        [SerializeField] private GameObject prefab;
-        [SerializeField] private string eventTrigger;
-
-        public GameObject Prefab => prefab;
-        public string EventTrigger => eventTrigger;
-    }
-
-    [Serializable]
     [CtNodeInfo("Dialogue", "#0c2340", "Dialogue")]
     public class CtDialogueNode : CtDialogueNodeBase
     {
@@ -33,9 +23,6 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
         [CtExposedProperty, SerializeField] private string dialogue;
         [CtExposedProperty, SerializeField] private CtDialogueActor actor;
         [CtExposedProperty, SerializeField] private CtDialogueActor conversant;
-
-        // [CtExposedProperty, SerializeField] private DialogueTrigger[] onEnterTriggers;
-        // [CtExposedProperty, SerializeField] private DialogueTrigger[] onExitTriggers;
 
         public override void Process(CtDialogueGraphAsset asset)
         {

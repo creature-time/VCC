@@ -328,8 +328,17 @@ namespace CreatureTime
             return AttributeStartBitShift + PerAttributeBitShift * index;
         } 
 
-        public static ulong SetProfession(ushort profession, ushort attributeCount)
+        public static ulong SetProfession(ushort profession, int attributeCount)
         {
+            if (attributeCount < 0)
+            {
+#if DEBUG_LOGS
+                CtLogger.LogCritical("Data Mangle", "Attribute count was less than 0 " +
+                                     $"(attributeCount={attributeCount}, allowed={MaxAttributes}).");
+#endif
+                return InvalidData;
+            }
+
             if (attributeCount > MaxAttributes)
             {
 #if DEBUG_LOGS
@@ -352,7 +361,7 @@ namespace CreatureTime
             ulong unusedBitMask = 0xFFFFFFFFFFFFFFFF << bitShift;
             return
                 unusedBitMask | // Unused while setting remaining attribute data to zero.
-                (attributeCount & AttributeCountBitShiftMask) << AttributeCountBitShift | // Attribute count
+                ((ushort)attributeCount & AttributeCountBitShiftMask) << AttributeCountBitShift | // Attribute count
                 (profession & AttributeTypeBitMask); // Profession;
         }
 
@@ -405,8 +414,9 @@ namespace CreatureTime
             return (ushort)((attributeData >> bitShift) & AttributeRankBitShiftMask);
         }
 
-        public static ulong SetAttributeRank(int attributeIndex, ushort rank, ulong attributeData)
+        public static ulong SetAttributeRank(int attributeIndex, int rank, ulong attributeData)
         {
+            var r = (ushort)rank;
             if (!IsValid(attributeData))
             {
 #if DEBUG_LOGS
@@ -415,7 +425,7 @@ namespace CreatureTime
                 return attributeData;
             }
 
-            if (rank > AttributeRankBitShiftMask)
+            if (r > AttributeRankBitShiftMask)
             {
 #if DEBUG_LOGS
                 CtLogger.LogCritical("Data Mangle", "Attribute rank greater than mask allowed " +
@@ -427,7 +437,7 @@ namespace CreatureTime
             int bitShift = CalcAttributeBitShiftByIndex(attributeIndex);
             bitShift += AttributeRankBitShift;
             ulong attributeBitMask = AttributeRankBitShiftMask << bitShift;
-            return (rank & AttributeRankBitShiftMask) << bitShift | 
+            return (r & AttributeRankBitShiftMask) << bitShift | 
                    (attributeData & ~attributeBitMask);
         }
 

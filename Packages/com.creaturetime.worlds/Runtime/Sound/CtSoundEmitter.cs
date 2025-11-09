@@ -29,6 +29,7 @@ namespace CreatureTime
         public void Play()
         {
             audioSource.Play();
+            enabled = true;
         }
 
         public void Stop()
@@ -39,7 +40,11 @@ namespace CreatureTime
         private void Update()
         {
             if (!audioSource.isPlaying)
+            {
+                audioSource.clip = null;
                 soundManager.Release(this);
+                enabled = false;
+            }
         }
     }
 }

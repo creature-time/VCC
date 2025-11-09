@@ -30,6 +30,7 @@ namespace CreatureTime
         private CtSoundEmitter OnCreate()
         {
             var prefab = Instantiate(sourceEmitterPrefab, transform);
+            prefab.name = $"{_audioSourcePoolCount:0000}-SoundEmitter";
             prefab.SetActive(false);
 
             var soundEmitter = prefab.GetComponent<CtSoundEmitter>();
@@ -49,18 +50,18 @@ namespace CreatureTime
             {
                 foreach (var poolObject in _sourceEmitterPool)
                 {
+                    Debug.Log(poolObject);
                     if (!_activeSoundEmitters.Contains(poolObject))
                     {
                         soundEmitter = poolObject;
-                        break;
+                        soundEmitter.gameObject.SetActive(true);
+                        _activeSoundEmitters.Add(soundEmitter);
+                        return true;
                     }
                 }
             }
 
-            soundEmitter.gameObject.SetActive(true);
-            _activeSoundEmitters.Add(soundEmitter);
-
-            return true;
+            return false;
         }
 
         public void Release(CtSoundEmitter sourceEmitter)

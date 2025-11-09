@@ -500,6 +500,25 @@ namespace CreatureTime
             }
         }
 
+        public void SetSkill(int index, ushort skillId)
+        {
+            Debug.Log($"foobar {index} {skillId}");
+            switch (index)
+            {
+                case 0: SkillSlot0 = skillId; return;
+                case 1: SkillSlot1 = skillId; return;
+                case 2: SkillSlot2 = skillId; return;
+                case 3: SkillSlot3 = skillId; return;
+                case 4: SkillSlot4 = skillId; return;
+                case 5: SkillSlot5 = skillId; return;
+                case 6: SkillSlot6 = skillId; return;
+                case 7: SkillSlot7 = skillId; return;
+                case 8: SkillSlot8 = skillId; return;
+                case 9: SkillSlot9 = skillId; return;
+                default: return;
+            }
+        }
+
         [SerializeField, UdonSynced, FieldChangeCallback(nameof(CharacterLevelCallback))]
         private int characterLevel = 0;
 

@@ -29,41 +29,35 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             Debug.Log($"Response: {dialogue}");
             asset.CreateResponse(dialogue, responseType);
 
-            foreach (var edge in asset.Edges)
+            foreach (var condition in conditions)
             {
-                if (edge.InputId == Guid)
-                {
-                    if (Array.IndexOf(conditions, edge.InputPortId) == -1)
-                    {
-                        continue;
-                    }
-
-                    if (!asset.TryGetNode(edge.OutputId, out var node))
-                    {
-                        continue;
-                    }
-
+                if (asset.TryGetNodeFromInput(Guid, condition, out var node))
                     node.Process(asset);
-                }
             }
 
-            foreach (var edge in asset.Edges)
+            foreach (var consequence in consequences)
             {
-                if (edge.InputId == Guid)
-                {
-                    if (Array.IndexOf(consequences, edge.InputPortId) == -1)
-                    {
-                        continue;
-                    }
-
-                    if (!asset.TryGetNode(edge.OutputId, out var node))
-                    {
-                        continue;
-                    }
-
+                if (asset.TryGetNodeFromInput(Guid, consequence, out var node))
                     node.Process(asset);
-                }
             }
+            //
+            // foreach (var edge in asset.Edges)
+            // {
+            //     if (edge.InputId == Guid)
+            //     {
+            //         if (Array.IndexOf(consequences, edge.InputPortId) == -1)
+            //         {
+            //             continue;
+            //         }
+            //
+            //         if (!asset.TryGetNode(edge.OutputId, out var node))
+            //         {
+            //             continue;
+            //         }
+            //
+            //         node.Process(asset);
+            //     }
+            // }
         }
     }
 }

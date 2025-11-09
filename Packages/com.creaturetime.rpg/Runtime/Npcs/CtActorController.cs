@@ -69,6 +69,11 @@ namespace CreatureTime
             }
         }
 
+        public void TriggerBabble()
+        {
+            animator.SetTrigger("Babble");
+        }
+
         public override void OnPlayerTriggerEnter(VRCPlayerApi player)
         {
             animator.SetTrigger("IsPushed");

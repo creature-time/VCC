@@ -11,7 +11,7 @@ namespace CreatureTime
         protected const float PreCalcTwoThirds = 1.0f / 3.0f;
 
         [SerializeField] private bool isWeaponSkill;
-        [SerializeField] private ushort attributeType;
+        [SerializeField] private ushort attributeType = CtConstants.InvalidId;
         [SerializeField, HideInInspector] private ECombatEffectFlags flags;
 
         public ushort AttributeType => attributeType;

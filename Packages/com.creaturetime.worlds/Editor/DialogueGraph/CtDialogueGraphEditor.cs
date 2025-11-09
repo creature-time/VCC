@@ -1,6 +1,7 @@
 
 using UnityEditor;
 using UnityEditor.Callbacks;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace CreatureTime.Editor.Graph.DialogueGraph
@@ -36,13 +37,14 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             {
                 text = "Generate"
             };
-            generate.clicked += () =>
-            {
-                var asset = (CtDialogueGraphAsset)target;
-                asset.Init();
-                asset.Process();
-            };
+            generate.clicked += CtDialogueGraphAsset.GenerateDialogue;
             root.Add(generate);
+
+            var conversationIdField = new PropertyField(serializedObject.FindProperty("conversationId"))
+            {
+                label = "Conversation ID",
+            };
+            root.Add(conversationIdField);
 
             return root;
         }

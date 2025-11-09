@@ -476,6 +476,39 @@ namespace CreatureTime
             }
         }
 
+        public void RequestProfession(CtProfessionDef professionDef)
+        {
+            var localPlayerDef = playerManager.LocalPlayerDef;
+            for (int i = 0; i < 10; ++i)
+                localPlayerDef.SetSkill(i, CtConstants.InvalidId);
+
+            var data = CtDataBlock.SetProfession(professionDef.Identifier, professionDef.Attributes.Length);
+            for (int i = 0; i < professionDef.Attributes.Length; ++i)
+            {
+                data = CtDataBlock.SetAttributeRank(i, 0, data);
+            }
+
+            localPlayerDef.AttributeData = data;
+        }
+
+        public void RequestUpdatePlayerAttribute(int attributeIndex, int value)
+        {
+            var localPlayerDef = playerManager.LocalPlayerDef;
+            localPlayerDef.AttributeData = CtDataBlock.SetAttributeRank(attributeIndex, value, localPlayerDef.AttributeData);
+        }
+
+        public void RequestUpdatePlayerSkillSlot(int skillIndex, CtSkillDef skillDef)
+        {
+            var localPlayerDef = playerManager.LocalPlayerDef;
+            if (localPlayerDef.GetSkill(skillIndex) == skillDef.Identifier) return;
+
+            for (int i = 0; i < 10; ++i)
+                if (localPlayerDef.GetSkill(i) == skillDef.Identifier)
+                    localPlayerDef.SetSkill(i, CtConstants.InvalidId);
+
+            localPlayerDef.SetSkill(skillIndex, skillDef.Identifier);
+        }
+
         public void RequestPartyAcceptQuest(CtEntity playerEntity, CtAbstractQuest quest)
         {
             int size = 0;

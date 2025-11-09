@@ -13,18 +13,21 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             Debug.Log("Start");
             asset.CreateConversation();
 
-            foreach (var edge in asset.Edges)
-            {
-                if (edge.OutputId == Guid && edge.OutputPortId == $"flowoutput_{Guid}")
-                {
-                    if (!asset.TryGetNode(edge.InputId, out var node))
-                    {
-                        continue;
-                    }
-
-                    node.Process(asset);
-                }
-            }
+            if (asset.TryGetNodeFromOutput(Guid, $"flowoutput_{Guid}", out var node))
+                node.Process(asset);
+            //
+            // foreach (var edge in asset.Graph.Edges)
+            // {
+            //     if (edge.OutputId == Guid && edge.OutputPortId == $"flowoutput_{Guid}")
+            //     {
+            //         if (!asset.TryGetNode(edge.InputId, out var node))
+            //         {
+            //             continue;
+            //         }
+            //
+            //         node.Process(asset);
+            //     }
+            // }
         }
     }
 }

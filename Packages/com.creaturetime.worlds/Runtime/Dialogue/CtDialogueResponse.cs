@@ -7,7 +7,9 @@ namespace CreatureTime
     public enum EDialogueChoiceType
     {
         Default,
-        Recruit
+        Recruit,
+        Shop,
+        Trainer
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]

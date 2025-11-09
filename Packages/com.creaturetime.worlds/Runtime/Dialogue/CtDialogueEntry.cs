@@ -30,14 +30,20 @@ namespace CreatureTime
         {
             Debug.Log($"OnEnterTriggers {gameObject}");
             foreach (var trigger in onEnterTriggers)
+            {
+                trigger.target.SetProgramVariable("actor", actor);
                 trigger.target.SendCustomEvent(trigger.eventTrigger);
+            }
         }
 
         public void OnExitTriggers()
         {
             Debug.Log($"OnExitTriggers {gameObject}");
             foreach (var trigger in onExitTriggers)
+            {
+                trigger.target.SetProgramVariable("actor", actor);
                 trigger.target.SendCustomEvent(trigger.eventTrigger);
+            }
         }
     }
 }

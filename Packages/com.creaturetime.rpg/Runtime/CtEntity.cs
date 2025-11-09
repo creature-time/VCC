@@ -295,7 +295,8 @@ namespace CreatureTime
 
         public void _OnSkillSlotChanged()
         {
-            _OnSkillSlotChangedRaw(GetArgs[0].Int, _entityDef.SkillSlot0);
+            var index = GetArgs[0].Int;
+            _OnSkillSlotChangedRaw(index, _entityDef.GetSkill(index));
         }
 
         private void _OnSkillSlotChangedRaw(int index, ushort skillId)
