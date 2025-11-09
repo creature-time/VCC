@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6249a25c3b8162e4186b7d24cb7d71cd, type: 3}
   m_Name: TestDIalogue
   m_EditorClassIdentifier: 
+  conversationId: 1
   graph:
     nodes:
     - rid: 8761692757487517696
