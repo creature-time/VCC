@@ -1,5 +1,6 @@
 ﻿
 using System;
+using UnityEngine;
 
 namespace CreatureTime
 {
@@ -54,7 +55,7 @@ namespace CreatureTime
             if (!IsValid(data))
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Data was invalid (data={data}).");
+                Debug.LogError($"Data was invalid (data={data}).");
 #endif
                 return;
             }
@@ -71,7 +72,7 @@ namespace CreatureTime
             if (!IsValid(data))
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Data was invalid (data={data}).");
+                Debug.LogError($"Data was invalid (data={data}).");
 #endif
                 return;
             }
@@ -92,7 +93,7 @@ namespace CreatureTime
             if (identifier >= WeaponIdBitShiftMask && identifier != 0xFFFF)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Identifier greater than mask allowed (identifier={identifier}).");
+                Debug.LogError($"Identifier greater than mask allowed (identifier={identifier}).");
 #endif
                 return InvalidData;
             }
@@ -152,7 +153,7 @@ namespace CreatureTime
             if (!IsValid(data))
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Data was invalid (data={data}).");
+                Debug.LogError($"Data was invalid (data={data}).");
 #endif
                 return;
             }
@@ -169,7 +170,7 @@ namespace CreatureTime
             if (!IsValid(data))
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Data was invalid (data={data}).");
+                Debug.LogError($"Data was invalid (data={data}).");
 #endif
                 return;
             }
@@ -215,7 +216,7 @@ namespace CreatureTime
             if (identifier >= OffHandIdBitShiftMask && identifier != 0xFFFF)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Identifier greater than mask allowed (identifier={identifier}).");
+                Debug.LogError($"Identifier greater than mask allowed (identifier={identifier}).");
 #endif
                 return InvalidData;
             }
@@ -223,7 +224,7 @@ namespace CreatureTime
             if (modifierStat < 0 || modifierStat > 16)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Modifier stat must be between 1 and 16 (modifierStat={modifierStat}).");
+                Debug.LogError($"Modifier stat must be between 1 and 16 (modifierStat={modifierStat}).");
 #endif
                 return InvalidData;
             }
@@ -261,7 +262,7 @@ namespace CreatureTime
 
         public static ushort GetEquipmentIdentifier(ulong data) => 
             (ushort)((data >> EquipmentIdBitShift) & EquipmentIdBitShiftMask);
-        
+
         public static EArmorSlot GetEquipmentSlot(ulong data) => 
             (EArmorSlot)((data >> EquipmentSlotBitShift) & EquipmentSlotBitShiftMask);
 
@@ -270,12 +271,12 @@ namespace CreatureTime
             if (identifier >= EquipmentIdBitShiftMask)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Identifier greater than mask allowed (identifier={identifier}).");
+                Debug.LogError($"Identifier greater than mask allowed (identifier={identifier}).");
 #endif
                 return InvalidData;
             }
 
-            int s = Convert.ToInt32(slot);
+            var s = Convert.ToInt32(slot);
 
             return
                 EquipmentUnusedMask | // Unused
@@ -321,7 +322,7 @@ namespace CreatureTime
             if (bitShift >= 64)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", "Bit shift should not be greater than the size of the data block!");
+                Debug.LogError("Bit shift should not be greater than the size of the data block!");
 #endif
                 return AttributeStartBitShift;
             }
@@ -333,8 +334,8 @@ namespace CreatureTime
             if (attributeCount < 0)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", "Attribute count was less than 0 " +
-                                     $"(attributeCount={attributeCount}, allowed={MaxAttributes}).");
+                Debug.LogError("Attribute count was less than 0 " +
+                               $"(attributeCount={attributeCount}, allowed={MaxAttributes}).");
 #endif
                 return InvalidData;
             }
@@ -342,8 +343,8 @@ namespace CreatureTime
             if (attributeCount > MaxAttributes)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", "Attribute count was more than max allowed count " +
-                                     $"(attributeCount={attributeCount}, allowed={MaxAttributes}).");
+                Debug.LogError("Attribute count was more than max allowed count " +
+                               $"(attributeCount={attributeCount}, allowed={MaxAttributes}).");
 #endif
                 return InvalidData;
             }
@@ -351,8 +352,8 @@ namespace CreatureTime
             if (profession > ProfessionIdBitMask)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", "Profession greater than mask allowed " +
-                                     $"(profession={profession}, allowed={ProfessionIdBitMask}).");
+                Debug.LogError("Profession greater than mask allowed " +
+                               $"(profession={profession}, allowed={ProfessionIdBitMask}).");
 #endif
                 return InvalidData;
             }
@@ -420,7 +421,7 @@ namespace CreatureTime
             if (!IsValid(attributeData))
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Data was invalid (data={attributeData}).");
+                Debug.LogError($"Data was invalid (data={attributeData}).");
 #endif
                 return attributeData;
             }
@@ -428,8 +429,8 @@ namespace CreatureTime
             if (r > AttributeRankBitShiftMask)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", "Attribute rank greater than mask allowed " +
-                                  $"(rank={rank}, allowed={AttributeRankBitShiftMask}).");
+                Debug.LogError("Attribute rank greater than mask allowed " +
+                               $"(rank={rank}, allowed={AttributeRankBitShiftMask}).");
 #endif
                 return attributeData;
             }
@@ -447,7 +448,7 @@ namespace CreatureTime
             if (rank >= rankCost.Length)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Rank was out of bounds (rank={rank}).");
+                Debug.LogError($"Rank was out of bounds (rank={rank}).");
 #endif
                 return 0;
             }
@@ -471,8 +472,8 @@ namespace CreatureTime
             if (count > MaxAttributes)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", "Count was greater than the max allowed " +
-                                     $"(count={count}, allowed={MaxAttributes}).");
+                Debug.LogError("Count was greater than the max allowed " +
+                               $"(count={count}, allowed={MaxAttributes}).");
 #endif
                 return result;
             }
@@ -516,7 +517,7 @@ namespace CreatureTime
             if (!IsValid(data))
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Data was invalid (data={data}).");
+                Debug.LogError($"Data was invalid (data={data}).");
 #endif
                 return;
             }
@@ -529,7 +530,7 @@ namespace CreatureTime
             if (identifier >= EffectIdBitShiftMask)
             {
 #if DEBUG_LOGS
-                CtLogger.LogCritical("Data Mangle", $"Identifier greater than mask allowed (identifier={identifier}).");
+                Debug.LogError($"Identifier greater than mask allowed (identifier={identifier}).");
 #endif
                 return InvalidData;
             }
@@ -570,8 +571,8 @@ namespace CreatureTime
                    DataTypeBitMask;
 #if DEBUG_LOGS
             if (data != UtMaskValidationExpected)
-                CtLogger.LogError("Data Mangle", "Weapon data masks did not match expected " +
-                                                 $"(given={data:x16}, expected={UtMaskValidationExpected:x16})");
+                Debug.LogError("Weapon data masks did not match expected " +
+                               $"(given={data:x16}, expected={UtMaskValidationExpected:x16})");
 #endif
 
             data = CreateWeaponData(
@@ -589,28 +590,28 @@ namespace CreatureTime
             ushort weaponIdentifier = GetWeaponIdentifier(data);
 #if DEBUG_LOGS
             if (weaponIdentifier != UtWeaponIdentifierExpected)
-                CtLogger.LogError("Data Mangle", "Weapon identifier did not match expected " +
+                Debug.LogError("Weapon identifier did not match expected " +
                                                  $"(given={weaponIdentifier}, expected={UtWeaponIdentifierExpected})");
 #endif
 
             EWeaponPrefix prefix = GetWeaponPrefix(data);
 #if DEBUG_LOGS
             if (prefix != UtWeaponPrefixExpected)
-                CtLogger.LogError("Data Mangle", "Weapon prefix did not match expected " +
+                Debug.LogError("Weapon prefix did not match expected " +
                                                  $"(given={prefix}, expected={UtWeaponPrefixExpected})");
 #endif
 
             EWeaponSuffix suffix = GetWeaponSuffix(data);
 #if DEBUG_LOGS
             if (suffix != UtWeaponSuffixExpected)
-                CtLogger.LogError("Data Mangle", "Weapon suffix did not match expected " +
+                Debug.LogError("Weapon suffix did not match expected " +
                                                  $"(given={suffix}, expected={UtWeaponSuffixExpected})");
 #endif
 
             int req = GetWeaponRequirement(data);
 #if DEBUG_LOGS
             if (req != UtWeaponReqExpected)
-                CtLogger.LogError("Data Mangle", "Weapon requirement did not match expected " +
+                Debug.LogError("Weapon requirement did not match expected " +
                                                  $"(given={req}, expected={UtWeaponReqExpected})");
 #endif
 
@@ -619,7 +620,7 @@ namespace CreatureTime
                    DataTypeBitMask;
 #if DEBUG_LOGS
             if (data != UtMaskValidationExpected)
-                CtLogger.LogError("Data Mangle", "Equipment data masks did not match expected " +
+                Debug.LogError("Equipment data masks did not match expected " +
                                                  $"(given={data:x16}, expected={UtMaskValidationExpected:x16})");
 #endif
 
@@ -628,7 +629,7 @@ namespace CreatureTime
             ushort equipmentIdentifier = GetEquipmentIdentifier(data);
 #if DEBUG_LOGS
             if (equipmentIdentifier != UtEquipmentIdentifierExpected)
-                CtLogger.LogError("Data Mangle",
+                Debug.LogError(
                     "Equipment identifier did not match expected " +
                     $"(given={equipmentIdentifier:x16}, expected={UtEquipmentIdentifierExpected:x16})");
 #endif
@@ -646,7 +647,7 @@ namespace CreatureTime
 #if DEBUG_LOGS
             ulong attributeBitMask = AttributeTypeBitMask | AttributeRankBitMask;
             if (attributeBitMask != AttributeBitMask)
-                CtLogger.LogError("Data Mangle", "Attribute masks are not masking correctly " +
+                Debug.LogError("Attribute masks are not masking correctly " +
                                                  $"(given={attributeBitMask}, expected={AttributeBitMask})");
 #endif
 
@@ -663,14 +664,14 @@ namespace CreatureTime
             ushort profession = GetProfession(data);
 #if DEBUG_LOGS
             if (profession != UtProfessionExpected)
-                CtLogger.LogError("Data Mangle", "Profession was not returned correctly " +
+                Debug.LogError("Profession was not returned correctly " +
                                                  $"(given={profession}, expected={UtProfessionExpected})");
 #endif
 
             ushort attributeCount = GetAttributeCount(data);
 #if DEBUG_LOGS
             if (attributeCount != UtAttributeCountExpected)
-                CtLogger.LogError("Data Mangle", "Attribute count was not returned correctly " +
+                Debug.LogError("Attribute count was not returned correctly " +
                                                  $"(given={attributeCount}, expected={UtAttributeCountExpected})");
 #endif
 
@@ -684,7 +685,7 @@ namespace CreatureTime
                 ushort attributeRank = GetAttributeRank(data, i);
 #if DEBUG_LOGS
                 if (attributeRank != expectedValue)
-                    CtLogger.LogCritical("Data Mangle", "Attribute rank was not returned correctly " +
+                    Debug.LogError("Attribute rank was not returned correctly " +
                                          $"(given={attributeRank}, expected={expectedValue})");
 #endif
                 expectedValue++;

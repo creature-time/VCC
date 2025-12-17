@@ -1,5 +1,4 @@
-﻿#define DEBUG_LOGS
-
+﻿
 using UdonSharp;
 using UnityEngine;
 

@@ -126,5 +126,6 @@ crashlytics-build.properties
 
 # Blend backup files. Do we really need more than 9 backups?
 *.blend
+*.blend.meta
 *.blend[0-9]
 *.blend[0-9].meta

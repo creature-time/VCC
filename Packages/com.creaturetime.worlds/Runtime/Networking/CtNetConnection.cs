@@ -18,7 +18,7 @@ namespace CreatureTime
         {
 #if DEBUG_LOGS
             if (!Networking.IsOwner(gameObject))
-                LogCritical("Net Connection", "Packet sender was not owner of connection.");
+                LogCritical("Packet sender was not owner of connection.");
 #endif
 
             _packet = data;
@@ -56,8 +56,7 @@ namespace CreatureTime
         public override void OnDeserialization()
         {
 #if DEBUG_LOGS
-            LogDebug("Net Connection",
-                $"OnDeserialization (Data.Length={_packet.Length}, IsOwner={Networking.IsOwner(gameObject)})");
+            LogDebug($"OnDeserialization (Data.Length={_packet.Length}, IsOwner={Networking.IsOwner(gameObject)})");
 #endif
 
             _HandlePacket();
@@ -66,8 +65,7 @@ namespace CreatureTime
         public override void OnPlayerRestored(VRCPlayerApi player)
         {
 #if DEBUG_LOGS
-            LogDebug("Net Connection",
-                $"Player Restored (displayName={player.displayName}, playerId={player.playerId})");
+            LogDebug($"Player Restored (displayName={player.displayName}, playerId={player.playerId})");
 #endif
 
             if (!player.isLocal || !Networking.IsOwner(gameObject))

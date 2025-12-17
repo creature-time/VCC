@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
@@ -8,6 +9,8 @@ namespace CreatureTime
     public class CtBattleAttackState : CtStateBase
     {
         [SerializeField] private CtGameData gameData;
+        [SerializeField] private CtPartyManager partyManager;
+        [SerializeField] private CtEntityManager entityManager;
         [SerializeField] private CtBattleState battleState;
         [SerializeField] private CtBattleNextTurnState nextTurnState;
         [SerializeField] private CtBattleEndState endState;
@@ -80,7 +83,24 @@ namespace CreatureTime
             }
             else
             {
-                entity.UseSkill(skillId, target);
+                if (!partyManager.TryGetEntityParty(target, out var party))
+                {
+#if DEBUG_LOGS
+                    LogCritical($"Failed to get party for target entity (targetId={targetId}).");
+#endif
+                    return ENodeStatus.Failure;
+                }
+
+                // TODO: Make this reusable code...
+                var adjacentTargets = new DataList();
+                for (int i = 0; i < party.MaxCount; ++i)
+                {
+                    var otherEntity = party.GetEntity(i);
+                    if (!otherEntity) continue;
+                    adjacentTargets.Add(otherEntity);
+                }
+
+                entity.UseSkill(skillId, target, adjacentTargets);
             }
 
             battleState.EndDamageBlock();

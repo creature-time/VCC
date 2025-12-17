@@ -1,5 +1,4 @@
-﻿#define DEBUG_LOGS
-
+﻿
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
@@ -45,6 +44,11 @@ namespace CreatureTime
                 party = (CtParty)token.Reference;
                 return true;
             }
+
+#if DEBUG_LOGS
+                LogWarning($"Failed to find party by identifier (identifier={identifier}).");
+#endif
+
             return false;
         }
 
@@ -91,6 +95,7 @@ namespace CreatureTime
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -105,22 +110,47 @@ namespace CreatureTime
                     return true;
                 }
             }
+
+            return false;
+        }
+
+        public bool TryGetConnectedParty(CtEntity entity, out CtParty party)
+        {
+            foreach (var other in playerParties)
+            {
+                if (other.WasConnectedToParty(entity))
+                {
+                    party = other;
+                    return true;
+                }
+            }
+
+            foreach (var other in enemyParties)
+            {
+                if (other.WasConnectedToParty(entity))
+                {
+                    party = other;
+                    return true;
+                }
+            }
+
+            party = null;
             return false;
         }
 
         public void _OnPlayerPartyStarted()
         {
-            var party = (CtParty)GetArgs[0].Reference;
+            var party = (CtParty)Sender;
 
-            SetArgs.Add(party.Identifier);
+            SetArgs.Add(party);
             this.Emit(EPartyManagerSignal.PartyStarted);
         }
 
         public void _OnPlayerPartyDisbanded()
         {
-            var party = (CtParty)GetArgs[0].Reference;
+            var party = (CtParty)Sender;
 
-            SetArgs.Add(party.Identifier);
+            SetArgs.Add(party);
             this.Emit(EPartyManagerSignal.PartyDisbanded);
         }
     }

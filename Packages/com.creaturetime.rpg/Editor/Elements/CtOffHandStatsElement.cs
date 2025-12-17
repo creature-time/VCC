@@ -67,7 +67,7 @@ namespace CreatureTime
             };
             _container.Add(_modifierStat);
 
-            _levelReq = new SliderInt(0, 13)
+            _levelReq = new SliderInt(1, 13)
             {
                 label = "Requirement"
             };
@@ -149,6 +149,7 @@ namespace CreatureTime
                     found = offHandDefinitions.Find(definition => definition.Identifier == identifier);
                     if (found)
                     {
+                        requirement = CtDataBlock.GetOffHandRequirement(data);
                         found.GetFormattedStats(data, ref displayName, ref stats, ref rarity, ref modifierStat, ref requirement);
                         stats = $"{displayName}\n{stats}";
 

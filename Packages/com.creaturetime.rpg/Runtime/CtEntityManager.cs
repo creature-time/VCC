@@ -1,5 +1,4 @@
-﻿#define DEBUG_LOGS
-
+﻿
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
@@ -15,7 +14,7 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtEntityManager : CtSingleton
     {
-        [SerializeField, HideInInspector] private CtPlayerEntity[] playerEntities;
+        [SerializeField] private CtPlayerEntity[] playerEntities;
         [SerializeField, HideInInspector] private CtNpcEntity[] recruitEntities;
         [SerializeField, HideInInspector] private CtNpcEntity[] enemyEntities;
 
@@ -55,6 +54,12 @@ namespace CreatureTime
 
         public bool TryGetEntity(ushort identifer, out CtEntity entity)
         {
+            if (identifer == CtConstants.InvalidId)
+            {
+                entity = null;
+                return true;
+            }
+
             entity = null;
             if (_entityLookup.TryGetValue(identifer, out var token))
             {
@@ -62,31 +67,35 @@ namespace CreatureTime
                 return true;
             }
 
+#if DEBUG_LOGS
+            LogCritical($"Failed to find entity (identifier={identifer}).");
+#endif
+
             return false;
         }
 
-        public void CreatePlayerEntity(int playerId, CtPlayerDef playerDef, out CtEntity entity)
-        {
-            var playerEntity = playerEntities[playerId];
-            playerEntity.PlayerDef = playerDef;
-            // _entityLookup.Add(playerEntity.Identifier, playerEntity);
-            entity = playerEntity;
+//         public void CreatePlayerEntity(int playerId, CtPlayerDef playerDef, out CtEntity entity)
+//         {
+//             var playerEntity = playerEntities[playerId];
+//             playerEntity.PlayerDef = playerDef;
+//             // _entityLookup.Add(playerEntity.Identifier, playerEntity);
+//             entity = playerEntity;
+//
+// #if DEBUG_LOGS
+//                 Log($"Setup player entity (identifier={playerEntity.Identifier}).");
+// #endif
+//         }
 
-#if DEBUG_LOGS
-                Log($"Setup player entity (identifier={playerEntity.Identifier}).");
-#endif
-        }
-
-        public void ReleasePlayerEntity(ushort playerId)
-        {
-#if DEBUG_LOGS
-            Log($"Releasing player entity (playerId={playerId}).");
-#endif
-
-            var playerEntity = playerEntities[playerId];
-            playerEntity.PlayerDef = null;
-            // _entityLookup.Remove(playerEntity.Identifier);
-        }
+//         public void ReleasePlayerEntity(ushort playerId)
+//         {
+// #if DEBUG_LOGS
+//             Log($"Releasing player entity (playerId={playerId}).");
+// #endif
+//
+//             var playerEntity = playerEntities[playerId];
+//             playerEntity.PlayerDef = null;
+//             // _entityLookup.Remove(playerEntity.Identifier);
+//         }
 
         public bool TryAcquireRecruit(CtNpcDef npcDef, out CtEntity entity)
         {

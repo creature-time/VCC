@@ -16,18 +16,9 @@ namespace CreatureTime.RpgGame
         {
             for (int i = 0; i < party.MaxCount; ++i)
             {
-                var memberId = party.GetMemberId(i);
-                if (memberId == CtConstants.InvalidId) continue;
-                if (!rpgGame.EntityManager.TryGetEntity(memberId, out var entity))
-                {
-#if DEBUG_LOGS
-                LogWarning($"Failed to find entity (identifier={memberId}).");
-#endif
-                    continue;
-                }
-
+                var entity = party.GetEntity(i);
+                if (!entity) continue;
                 if (entity.IsPlayer) continue;
-
                 if (entity.EntityId == dialogueActor.Identifier)
                     return true;
             }
@@ -46,7 +37,6 @@ namespace CreatureTime.RpgGame
             }
 
             var isMemberInParty = IsMemberInParty(party);
-            Debug.Log($"foo {recruitLeave} {isMemberInParty}");
             return recruitLeave == isMemberInParty;
         }
     }

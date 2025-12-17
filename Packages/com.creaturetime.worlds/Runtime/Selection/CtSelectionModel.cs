@@ -44,7 +44,6 @@ namespace CreatureTime
         public void Clear()
         {
             LogDebug("Clearing selection.");
-
             SetArgs.Add(_selection.DeepClone());
             _selection.Clear();
             SetArgs.Add(_selection.DeepClone());

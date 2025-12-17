@@ -2,6 +2,7 @@
 using System;
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
@@ -238,7 +239,7 @@ namespace CreatureTime
 
         public float NormalizedHealth => Health / (float)_entityDef.MaxHealth;
         public float NormalizedEnergy => Energy / (float)_entityDef.MaxEnergy;
-        public string DisplayName => _entityDef.DisplayName;
+        public string DisplayName => "test";//_entityDef.DisplayName;
         public Texture Icon => _entityDef.Icon;
 
         public abstract bool IsPlayer
@@ -418,7 +419,7 @@ namespace CreatureTime
                         break;
                     default:
 #if DEBUG_LOGS
-                    CtLogger.LogCritical("Entity", $"Damage type not supported (damageType={damageType}.");
+                    LogCritical($"Damage type not supported (damageType={damageType}.");
 #endif
                         break;
                 }
@@ -442,13 +443,13 @@ namespace CreatureTime
                 if (Health <= 0)
                     Health = 0;
 
-// #if DEBUG_LOGS
+#if DEBUG_LOGS
                 LogDebug("Damage applied (" +
                          $"target={this}, damage={damage}, damageType={damageType}, " +
                          $"damageSourceType={damageSourceType}, identifier={identifier}, instigator={instigator}, " +
                          $"isCritical={isCritical}" +
                          ").");
-// #endif
+#endif
             }
             else
             {
@@ -459,13 +460,13 @@ namespace CreatureTime
 
                 Health += healing;
 
-// #if DEBUG_LOGS
+#if DEBUG_LOGS
                 LogDebug("Healing applied (" +
                          $"target={this}, healing={healing}, healingType={damageType}, " +
                          $"healingSourceType={damageSourceType}, identifier={identifier}, instigator={instigator}, " +
                          $"isCritical={isCritical}" +
                          ").");
-// #endif
+#endif
             }
 
             // Request serialization.
@@ -475,7 +476,6 @@ namespace CreatureTime
             SetArgs.Add(Convert.ToInt32(damageSourceType));
             SetArgs.Add(identifier);
             SetArgs.Add(instigator);
-            SetArgs.Add(this);
             SetArgs.Add(Convert.ToInt32(damageType));
             SetArgs.Add(damage);
             SetArgs.Add(isCritical);
@@ -485,25 +485,22 @@ namespace CreatureTime
         private void GainAdrenalineOnHit(int roll)
         {
             int adrenaline = (int)(roll / (float)EntityDef.MaxHealth * 100.0f);
-            var skillDefs = new CtSkillDef[]
-            {
-                _skillDef0,
-                _skillDef1,
-                _skillDef2,
-                _skillDef3,
-                _skillDef4,
-                _skillDef5,
-                _skillDef6,
-                _skillDef7,
-                _skillDef8,
-                _skillDef9,
-            };
+#if DEBUG_LOGS
+            LogDebug($"Adrenaline gained on hit (adrenaline={adrenaline}).");
+#endif
+            GainAdrenaline(adrenaline);
+        }
 
-            for (int i = 0; i < skillDefs.Length; i++)
+        public void GainAdrenaline(int adrenaline)
+        {
+            for (int i = 0; i < 10; i++)
             {
-                var skillDef = skillDefs[i];
-                if (skillDef && skillDef.Type == ESkillType.Adrenaline)
-                    skillInstances.SetAdrenaline(i, Mathf.Min(skillInstances.GetAdrenaline(i) + adrenaline, skillDef.Value));
+                var skillDef = GetSkillDef(i);
+                if (!skillDef) continue;
+                if (skillDef.Type != ESkillType.Adrenaline) continue;
+
+                var clampedAdrenaline = Mathf.Min(skillInstances.GetAdrenaline(i) + adrenaline, skillDef.Value);
+                skillInstances.SetAdrenaline(i, clampedAdrenaline);
             }
         }
 
@@ -520,8 +517,10 @@ namespace CreatureTime
                         var currentTurns = CtDataBlock.GetEffectTurns(statusEffect);
                         if (currentTurns >= turns)
                         {
+#if DEBUG_LOGS
                             LogDebug("Ignore applying effect if the current one is longer " +
                                      $"(skillDef={skillDef}, currentTurns={currentTurns}, turns={turns}).");
+#endif
 
                             return;
                         }
@@ -534,16 +533,68 @@ namespace CreatureTime
                 var statusEffect = statusEffectInstances.GetStatusEffect(i);
                 if (statusEffect == CtDataBlock.InvalidData)
                 {
+#if DEBUG_LOGS
                     LogDebug($"Applying Status (skillDef={skillDef}, source={source}, turns={turns})");
+#endif
                     statusEffectInstances.SetStatusEffect(i, CtDataBlock.CreateEffectData(skillDef.Identifier, source.Identifier, turns));
                     return;
                 }
             }
+
+            UpdatePersistantEffects();
+        }
+
+        private void UpdatePersistantEffects()
+        {
+            // TODO: Can this be done while iterating over the list the first time?
+
+            ArmorRatingReduction = 0;
+            SlashReduction = 0;
+            BluntReduction = 0;
+            PierceReduction = 0;
+            EarthReduction = 0;
+            AirReduction = 0;
+            FireReduction = 0;
+            WaterReduction = 0;
+            IsDazed = false;
+            IsBlind = false;
+
+            for (int i = 0; i < statusEffectInstances.Count; i++)
+            {
+                var statusEffect = statusEffectInstances.GetStatusEffect(i);
+                if (statusEffect == CtDataBlock.InvalidData) continue;
+
+                var identifier = CtDataBlock.GetEffectIdentifier(statusEffect);
+                if (identifier == CtConstants.InvalidId) continue;
+
+                var skillDef = gameData.GetSkillDef(identifier);
+                if (!skillDef)
+                {
+#if DEBUG_LOGS
+                    LogCritical($"Failed to find skill definition (skillId={identifier}).");
+#endif
+                    continue;
+                }
+
+                var sourceId = CtDataBlock.GetEffectSource(statusEffect);
+                if (!entityManager.TryGetEntity(sourceId, out var source))
+                {
+#if DEBUG_LOGS
+                    LogCritical($"Failed to find source entity (sourceId={sourceId}).");
+#endif
+                    continue;
+                }
+
+                skillDef.OnPersistentEffect(this, source);
+            }
+
+#if DEBUG_LOGS
+            LogDebug($"Persistant effects updated (armorRatingReduction={ArmorRatingReduction}, slashReduction={SlashReduction}, bluntReduction={BluntReduction}, pierceReduction={PierceReduction}, earthReduction={EarthReduction}, airReduction={AirReduction}, fireReduction={FireReduction}, waterReduction={WaterReduction}, isDazed={IsDazed}, isBlind={IsBlind}).");
+#endif
         }
 
         public bool ProcessStatusTick()
         {
-            CtEntity source;
             for (int i = 0; i < 16; i++)
             {
                 var statusEffect = statusEffectInstances.GetStatusEffect(i);
@@ -554,7 +605,11 @@ namespace CreatureTime
                     if (skillDef.HasTickEffect)
                     {
                         var sourceId = CtDataBlock.GetEffectSource(statusEffect);
-                        EntityManager.TryGetEntity(sourceId, out source);
+                        if (!entityManager.TryGetEntity(sourceId, out var source))
+                        {
+                            LogCritical($"Failed to find entity source (sourceId={sourceId}).");
+                            continue;
+                        }
 
                         var turns = CtDataBlock.GetEffectTurns(statusEffect);
                         LogDebug($"Processing Status Tick (skillDef={skillDef}, source={source}, turns={turns})");
@@ -596,6 +651,8 @@ namespace CreatureTime
                     }
                 }
             }
+
+            UpdatePersistantEffects();
         }
 
         public void UseWeapon(CtEntity target)
@@ -603,7 +660,7 @@ namespace CreatureTime
             CtSkillDef.MeleeAttack(gameData, target, this);
         }
 
-        public void UseSkill(ushort skillId, CtEntity target)
+        public void UseSkill(ushort skillId, CtEntity target, DataList adjacentTargets)
         {
             if (!EntityDef.TryGetSkillIndex(skillId, out int index))
             {
@@ -612,7 +669,7 @@ namespace CreatureTime
             }
 
             var usedSkillDef = gameData.GetSkillDef(skillId);
-            usedSkillDef.OnUse(gameData, target, this);
+            usedSkillDef.OnUse(gameData, this, target, adjacentTargets);
 
             switch (usedSkillDef.Type)
             {
@@ -634,7 +691,7 @@ namespace CreatureTime
                     if (skillDef.HasSkillUsedEffect)
                     {
                         var sourceId = CtDataBlock.GetEffectSource(statusEffect);
-                        if (!EntityManager.TryGetEntity(sourceId, out var source))
+                        if (!entityManager.TryGetEntity(sourceId, out var source))
                         {
                             LogCritical($"Failed to find entity for skill used effect (sourceId={sourceId}).");
                             continue;

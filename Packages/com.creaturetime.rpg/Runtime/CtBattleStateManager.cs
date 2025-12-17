@@ -1,8 +1,6 @@
 ﻿
-using System;
 using UdonSharp;
 using UnityEngine;
-using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
@@ -36,24 +34,23 @@ namespace CreatureTime
 
                 for (int i = 0; i < allyParty.MaxCount; i++)
                 {
-                    var identifier = allyParty.GetMemberId(i);
-                    if (identifier == CtConstants.InvalidId)
-                        continue;
-                    temp[index++] = identifier;
+                    var entity = allyParty.GetEntity(i);
+                    if (!entity) continue;
+#if DEBUG_LOGS
+                LogDebug($"Adding ally entity to initiative (index={index}, entity={entity}).");
+#endif
+                    temp[index++] = entity.Identifier;
                 }
 
                 for (int i = 0; i < enemyParty.MaxCount; i++)
                 {
-                    var identifier = enemyParty.GetMemberId(i);
-                    if (identifier == CtConstants.InvalidId)
-                        continue;
-                    temp[index++] = identifier;
-                }
-
+                    var entity = enemyParty.GetEntity(i);
+                    if (!entity) continue;
 #if DEBUG_LOGS
-                if (index != count)
-                    LogCritical($"Index did not match count (index={index}, count={count}).");
+                    LogDebug($"Adding enemy entity to initiative (index={index}, entity={entity}).");
 #endif
+                    temp[index++] = entity.Identifier;
+                }
 
                 bs.Initiatives = temp;
 

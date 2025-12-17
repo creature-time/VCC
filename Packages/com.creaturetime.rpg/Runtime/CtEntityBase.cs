@@ -5,10 +5,8 @@ namespace CreatureTime
 {
     public abstract class CtEntityBase : CtAbstractSignal
     {
-        [SerializeField] private CtEntityManager entityManager;
+        [SerializeField] protected CtEntityManager entityManager;
         [SerializeField] private ushort identifier = CtConstants.InvalidId;
-
-        public CtEntityManager EntityManager => entityManager;
 
         public ushort Identifier
         {

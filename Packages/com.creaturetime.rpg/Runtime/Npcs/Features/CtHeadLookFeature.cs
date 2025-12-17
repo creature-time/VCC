@@ -27,7 +27,7 @@ namespace CreatureTime
 #if DEBUG_LOGS
             else
             {
-                CtLogger.LogWarning("Dialogue Character", "Head transform was null.");
+                LogWarning("Head transform was null.");
             }
 #endif
         }

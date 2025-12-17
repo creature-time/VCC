@@ -36,7 +36,7 @@ namespace CreatureTime
 #if DEBUG_LOGS
             else
             {
-                CtLogger.LogWarning("Dialogue Character", "Left eye transform was null.");
+                LogWarning("Left eye transform was null.");
             }
 #endif
 
@@ -48,7 +48,7 @@ namespace CreatureTime
 #if DEBUG_LOGS
             else
             {
-                CtLogger.LogWarning("Dialogue Character", "Right eye transform was null.");
+                LogWarning("Right eye transform was null.");
             }
 #endif
         }

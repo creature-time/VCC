@@ -25,8 +25,10 @@ namespace CreatureTime
         {
             style.flexDirection = FlexDirection.Row;
 
-            _skillInternal = new IntegerField();
-            _skillInternal.visible = false;
+            _skillInternal = new IntegerField
+            {
+                visible = false
+            };
             Add(_skillInternal);
 
             _skillIcon = new Button
@@ -69,7 +71,7 @@ namespace CreatureTime
             int identifier = _skillInternal.value;
 
             List<CtSkillDef> armorDefinitions =
-                GameObject.FindObjectsOfType<CtSkillDef>(true).ToList();
+                Object.FindObjectsOfType<CtSkillDef>(true).ToList();
             CtSkillDef found = armorDefinitions.Find(definition => definition.Identifier == identifier);
             _skill.value = found;
 
@@ -81,7 +83,7 @@ namespace CreatureTime
             CtSkillDef skillDefinition = evt.newValue as CtSkillDef;
             OnUpdateSkillInfo(skillDefinition);
 
-            _skillInternal.value = skillDefinition ? skillDefinition.Identifier : -1;
+            _skillInternal.value = skillDefinition ? skillDefinition.Identifier : CtConstants.InvalidId;
         }
 
         private void OnUpdateSkillInfo(CtSkillDef skillDef)

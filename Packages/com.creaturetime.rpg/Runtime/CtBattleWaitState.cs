@@ -25,7 +25,7 @@ namespace CreatureTime
             if (!entity.HasAttackReady())
             {
 #if DEBUG_LOGS
-                LogCritical($"Entity should have attack ready.");
+                LogCritical("Entity should have attack ready.");
 #endif
                 return endState;
             }

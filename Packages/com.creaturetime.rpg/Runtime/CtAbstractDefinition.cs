@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CreatureTime
 {
-    public abstract class CtAbstractDefinition : UdonSharpBehaviour
+    public abstract class CtAbstractDefinition : CtLoggerUdonScript
     {
         [SerializeField] private ushort identifier = CtConstants.InvalidId;
 

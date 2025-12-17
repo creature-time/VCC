@@ -32,8 +32,6 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtBattleState : CtAbstractSignal
     {
-        [SerializeField] private ushort identifier = CtConstants.InvalidId;
-
         [SerializeField] private CtRpgGame rpgGame;
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
@@ -201,11 +199,10 @@ namespace CreatureTime
 
                     for (int i = 0; i < _allyParty.MaxCount; i++)
                     {
-                        var memberId = _allyParty.GetMemberId(i);
-                        if (memberId == CtConstants.InvalidId)
-                            continue;
+                        var entity = _allyParty.GetEntity(i);
+                        if (!entity) continue;
                         _OnAllyPartyRemovedRaw(_allyParty, i);
-                        if (memberId == rpgGame.LocalEntity.Identifier)
+                        if (entity == rpgGame.LocalEntity)
                             IsLocal = false;
                     }
 
@@ -230,11 +227,10 @@ namespace CreatureTime
     
                         for (int i = 0; i < _allyParty.MaxCount; i++)
                         {
-                            var memberId = _allyParty.GetMemberId(i);
-                            if (memberId == CtConstants.InvalidId)
-                                continue;
+                            var entity = _allyParty.GetEntity(i);
+                            if (!entity) continue;
                             _OnAllyPartyAddedRaw(_allyParty, i);
-                            if (memberId == rpgGame.LocalEntity.Identifier)
+                            if (entity == rpgGame.LocalEntity)
                                 IsLocal = true;
                         }
 
@@ -272,9 +268,9 @@ namespace CreatureTime
 
                     for (int i = 0; i < _enemyParty.MaxCount; i++)
                     {
-                        var memberId = _enemyParty.GetMemberId(i);
-                        if (memberId != CtConstants.InvalidId)
-                            _OnEnemyPartyRemovedRaw(_enemyParty, i);
+                        var entity = _enemyParty.GetEntity(i);
+                        if (!entity) continue;
+                        _OnEnemyPartyRemovedRaw(_enemyParty, i);
                     }
 
                     _enemyParty = null;
@@ -294,9 +290,9 @@ namespace CreatureTime
 
                     for (int i = 0; i < _enemyParty.MaxCount; i++)
                     {
-                        var memberId = _enemyParty.GetMemberId(i);
-                        if (memberId != CtConstants.InvalidId)
-                            _OnEnemyPartyAddedRaw(_enemyParty, i);
+                        var entity = _enemyParty.GetEntity(i);
+                        if (!entity) continue;
+                        _OnEnemyPartyAddedRaw(_enemyParty, i);
                     }
 
                     _AssignBattleStateToParty(_enemyParty);
@@ -404,10 +400,8 @@ namespace CreatureTime
         {
             for (int i = 0; i < party.MaxCount; i++)
             {
-                var id = party.GetMemberId(i);
-                if (id == CtConstants.InvalidId)
-                    continue;
-                entityManager.TryGetEntity(id, out var entity);
+                var entity = party.GetEntity(i);
+                if (!entity) continue;
                 entity.BattleState = this;
             }
         }
@@ -419,7 +413,14 @@ namespace CreatureTime
 
         private void _OnAllyPartyAddedRaw(CtParty party, int index)
         {
-            TryGetEntity(party.GetMemberId(index), out var entity);
+            var entity = party.GetEntity(index);
+            if (!entity)
+            {
+#if DEBUG_LOGS
+                LogCritical($"Ally party did not have entity (index={index}).");
+#endif
+                return;
+            }
             entity.BattleState = this;
             entity.Connect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
         }
@@ -431,7 +432,14 @@ namespace CreatureTime
 
         private void _OnAllyPartyRemovedRaw(CtParty party, int index)
         {
-            TryGetEntity(party.GetMemberId(index), out var entity);
+            var entity = party.GetEntity(index);
+            if (!entity)
+            {
+#if DEBUG_LOGS
+                LogCritical($"Ally party did not have entity (index={index}).");
+#endif
+                return;
+            }
             entity.Disconnect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = null;
         }
@@ -443,7 +451,14 @@ namespace CreatureTime
 
         private void _OnEnemyPartyAddedRaw(CtParty party, int index)
         {
-            entityManager.TryGetEntity(party.GetMemberId(index), out var entity);
+            var entity = party.GetEntity(index);
+            if (!entity)
+            {
+#if DEBUG_LOGS
+                LogCritical($"Enemy party did not have entity (index={index}).");
+#endif
+                return;
+            }
             entity.Connect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = this;
         }
@@ -455,7 +470,14 @@ namespace CreatureTime
 
         private void _OnEnemyPartyRemovedRaw(CtParty party, int index)
         {
-            TryGetEntity(party.GetMemberId(index), out var entity);
+            var entity = party.GetEntity(index);
+            if (!entity)
+            {
+#if DEBUG_LOGS
+                LogCritical($"Enemy party did not have entity (index={index}).");
+#endif
+                return;
+            }
             entity.Disconnect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = null;
         }
@@ -501,10 +523,8 @@ namespace CreatureTime
         {
             for (int i = 0; i < _allyParty.MaxCount; i++)
             {
-                var memberId = _allyParty.GetMemberId(i);
-                if (memberId == CtConstants.InvalidId)
-                    continue;
-                entityManager.TryGetEntity(memberId, out var entity);
+                var entity = _allyParty.GetEntity(i);
+                if (!entity) continue;
                 if (!entity.IsReady())
                     return false;
             }
@@ -516,10 +536,8 @@ namespace CreatureTime
         {
             for (int i = 0; i < party.MaxCount; i++)
             {
-                var memberId = party.GetMemberId(i);
-                if (memberId == CtConstants.InvalidId)
-                    continue;
-                entityManager.TryGetEntity(memberId, out var entity);
+                var entity = party.GetEntity(i);
+                if (!entity) continue;
                 if (entity.State == ECombatState.Alive)
                     return false;
             }
@@ -564,13 +582,13 @@ namespace CreatureTime
             LogDebug($"Handling applied damage from entity (sender={Sender}).");
 #endif
 
+            var target = (CtEntity)Sender;
             var damageSourceTypeValue = GetArgs[0].Int;
             var skillId = GetArgs[1].UShort;
             var instigator = (CtEntity)GetArgs[2].Reference;
-            var target = (CtEntity)GetArgs[3].Reference;
-            var damageTypeValue = GetArgs[4].Int;
-            var damage = GetArgs[5].Int;
-            var isCritical = GetArgs[6].Boolean;
+            var damageTypeValue = GetArgs[3].Int;
+            var damage = GetArgs[4].Int;
+            var isCritical = GetArgs[5].Boolean;
 
             var damageSourceType = (EDamageSourceType)damageSourceTypeValue;
             var damageType = (EDamageType)damageTypeValue;

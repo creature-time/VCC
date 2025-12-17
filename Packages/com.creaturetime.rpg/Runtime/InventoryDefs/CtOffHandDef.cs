@@ -9,7 +9,7 @@ namespace CreatureTime
     {
         [SerializeField] private EOffHandType offHandType;
         [SerializeField] private ushort attributeType = CtConstants.InvalidId;
-        [SerializeField] [Range(0, 9)] private int attributeRequirement;
+        [SerializeField] [Range(1, 9)] private int attributeRequirement = 1;
         [SerializeField] private int minModifierStat = 8;
         [SerializeField] private int maxModifierStat = 16;
         [SerializeField] private EItemRarity rarity = EItemRarity.None;
@@ -41,8 +41,7 @@ namespace CreatureTime
                     return "Icy";
                 default:
 #if DEBUG_LOGS
-                    CtLogger.LogCritical("Off-Hand Definition", 
-                        $"Prefix display name was not defined (prefix={prefix}).");
+                    Debug.LogError($"Prefix display name was not defined (prefix={prefix}).");
 #endif
                     return "<Invalid>";
             }
@@ -64,8 +63,7 @@ namespace CreatureTime
                     return "Enchanting";
                 default:
 #if DEBUG_LOGS
-                    CtLogger.LogCritical("Off-Hand Definition", 
-                        $"Suffix display name was not defined (suffix={suffix}).");
+                    Debug.LogError($"Suffix display name was not defined (suffix={suffix}).");
 #endif
                     return "<Invalid>";
             }
@@ -139,7 +137,7 @@ namespace CreatureTime
                     break;
                 default:
 #if DEBUG_LOGS
-                    CtLogger.LogCritical("Off-Hand Definition", $"Item rarity not supported (rarity={rarity}).");
+                    Debug.LogError($"Item rarity not supported (rarity={rarity}).");
 #endif
                     break;
             }

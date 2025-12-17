@@ -55,10 +55,12 @@ namespace CreatureTime
             var allyParty = BattleState.AllyParty;
             var enemyParty = BattleState.EnemyParty;
 
+            npcContext.SetInt("Result/SkillIndex", -1);
+
             npcContext.SetInt("Allies/Identifiers.Count", allyParty.MaxCount);
             npcContext.SetInt("Allies/Health.Count", allyParty.MaxCount);
-            npcContext.SetInt("Enemies/Identifiers.Count", allyParty.MaxCount);
-            npcContext.SetInt("Enemies/Health.Count", allyParty.MaxCount);
+            npcContext.SetInt("Enemies/Identifiers.Count", enemyParty.Count);
+            npcContext.SetInt("Enemies/Health.Count", enemyParty.Count);
 
             npcContext.SetUShort("Self/Identifier", entity.Identifier);
             npcContext.SetFloat("Self/Party", allyParty.HasMember(entity) ? 1.0f : -1.0f);
@@ -73,16 +75,12 @@ namespace CreatureTime
                 npcContext.SetUShort($"Allies.Values[{i}]/Identifier", CtConstants.InvalidId);
                 npcContext.SetFloat($"Allies.Values[{i}]/Health", -1);
 
-                ushort identifier = allyParty.GetMemberId(i);
-                if (identifier == CtConstants.InvalidId)
-                    continue;
-                if (!BattleState.TryGetEntity(identifier, out var entity))
-                    continue;
-                if (entity.State == ECombatState.None)
-                    continue;
+                var ally = allyParty.GetEntity(i);
+                if (!ally) continue;
+                if (ally.State == ECombatState.None) continue;
 
-                npcContext.SetUShort($"Allies.Values[{i}]/Identifier", entity.Identifier);
-                npcContext.SetFloat($"Allies.Values[{i}]/Health", entity.NormalizedHealth);
+                npcContext.SetUShort($"Allies.Values[{i}]/Identifier", ally.Identifier);
+                npcContext.SetFloat($"Allies.Values[{i}]/Health", ally.NormalizedHealth);
             }
 
             npcContext.SetInt("Enemies.Count", enemyParty.MaxCount);
@@ -91,16 +89,12 @@ namespace CreatureTime
                 npcContext.SetUShort($"Enemies.Values[{i}]/Identifier", CtConstants.InvalidId);
                 npcContext.SetFloat($"Enemies.Values[{i}]/Health", -1);
 
-                ushort identifier = enemyParty.GetMemberId(i);
-                if (identifier == CtConstants.InvalidId)
-                    continue;
-                if (!BattleState.TryGetEntity(identifier, out var entity))
-                    continue;
-                if (entity.State == ECombatState.None)
-                    continue;
+                var enemy = enemyParty.GetEntity(i);
+                if (!enemy) continue;
+                if (enemy.State == ECombatState.None) continue;
 
-                npcContext.SetUShort($"Enemies.Values[{i}]/Identifier", entity.Identifier);
-                npcContext.SetFloat($"Enemies.Values[{i}]/Health", entity.NormalizedHealth);
+                npcContext.SetUShort($"Enemies.Values[{i}]/Identifier", enemy.Identifier);
+                npcContext.SetFloat($"Enemies.Values[{i}]/Health", enemy.NormalizedHealth);
             }
 
             npcContext.SetInt("Skills.Count", CtEntityDef.MaxSkillCount);
@@ -111,6 +105,7 @@ namespace CreatureTime
                 npcContext.SetBool($"Skills.Values[{i}]/IsSelfTargetOnly", false);
                 npcContext.SetBool($"Skills.Values[{i}]/IsTargetEnemy", false);
 
+                npcContext.SetFloat($"Skills.Values[{i}]/SkillRecharging", 0);
                 npcContext.SetFloat($"Skills.Values[{i}]/SupportScore", 0);
                 npcContext.SetFloat($"Skills.Values[{i}]/HealingScore", 0);
                 npcContext.SetFloat($"Skills.Values[{i}]/BuffingScore", 0);
@@ -118,16 +113,15 @@ namespace CreatureTime
                 npcContext.SetFloat($"Skills.Values[{i}]/ConditionScore", 0);
                 npcContext.SetFloat($"Skills.Values[{i}]/DamageScore", 0);
 
-                float recharge = entity.SkillInstances.GetRecharge(i);
-                if (recharge > 0)
-                    continue;
-
                 var skillDef = entity.GetSkillDef(i);
                 if (!skillDef)
                     continue;
 
-                npcContext.SetUShort($"Skills.Values[{i}]/Identifier", skillDef.Identifier);
+                float recharge = entity.SkillInstances.GetRecharge(i);
+                if (recharge > 0)
+                    continue;
 
+                npcContext.SetUShort($"Skills.Values[{i}]/Identifier", skillDef.Identifier);
                 npcContext.SetFloat($"Skills.Values[{i}]/SkillRecharging", recharge);
 
                 switch (skillDef.Type)
@@ -155,9 +149,6 @@ namespace CreatureTime
                 float deBuffingScore = 0;
                 float conditionScore = 0;
                 float damageScore = 0;
-
-                if (skillDef)
-                    return;
 
                 switch (skillDef.TargetType)
                 {
@@ -191,6 +182,14 @@ namespace CreatureTime
                 {
                     deBuffingScore += 1.0f;
                 }
+
+#if DEBUG_LOGS
+                LogDebug($"Skill {i} stats " +
+                         $"(isSelfTarget={isSelfTarget}, isEnemyTarget={isEnemyTarget}, supportScore={supportScore}, " +
+                         $"healingScore={healingScore}, buffingScore={buffingScore}, " +
+                         $"deBuffingScore={deBuffingScore}, conditionScore={conditionScore}, " +
+                         $"damageScore={damageScore}).");
+#endif
 
                 npcContext.SetFloat($"Skills.Values[{i}]/IsSelfTargetOnly", isSelfTarget);
                 npcContext.SetFloat($"Skills.Values[{i}]/IsTargetEnemy", isEnemyTarget);

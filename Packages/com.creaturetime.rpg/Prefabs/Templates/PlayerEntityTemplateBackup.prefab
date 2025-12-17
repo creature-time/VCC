@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4170920779571354136}
   - component: {fileID: 5740171394666362694}
   m_Layer: 0
-  m_Name: PlayerEntityTemplate
+  m_Name: PlayerEntityTemplateBackup
   m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

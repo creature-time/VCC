@@ -1,5 +1,4 @@
-﻿#define DEBUG_LOGS
-
+﻿
 using System;
 using UdonSharp;
 using UnityEngine;
@@ -19,11 +18,13 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtParty : CtAbstractSignal
     {
+        [SerializeField] private CtEntityManager entityManager;
         [SerializeField] private CtPartyManager partyManager;
+
         [SerializeField] private ushort identifier = CtConstants.InvalidId;
 
-        [SerializeField, HideInInspector, UdonSynced] private ushort[] members;
-        [SerializeField, HideInInspector] private ushort[] membersCmp;
+        [SerializeField, HideInInspector] private CtPartySlot[] slots;
+        private DataList _entityCache = new DataList();
 
         [UdonSynced, FieldChangeCallback(nameof(QuestCallback))]
         private ushort _questId = 0;
@@ -48,79 +49,85 @@ namespace CreatureTime
             }
         }
 
-        public ushort GetMemberId(int index)
-        {
-            return membersCmp[index];
-        }
-
-        public int GetMemberIndex(ushort memberId)
-        {
-            return Array.IndexOf(membersCmp, memberId);
-        }
-
-        private DataList _memberCache = new DataList();
-
-        public ushort Identifier => identifier;
-        public bool IsEmpty => _memberCache.Count == 0;
-        public bool IsFull => _memberCache.Count == members.Length;
-        public int Count => _memberCache.Count;
-        public int MaxCount => members.Length;
-
         private void Start()
         {
-            membersCmp = new ushort[members.Length];
-            for (int i = 0; i < membersCmp.Length; i++)
-                membersCmp[i] = CtConstants.InvalidId;
+            foreach (var slot in slots)
+            {
+                slot.Connect(EPartySlotSignal.IdentifierChanged, this, nameof(_OnPartySlotIdentifierChanged));
+            }
         }
 
-        public override void OnDeserialization()
+        public void _OnPartySlotIdentifierChanged()
         {
-            base.OnDeserialization();
+            var slot = (CtPartySlot)Sender;
+            int index = Array.IndexOf(slots, slot);
+            if (index == -1)
+            {
+#if DEBUG_LOGS
+                LogWarning($"Slot should be found within party (slot={slot}).");
+#endif
+                return;
+            }
 
-            for (int i = 0; i < members.Length; i++)
-                if (membersCmp[i] != members[i])
-                    _OnPartyMemberChanged(i);
-        }
+            var slotIdentifier = GetArgs[0].UShort;
 
-        private void _OnPartyMemberChanged(int index)
-        {
-            if (membersCmp[index] != CtConstants.InvalidId)
+            // Get entity; return if failed.
+            if (!entityManager.TryGetEntity(slotIdentifier, out var entity)) return;
+
+            // No need to remove then add again if the entities are the same.
+            if (slot.EntityCache == entity) return;
+
+            if (slot.EntityCache)
             {
                 SetArgs.Add(index);
                 this.Emit(EPartySignal.MemberRemoved);
 
-                _memberCache.Remove(membersCmp[index]);
+                _entityCache.Remove(slot.EntityCache);
 
-                if (_memberCache.Count == 0)
+                if (_entityCache.Count == 0)
                 {
-                    SetArgs.Add(this);
                     this.Emit(EPartySignal.Disbanded);
                 }
             }
 
-            membersCmp[index] = members[index];
-
-            if (membersCmp[index] != CtConstants.InvalidId)
+            slot.EntityCache = entity;
+            if (slot.EntityCache)
             {
-                if (_memberCache.Count == 0)
+                if (_entityCache.Count == 0)
                 {
-                    SetArgs.Add(this);
                     this.Emit(EPartySignal.Started);
                 }
 
-                _memberCache.Add(membersCmp[index]);
+                _entityCache.Add(slot.EntityCache);
 
                 SetArgs.Add(index);
                 this.Emit(EPartySignal.MemberAdded);
             }
         }
 
-        private void _SetMemberId(int index, ushort memberId)
+        public CtEntity GetEntity(int slotIndex)
         {
-            members[index] = memberId;
-            RequestSerialization();
-            _OnPartyMemberChanged(index);
+            return slots[slotIndex].EntityCache;
         }
+
+        public int GetMemberIndex(CtEntity entity)
+        {
+            for (int i = 0; i < slots.Length; i++)
+                if (slots[i].EntityCache == entity)
+                    return i;
+
+#if DEBUG_LOGS
+            LogWarning($"Failed to find index by entity (party={this}, entity={entity}).");
+#endif
+
+            return -1;
+        }
+
+        public ushort Identifier => identifier;
+        public bool IsEmpty => _entityCache.Count == 0;
+        public bool IsFull => _entityCache.Count == slots.Length;
+        public int Count => _entityCache.Count;
+        public int MaxCount => slots.Length;
 
         public void Join(CtEntity entity)
         {
@@ -128,8 +135,23 @@ namespace CreatureTime
             LogDebug($"Joining party (party={this}, entity={entity}).");
 #endif
 
-            int index = Array.IndexOf(members, CtConstants.InvalidId);
-            if (index == -1)
+            CtPartySlot freeSlot = null;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot.EntityCache) continue;
+                if (slot.HasDisconnectedAlias)
+                {
+                    if (!freeSlot)
+                        freeSlot = slot;
+                    continue;
+                }
+
+                freeSlot = slot;
+                break;
+            }
+
+            if (!freeSlot)
             {
 #if DEBUG_LOGS
                 LogCritical("Cannot add anymore members to party.");
@@ -137,19 +159,79 @@ namespace CreatureTime
                 return;
             }
 
-            _SetMemberId(index, entity.Identifier);
+            freeSlot.Identifier = entity.Identifier;
         }
 
         public bool HasMember(CtEntity entity)
         {
-            return _memberCache.IndexOf(entity.Identifier) != -1;
+            return _entityCache.Contains(entity);
         }
 
         public void Clear()
         {
-            for (int i = 0; i < members.Length; ++i)
-                if (members[i] != CtConstants.InvalidId)
-                    _SetMemberId(i, CtConstants.InvalidId);
+            for (int i = 0; i < slots.Length; ++i)
+                if (slots[i].EntityCache)
+                    slots[i].EntityCache = null;
+        }
+
+        private bool _FindDisconnectedIndex(string alias, out int index)
+        {
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot.DisconnectedUuid == alias)
+                {
+                    index = i;
+                    return true;
+                }
+            }
+
+            index = -1;
+            return false;
+        }
+
+        public bool WasConnectedToParty(CtEntity entity)
+        {
+            return _FindDisconnectedIndex(entity.DisplayName, out var index);
+        }
+
+        public void Reconnected(CtEntity entity)
+        {
+            if (!_FindDisconnectedIndex(entity.DisplayName, out var index))
+            {
+#if DEBUG_LOGS
+                LogCritical($"Cannot find member to reconnect to party (uuid={entity.DisplayName}).");
+#endif
+                return;
+            }
+
+#if DEBUG_LOGS
+            LogDebug($"Reconnecting to party (partyId={identifier}, uuid={entity.DisplayName}).");
+#endif
+
+            slots[index].Reconnected(entity.DisplayName);
+            slots[index].EntityCache = entity;
+        }
+
+        public void Disconnected(CtEntity entity)
+        {
+#if DEBUG_LOGS
+            LogCritical($"Cannot find member to disconnect from party (uuid={entity.DisplayName}).");
+#endif
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot.EntityCache == entity)
+                {
+#if DEBUG_LOGS
+                    LogDebug($"Disconnecting from party (partyId={identifier}, uuid={entity.DisplayName}).");
+#endif
+
+                    slot.Disconnected(entity.DisplayName);
+                    slots[i].EntityCache = null;
+                    return;
+                }
+            }
         }
 
         public void Leave(CtEntity entity)
@@ -158,16 +240,17 @@ namespace CreatureTime
             LogDebug($"Leaving party (party={this}, entity={entity}).");
 #endif
 
-            int index = Array.IndexOf(members, entity.Identifier);
-            if (index == -1)
+            for (int i = 0; i < slots.Length; i++)
             {
-#if DEBUG_LOGS
-                LogCritical("Cannot find member to remove from party.");
-#endif
+                var slot = slots[i];
+                if (slot.EntityCache != entity) continue;
+                slots[i].Identifier = CtConstants.InvalidId;
                 return;
             }
 
-            _SetMemberId(index, CtConstants.InvalidId);
+#if DEBUG_LOGS
+            LogCritical("Cannot find member to remove from party.");
+#endif
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿
 using UdonSharp;
+using UnityEngine;
 using VRC.SDK3.Data;
 
 namespace CreatureTime
@@ -7,6 +8,26 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtGameData : CtSingleton
     {
+        [SerializeField] private CtNpcDef[] npcDefinitions;
+        [SerializeField] private CtSkillDef[] skillDefinitions;
+        [SerializeField] private CtWeaponDef[] weaponDefinitions;
+        [SerializeField] private CtOffHandDef[] offHandDefinitions;
+        [SerializeField] private CtArmorSetDef[] armorDefinitions;
+        [SerializeField] private CtProfessionDef[] professionDefinitions;
+        [SerializeField] private CtAttributeDef[] attributeDefinitions;
+        [SerializeField] private CtAbstractQuest[] questDefinitions;
+        [SerializeField] private CtSquadDef[] squadDefinitions;
+
+        public CtNpcDef[] NpcDefinitions => npcDefinitions;
+        public CtSkillDef[] SkillDefinitions => skillDefinitions;
+        public CtWeaponDef[] WeaponDefinitions => weaponDefinitions;
+        public CtOffHandDef[] OffHandDefinitions => offHandDefinitions;
+        public CtArmorSetDef[] ArmorDefinitions => armorDefinitions;
+        public CtProfessionDef[] ProfessionDefinitions => professionDefinitions;
+        public CtAttributeDef[] AttributeDefinitions => attributeDefinitions;
+        public CtAbstractQuest[] QuestDefinitions => questDefinitions;
+        public CtSquadDef[] SquadDefinitions => squadDefinitions;
+
         private DataDictionary _npcDefinitions = new DataDictionary();
         private DataDictionary _skillDefinitions = new DataDictionary();
         private DataDictionary _weaponDefinitions = new DataDictionary();
@@ -17,68 +38,48 @@ namespace CreatureTime
         private DataDictionary _questDefinitions = new DataDictionary();
         private DataDictionary _squadDefinitions = new DataDictionary();
 
-        public CtSkillDef[] Skills { get; private set; }
-        public CtProfessionDef[] Professions { get; private set; }
-        public CtAbstractQuest[] Quests { get; private set; }
-
         public void Init()
         {
-            CtNpcDef[] npcDefs = GetComponentsInChildren<CtNpcDef>(true);
-            for (int i = 0; i < npcDefs.Length; i++)
+            foreach (var npcDef in npcDefinitions)
             {
-                var npcDef = npcDefs[i];
                 _npcDefinitions[npcDef.Identifier] = npcDef;
             }
 
-            Skills = GetComponentsInChildren<CtSkillDef>(true);
-            for (int i = 0; i < Skills.Length; i++)
+            foreach (var skillDef in skillDefinitions)
             {
-                var skillDef = Skills[i];
                 _skillDefinitions[skillDef.Identifier] = skillDef;
             }
 
-            CtWeaponDef[] weaponDefs = GetComponentsInChildren<CtWeaponDef>(true);
-            for (int i = 0; i < weaponDefs.Length; i++)
+            foreach (var weaponDef in weaponDefinitions)
             {
-                var weaponDef = weaponDefs[i];
                 _weaponDefinitions[weaponDef.Identifier] = weaponDef;
             }
 
-            CtOffHandDef[] offHandDefs = GetComponentsInChildren<CtOffHandDef>(true);
-            for (int i = 0; i < offHandDefs.Length; i++)
+            foreach (var offHandDef in offHandDefinitions)
             {
-                var offHandDef = offHandDefs[i];
                 _offHandDefinitions[offHandDef.Identifier] = offHandDef;
             }
 
-            CtArmorSetDef[] armorDefs = GetComponentsInChildren<CtArmorSetDef>(true);
-            for (int i = 0; i < armorDefs.Length; i++)
+            foreach (var armorDef in armorDefinitions)
             {
-                var armorDef = armorDefs[i];
                 _armorDefinitions[armorDef.Identifier] = armorDef;
             }
 
-            Professions = GetComponentsInChildren<CtProfessionDef>(true);
-            for (int i = 0; i < Professions.Length; i++)
+            foreach (var professionDef in professionDefinitions)
             {
-                var professionDef = Professions[i];
                 _professionDefinitions[professionDef.Identifier] = professionDef;
 
                 foreach (var attributeDef in professionDef.Attributes)
                     _attributeDefinitions[attributeDef.Identifier] = attributeDef;
             }
 
-            Quests = GetComponentsInChildren<CtAbstractQuest>(true);
-            for (int i = 0; i < Quests.Length; i++)
+            foreach (var quest in questDefinitions)
             {
-                var quest = Quests[i];
                 _questDefinitions[quest.Identifier] = quest;
             }
 
-            CtSquadDef[] squadDefs = GetComponentsInChildren<CtSquadDef>(true);
-            for (int i = 0; i < squadDefs.Length; i++)
+            foreach (var squadDef in squadDefinitions)
             {
-                var squadDef = squadDefs[i];
                 _squadDefinitions[squadDef.Identifier] = squadDef;
             }
 

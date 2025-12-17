@@ -109,7 +109,7 @@ namespace CreatureTime.RpgGame
                 renderTextures[i] = AssetDatabase.LoadAssetAtPath<RenderTexture>(assetPath);
             }
 
-            var instance = (CtPlayerManager)Object.FindObjectOfType(typeof(CtPlayerManager));
+            var instance = (CtAvatarSnapshot)Object.FindObjectOfType(typeof(CtAvatarSnapshot));
             var serializedObject = new SerializedObject(instance);
             var playerRenderTexturesProp = serializedObject.FindProperty("playerRenderTextures");
             playerRenderTexturesProp.arraySize = renderTextures.Length;
@@ -127,15 +127,18 @@ namespace CreatureTime.RpgGame
             var party = template.GetComponent<CtParty>();
             var serializedObject = new SerializedObject(party);
 
-            var prop = serializedObject.FindProperty("members");
-            prop.arraySize = partySize;
-            for (int i = 0; i < prop.arraySize; i++)
-                prop.GetArrayElementAtIndex(i).uintValue = CtConstants.InvalidId;
+            var partySlots = party.GetComponentsInChildren<CtPartySlot>(true);
+            for (int i = 0; i < partySlots.Length; i++)
+            {
+                var so = new SerializedObject(partySlots[i]);
+                so.FindProperty("slotIndex").intValue = i;
+                so.ApplyModifiedProperties();
+            }
 
-            prop = serializedObject.FindProperty("membersCmp");
-            prop.arraySize = partySize;
+            var prop = serializedObject.FindProperty("slots");
+            prop.arraySize = partySlots.Length;
             for (int i = 0; i < prop.arraySize; i++)
-                prop.GetArrayElementAtIndex(i).uintValue = CtConstants.InvalidId;
+                prop.GetArrayElementAtIndex(i).objectReferenceValue = partySlots[i];
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -192,14 +195,14 @@ namespace CreatureTime.RpgGame
             serializedObject.ApplyModifiedProperties();
         }
 
-        private static void _UpdatePlayerDefs(int capacity)
-        {
-            var playerManager = (CtPlayerManager)Object.FindObjectOfType(typeof(CtPlayerManager));
-            var serializedObject = new SerializedObject(playerManager);
-            var prop = serializedObject.FindProperty("playerDefs");
-            prop.arraySize = capacity;
-            serializedObject.ApplyModifiedProperties();
-        }
+        // private static void _UpdatePlayerDefs(int capacity)
+        // {
+        //     var playerManager = (CtPlayerManager)Object.FindObjectOfType(typeof(CtPlayerManager));
+        //     var serializedObject = new SerializedObject(playerManager);
+        //     var prop = serializedObject.FindProperty("playerDefs");
+        //     prop.arraySize = capacity;
+        //     serializedObject.ApplyModifiedProperties();
+        // }
 
         private static void _UpdateEntities(int capacity)
         {
@@ -253,7 +256,7 @@ namespace CreatureTime.RpgGame
 
             _UpdateRenderTargets(worldData.Capacity);
             _UpdateTemplateCounts(worldData.Capacity);
-            _UpdatePlayerDefs(worldData.Capacity);
+            // _UpdatePlayerDefs(worldData.Capacity);
             _UpdateEntities(worldData.Capacity);
             _UpdateBattleStates(worldData.Capacity);
         }

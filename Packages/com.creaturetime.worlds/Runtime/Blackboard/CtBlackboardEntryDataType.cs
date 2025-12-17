@@ -58,8 +58,7 @@ namespace CreatureTime
                         return valueFloat != 0;
                     default:
 #if DEBUG_LOGS
-                        LogCritical("Blackboard Entry Date Type",
-                            $"Unknown blackboard entry data type (type={type}).");
+                        LogCritical($"Unknown blackboard entry data type (type={type}).");
 #endif
                         return false;
                 }
@@ -95,8 +94,7 @@ namespace CreatureTime
                         return (short)valueFloat;
                     default:
 #if DEBUG_LOGS
-                        LogCritical("Blackboard Entry Date Type",
-                            $"Unknown blackboard entry data type (type={type}).");
+                        LogCritical($"Unknown blackboard entry data type (type={type}).");
 #endif
                         return 0;
                 }
@@ -132,8 +130,7 @@ namespace CreatureTime
                         return (ushort)valueFloat;
                     default:
 #if DEBUG_LOGS
-                        LogCritical("Blackboard Entry Date Type",
-                            $"Unknown blackboard entry data type (type={type}).");
+                        LogCritical($"Unknown blackboard entry data type (type={type}).");
 #endif
                         return 0;
                 }
@@ -169,8 +166,7 @@ namespace CreatureTime
                         return (int)valueFloat;
                     default:
 #if DEBUG_LOGS
-                        LogCritical("Blackboard Entry Date Type",
-                            $"Unknown blackboard entry data type (type={type}).");
+                        LogCritical($"Unknown blackboard entry data type (type={type}).");
 #endif
                         return 0;
                 }
@@ -206,8 +202,7 @@ namespace CreatureTime
                         return (uint)valueFloat;
                     default:
 #if DEBUG_LOGS
-                        LogCritical("Blackboard Entry Date Type",
-                            $"Unknown blackboard entry data type (type={type}).");
+                        LogCritical($"Unknown blackboard entry data type (type={type}).");
 #endif
                         return 0;
                 }
@@ -243,8 +238,7 @@ namespace CreatureTime
                         return (long)valueFloat;
                     default:
 #if DEBUG_LOGS
-                        LogCritical("Blackboard Entry Date Type",
-                            $"Unknown blackboard entry data type (type={type}).");
+                        LogCritical($"Unknown blackboard entry data type (type={type}).");
 #endif
                         return 0;
                 }
@@ -280,8 +274,7 @@ namespace CreatureTime
                         return (ulong)valueFloat;
                     default:
 #if DEBUG_LOGS
-                        LogCritical("Blackboard Entry Date Type",
-                            $"Unknown blackboard entry data type (type={type}).");
+                        LogCritical($"Unknown blackboard entry data type (type={type}).");
 #endif
                         return 0;
                 }
@@ -317,8 +310,7 @@ namespace CreatureTime
                         return valueFloat;
                     default:
 #if DEBUG_LOGS
-                        LogCritical("Blackboard Entry Date Type",
-                            $"Unknown blackboard entry data type (type={type}).");
+                        LogCritical($"Unknown blackboard entry data type (type={type}).");
 #endif
                         return 0;
                 }
@@ -348,8 +340,7 @@ namespace CreatureTime
                     break;
                 default:
 #if DEBUG_LOGS
-                    LogCritical("Blackboard Entry Date Type",
-                        $"Unknown blackboard entry data type (type={type}).");
+                    LogCritical($"Unknown blackboard entry data type (type={type}).");
 #endif
                     break;
             }

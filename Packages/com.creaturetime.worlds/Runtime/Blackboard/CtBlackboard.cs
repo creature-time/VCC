@@ -5,7 +5,7 @@ using VRC.SDK3.Data;
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class CtBlackboard : UdonSharpBehaviour
+    public class CtBlackboard : CtLoggerUdonScript
     {
         private DataDictionary _data = new DataDictionary();
 
@@ -44,6 +44,10 @@ namespace CreatureTime
                 value = _GetBool(token);
                 return true;
             }
+
+#if DEBUG_LOGS
+            LogWarning($"Failed to find {key} as Boolean.");
+#endif
 
             value = default;
             return false;
@@ -88,6 +92,10 @@ namespace CreatureTime
                 return true;
             }
 
+#if DEBUG_LOGS
+            LogWarning($"Failed to find {key} as Short.");
+#endif
+
             value = 0;
             return false;
         }
@@ -130,6 +138,10 @@ namespace CreatureTime
                 value = _GetUShort(token);
                 return true;
             }
+
+#if DEBUG_LOGS
+            LogWarning($"Failed to find {key} as UShort.");
+#endif
 
             value = 0;
             return false;
@@ -174,6 +186,10 @@ namespace CreatureTime
                 return true;
             }
 
+#if DEBUG_LOGS
+            LogWarning($"Failed to find {key} as Int.");
+#endif
+
             value = default;
             return false;
         }
@@ -216,6 +232,10 @@ namespace CreatureTime
                 value = _GetUInt(token);
                 return true;
             }
+
+#if DEBUG_LOGS
+            LogWarning($"Failed to find {key} as UInt.");
+#endif
 
             value = 0;
             return false;
@@ -260,6 +280,10 @@ namespace CreatureTime
                 return true;
             }
 
+#if DEBUG_LOGS
+            LogWarning($"Failed to find {key} as Long");
+#endif
+
             value = 0;
             return false;
         }
@@ -303,6 +327,10 @@ namespace CreatureTime
                 return true;
             }
 
+#if DEBUG_LOGS
+            LogWarning($"Failed to find {key} as ULong.");
+#endif
+
             value = 0;
             return false;
         }
@@ -345,6 +373,10 @@ namespace CreatureTime
                 value = _GetFloat(token);
                 return true;
             }
+
+#if DEBUG_LOGS
+            LogWarning($"Failed to find {key} as Float.");
+#endif
 
             value = default;
             return false;

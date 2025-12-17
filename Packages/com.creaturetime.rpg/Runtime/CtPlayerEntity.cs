@@ -1,7 +1,6 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
-using VRC.SDKBase;
 using VRC.Udon.Common.Interfaces;
 
 namespace CreatureTime
@@ -9,30 +8,13 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtPlayerEntity : CtEntity
     {
-        [SerializeField] private CtPlayerManager playerManager;
+        [SerializeField] private CtPlayerWorldPersistenceData playerWorldPersistenceData;
 
         private CtPlayerTurn _playerTurn;
 
-        public override ushort EntityId => PlayerDef.PlayerId;
-
-        public override Vector3 Position
-        {
-            get
-            {
-                var playerApi = VRCPlayerApi.GetPlayerById(PlayerDef.PlayerId);
-                return playerApi.GetPosition();
-            }
-        }
-
-        public override Quaternion Rotation
-        {
-            get
-            {
-                var playerApi = VRCPlayerApi.GetPlayerById(PlayerDef.PlayerId);
-                return playerApi.GetRotation();
-            }
-        }
-
+        public override ushort EntityId => CtConstants.InvalidId;
+        public override Vector3 Position => playerWorldPersistenceData.PlayerPersistenceData.RootTransform.position;
+        public override Quaternion Rotation => playerWorldPersistenceData.PlayerPersistenceData.RootTransform.rotation;
         public override bool IsPlayer => true;
 
         public CtPlayerDef PlayerDef

@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 
@@ -32,6 +33,24 @@ namespace CreatureTime
             const string RarityRareColor = "#db9d00";
 
             string color = RarityDefaultColor;
+            switch (rarity)
+            {
+                case EItemRarity.Common:
+                    color = RarityCommonColor;
+                    break;
+                case EItemRarity.Magical:
+                    color = RarityMagicalColor;
+                    break;
+                case EItemRarity.Uncommon:
+                    color = RarityUncommonColor;
+                    break;
+                case EItemRarity.Rare:
+                    color = RarityRareColor;
+                    break;
+                default:
+                    LogCritical($"Rarity not implemented (rarity={rarity}).");
+                    break;
+            }
 
             equipmentName = $"<color={color}>{DisplayName}</color>";
 

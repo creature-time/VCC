@@ -1,45 +1,119 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 using VRC.SDKBase;
 
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class CtAvatarSnapshot : UdonSharpBehaviour
+    public class CtAvatarSnapshot : CtLoggerUdonScript
     {
         [SerializeField] public Camera captureCamera;
 
-        [Range(0.1f, 100.0f)]
-        public float distance = 1.0f;
+        [SerializeField] private RenderTexture[] playerRenderTextures;
+        private DataDictionary _registry = new DataDictionary();
+        private DataList _playerRenderTexturesToUpdate = new DataList();
+
+        // [Range(0.1f, 100.0f)]
+        // public float distance = 1.0f;
 
         private void Start()
         {
             // Move it to root so we can properly assign the position and rotation for taking the photo.
-            captureCamera.transform.parent = null;
+            transform.parent = null;
         }
 
-        public void UpdatePlayerIcon(CtPlayerDef playerStats)
+        public bool Register(int playerId, out Texture renderTexture)
         {
-            int playerMask = LayerMask.NameToLayer("Player");
-            int mirrorReflectionMask = LayerMask.NameToLayer("MirrorReflection");
+            renderTexture = null;
+            foreach (var rt in playerRenderTextures)
+            {
+                if (rt.IsCreated()) continue;
 
-            captureCamera.targetTexture = (RenderTexture)playerStats.Icon;
-            captureCamera.cullingMask = playerStats.IsLocal ? 1 << mirrorReflectionMask : 1 << playerMask;
+#if DEBUG_LOGS
+                LogDebug($"Registering render texture to player (playerId={playerId}, renderTexture={rt}).");
+#endif
 
-            var player = VRCPlayerApi.GetPlayerById(playerStats.PlayerId);
-            if (player == null)
+                _registry.Add(playerId, rt);
+                _QueueSnapshot(playerId);
+
+                renderTexture = rt;
+                return true;
+            }
+
+#if DEBUG_LOGS
+            LogCritical($"Failed to find render texture to register to player (playerId={playerId}).");
+#endif
+
+            return false;
+        }
+
+        public void Unregister(int playerId)
+        {
+            if (!_registry.TryGetValue(playerId, out var token))
+            {
+#if DEBUG_LOGS
+                LogCritical($"Failed to find player to unregister (playerId={playerId}).");
+#endif
                 return;
+            }
 
-            Vector3 position = player.GetBonePosition(HumanBodyBones.Head);
-            Quaternion rotation = player.GetRotation();
+            var renderTexture = (RenderTexture)token.Reference;
+            renderTexture.Release();
+            _registry.Remove(playerId);
+        }
 
-            var cameraTransform = captureCamera.transform;
-            cameraTransform.position = position;
-            cameraTransform.rotation = Quaternion.Euler(0, 135, 0) * rotation;
-            cameraTransform.position -= cameraTransform.forward * distance;
+        private void _UpdatePlayerIcon(int playerId)
+        {
+            if (!_registry.TryGetValue(playerId, out var token))
+            {
+                return;
+            }
 
+            var renderTexture = (RenderTexture)token.Reference;
+
+#if DEBUG_LOGS
+            LogDebug($"Updating to update player avatar texture (playerId={playerId}).");
+#endif
+
+            var player = VRCPlayerApi.GetPlayerById(playerId);
+            if (player == null) return;
+
+            transform.position = player.GetBonePosition(HumanBodyBones.Head);;
+            transform.rotation = player.GetRotation();
+
+            captureCamera.targetTexture = renderTexture;
             captureCamera.Render();
+        }
+
+        public void UpdatePlayerAvatar()
+        {
+            for (int i = 0; i < _playerRenderTexturesToUpdate.Count; i++)
+            {
+                _UpdatePlayerIcon(_playerRenderTexturesToUpdate[i].Int);
+            }
+
+            _playerRenderTexturesToUpdate.Clear();
+        }
+
+        private void _QueueSnapshot(int playerId)
+        {
+#if DEBUG_LOGS
+            LogDebug($"Queued to update player avatar texture (playerId={playerId}).");
+#endif
+
+            if (_playerRenderTexturesToUpdate.Contains(playerId)) return;
+
+            if (_playerRenderTexturesToUpdate.Count == 0)
+                SendCustomEventDelayedSeconds(nameof(UpdatePlayerAvatar), 5);
+
+            _playerRenderTexturesToUpdate.Add(playerId);
+        }
+
+        public override void OnAvatarChanged(VRCPlayerApi player)
+        {
+            _QueueSnapshot(player.playerId);
         }
     }
 }

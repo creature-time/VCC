@@ -39,7 +39,7 @@ namespace CreatureTime
                     return feetSlot;
                 default:
 #if DEBUG_LOGS
-                    CtLogger.LogError("Armor Definition", $"Unknown armor slot (armorSlot={armorSlot}).");
+                    LogCritical($"Unknown armor slot (armorSlot={armorSlot}).");
 #endif
                     return null;
             }
@@ -61,7 +61,7 @@ namespace CreatureTime
                     return 4;
                 default:
 #if DEBUG_LOGS
-                    CtLogger.LogError("Armor Definition", $"Unknown armor slot (armorSlot={armorSlot}).");
+                    Debug.LogError($"Unknown armor slot (armorSlot={armorSlot}).");
 #endif
                     return -1;
             }

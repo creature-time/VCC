@@ -1,9 +1,7 @@
 ﻿
-using UdonSharp;
-
 namespace CreatureTime
 {
-    public abstract class CtNpcBrain : UdonSharpBehaviour
+    public abstract class CtNpcBrain : CtLoggerUdonScript
     {
         public abstract CtBlackboard Context { get; }
 

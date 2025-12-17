@@ -37,7 +37,7 @@ namespace CreatureTime
         public const int MaxSkillCount = 10;
 
         [SerializeField] protected string displayName;
-        [SerializeField] private Texture icon;
+        [SerializeField] protected Texture icon;
 
         [SerializeField, UdonSynced, FieldChangeCallback(nameof(AttributeDataCallback))]
         private ulong attributeData = CtDataBlock.InvalidData;
@@ -502,7 +502,6 @@ namespace CreatureTime
 
         public void SetSkill(int index, ushort skillId)
         {
-            Debug.Log($"foobar {index} {skillId}");
             switch (index)
             {
                 case 0: SkillSlot0 = skillId; return;
@@ -607,11 +606,6 @@ namespace CreatureTime
             exp = other.exp;
 
             RequestSerialization();
-        }
-
-        public void SetRenderTexture(RenderTexture renderTexture)
-        {
-            icon = renderTexture;
         }
 
         // TODO: Move these from this class.

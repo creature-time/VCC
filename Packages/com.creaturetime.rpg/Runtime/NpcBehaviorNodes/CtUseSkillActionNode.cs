@@ -23,7 +23,7 @@ namespace CreatureTime
             context.TryGetFloat("SkillFocus/ConditionsWeight",  out var conditionsWeight);
             context.TryGetFloat("SkillFocus/DamageWeight",  out var damageWeight);
 
-            float[] skillWeights = new float[10];
+            var skillWeights = new float[10];
             for (int i = 0; i < 10; ++i)
             {
                 skillWeights[i] = 0;
@@ -39,10 +39,27 @@ namespace CreatureTime
 
                 context.TryGetFloat($"Skills.Values[{i}]/SkillRecharging",  out var recharge);
                 skillWeights[i] += Mathf.Clamp(recharge, 0.0f, 1.0f);
+
+#if DEBUG_LOGS
+                LogDebug($"Skill weight for {i} was {skillWeights[i]}.");
+#endif
             }
 
             var skillIndex = CtRandomizer.GetRandomFromArray(skillWeights);
+#if DEBUG_LOGS
+            LogDebug($"Chosen skill index {skillIndex}.");
+#endif
             context.SetInt("Result/SkillIndex", skillIndex);
+
+            if (skillIndex != -1)
+            {
+                if (!context.TryGetUShort($"Skills.Values[{skillIndex}]/Identifier", out var skillId))
+                {
+                    return ENodeStatus.Failure;
+                }
+
+                context.SetUShort("Result/SkillId", skillId);
+            }
 
             return chooseTargetNode.Process(context);
         }

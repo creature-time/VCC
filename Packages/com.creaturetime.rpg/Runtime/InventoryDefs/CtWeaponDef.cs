@@ -47,8 +47,7 @@ namespace CreatureTime
                     return "Icy";
                 default:
 #if DEBUG_LOGS
-                    CtLogger.LogCritical("Weapon Definition", 
-                        $"Prefix display name was not defined (prefix={prefix}).");
+                    Debug.LogError($"Prefix display name was not defined (prefix={prefix}).");
 #endif
                     return "<Invalid>";
             }
@@ -70,8 +69,7 @@ namespace CreatureTime
                     return "Enchanting";
                 default:
 #if DEBUG_LOGS
-                    CtLogger.LogCritical("Weapon Definition",
-                        $"Suffix display name was not defined (suffix={suffix}).");
+                    Debug.LogError($"Suffix display name was not defined (suffix={suffix}).");
 #endif
                     return "<Invalid>";
             }
@@ -139,21 +137,28 @@ namespace CreatureTime
         {
             isCritical = _IsCritical(sourceLevel, targetLevel, weaponAttributeLevel);
 
-            int weaponDamage = isCritical
+            var weaponDamage = isCritical
                 ? (int)(damageMax * 1.2f)
                 : Random.Range(damageMin, damageMax);
 
-            int attributeThreshold = (sourceLevel + 4) / 2;
-            int strikeLevel = isCritical
+            var attributeThreshold = (sourceLevel + 4) / 2;
+            var strikeLevel = isCritical
                 ? weaponAttributeLevel + 20
                 : 5 * Mathf.Min(weaponAttributeLevel, attributeThreshold) +
                   2 * Mathf.Max(0, weaponAttributeLevel - attributeThreshold);
-            int damageTotal = CtEntityDef.CalculateDamage(weaponDamage, strikeLevel, targetArmorRating);
+            var damageTotal = CtEntityDef.CalculateDamage(weaponDamage, strikeLevel, targetArmorRating);
             damageTotal = Mathf.Max(0, damageTotal);
 
             // If source does not meet requirements to use the weapon.
             if (sourceWeaponAttributeLevel < weaponAttributeLevel)
-                damageTotal = (int)(damageTotal * (1.0f / 3.0f));
+                damageTotal = (int)(damageTotal * CtConstants.OneThirds);
+
+#if DEBUG_LOGS
+            Debug.Log("Calculating weapon damage " +
+                      $"(reqAttrLevel={weaponAttributeLevel}, sourceAttrLevel={sourceWeaponAttributeLevel}, " +
+                      $"sourceLevel={sourceLevel}, targetLevel={targetLevel}, targetArmorRating={targetArmorRating}, " +
+                      $"isCritical={isCritical}, damageTotal={damageTotal})");
+#endif
 
             return damageTotal;
         }
@@ -188,7 +193,7 @@ namespace CreatureTime
                     break;
                 default:
 #if DEBUG_LOGS
-                    CtLogger.LogCritical("Weapon Definition", $"Item rarity not supported (rarity={rarity}).");
+                    Debug.LogError($"Item rarity not supported (rarity={rarity}).");
 #endif
                     break;
             }
@@ -231,8 +236,7 @@ namespace CreatureTime
                     break;
                 default:
 #if DEBUG_LOGS
-                    CtLogger.LogCritical("Weapon Definition", 
-                        $"Not supported weapon damage type (damageType={damageType}).");
+                    Debug.LogError($"Not supported weapon damage type (damageType={damageType}).");
 #endif
                     break;
             }

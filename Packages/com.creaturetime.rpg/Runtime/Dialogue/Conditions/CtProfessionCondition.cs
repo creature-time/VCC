@@ -14,7 +14,7 @@ namespace CreatureTime.RpgGame
 
         public override bool IsValid()
         {
-            var attributeData = rpgGame.PlayerManager.LocalPlayerDef.AttributeData;
+            var attributeData = rpgGame.LocalEntity.EntityDef.AttributeData;
             if (!CtDataBlock.IsValid(attributeData))
             {
                 LogCritical("Invalid attribute data.");

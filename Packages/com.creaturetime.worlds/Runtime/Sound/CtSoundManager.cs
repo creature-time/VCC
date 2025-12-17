@@ -50,7 +50,6 @@ namespace CreatureTime
             {
                 foreach (var poolObject in _sourceEmitterPool)
                 {
-                    Debug.Log(poolObject);
                     if (!_activeSoundEmitters.Contains(poolObject))
                     {
                         soundEmitter = poolObject;

@@ -85,6 +85,7 @@ namespace CreatureTime
             return "None";
         }
 
+        private bool blocked = false;
         private void Log(string domain, string message, ELoggerType loggerType)
         {
             DateTime now = DateTime.Now;
@@ -122,7 +123,7 @@ namespace CreatureTime
                     break;
             }
 
-            this.SetArgs.Add(_message);
+            SetArgs.Add(_message);
             this.Emit(ELoggerSignal.MessageChanged);
         }
     }

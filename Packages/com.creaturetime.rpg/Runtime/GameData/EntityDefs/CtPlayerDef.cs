@@ -2,7 +2,6 @@
 using System;
 using UdonSharp;
 using UnityEngine;
-using VRC.SDKBase;
 
 namespace CreatureTime
 {
@@ -11,8 +10,21 @@ namespace CreatureTime
     {
         private const int MaxInventoryCount = 16;
 
-        [SerializeField] private CtPlayerManager playerManager;
+        [SerializeField] private CtPlayerPersistenceData playerPersistenceData;
         [SerializeField] private CtPlayerTurn playerTurn;
+
+        private int _playerId;
+
+        public void Setup(Texture texture)
+        {
+            displayName = playerPersistenceData.DisplayName;
+            icon = texture;
+        }
+
+        public void TearDown()
+        {
+            icon = null;
+        }
 
         public void WeaponAttack(CtEntity target)
         {
@@ -52,8 +64,6 @@ namespace CreatureTime
             }
         }
 
-        public bool IsLocal { get; set; }
-        public ushort PlayerId { get; set; } = CtConstants.InvalidId;
         public CtPlayerTurn PlayerTurn => playerTurn;
 
         [HideInInspector, SerializeField, UdonSynced] private ulong[] inventory = new ulong[MaxInventoryCount]
@@ -139,30 +149,6 @@ namespace CreatureTime
                 if (_cmpInventory[i] != inventory[i])
                     _OnInventoryChanged(i);
             }
-        }
-
-        public override void OnPlayerRestored(VRCPlayerApi player)
-        {
-#if DEBUG_LOGS
-            CtLogger.LogDebug("Player Stats",
-                $"Player Restored (displayName={player.displayName}, playerId={player.playerId})");
-#endif
-
-            if (PlayerId != CtConstants.InvalidId)
-                return;
-
-            if (player.IsOwner(gameObject))
-            {
-                displayName = player.displayName;
-                IsLocal = player.isLocal;
-                PlayerId = (ushort)player.playerId;
-                playerManager.Client_OnPlayerAdded(this);
-            }
-        }
-
-        public void OnDestroy()
-        {
-            playerManager.Client_OnPlayerRemoved(this);
         }
     }
 }

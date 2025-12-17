@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace CreatureTime
 {
@@ -60,7 +61,7 @@ namespace CreatureTime
             _rarity.Init(EItemRarity.None);
             _container.Add(_rarity);
 
-            _levelReq = new SliderInt(0, 13)
+            _levelReq = new SliderInt(1, 13)
             {
                 label = "Requirement"
             };
@@ -118,7 +119,7 @@ namespace CreatureTime
 
             CtWeaponDef found = null;
             EItemRarity rarity = EItemRarity.None;
-            int requirement = -1;
+            int requirement = 1;
             // EWeaponPrefix prefix = EWeaponPrefix.None;
             // EWeaponSuffix suffix = EWeaponSuffix.None;
 
@@ -130,14 +131,15 @@ namespace CreatureTime
                 {
                     ushort identifier = CtDataBlock.GetWeaponIdentifier(data);
                     List<CtWeaponDef> weaponDefinitions =
-                        GameObject.FindObjectsOfType<CtWeaponDef>(true).ToList();
+                        Object.FindObjectsOfType<CtWeaponDef>(true).ToList();
                     found = weaponDefinitions.Find(definition => definition.Identifier == identifier);
                     if (found)
                     {
+                        requirement = CtDataBlock.GetWeaponRequirement(data);
                         found.GetFormattedStats(data, ref displayName, ref stats, ref rarity, ref requirement);
                         stats = $"{displayName}\n{stats}";
 
-                        texture = found.Icon as Texture2D;
+                        texture = found.Icon;
                         if (!texture)
                             texture = AssetDatabase.LoadAssetAtPath<Texture2D>(
                                 "Assets/CreatureTime/Worlds/CreatureTimeRPG/Editor/unknown.png");

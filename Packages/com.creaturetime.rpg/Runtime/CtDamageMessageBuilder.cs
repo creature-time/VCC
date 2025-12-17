@@ -88,7 +88,7 @@ namespace CreatureTime
         {
 #if DEBUG_LOGS
             LogDebug("Sending damage block header... " +
-                     $"(timestamp={_timestamp}, sourceId={_sourceId}, targetId={_targetId}, skillId={_skillId})");
+                     $"(sourceId={_sourceId}, targetId={_targetId}, skillId={_skillId})");
 #endif
 
             SetArgs.Add(_sourceId);

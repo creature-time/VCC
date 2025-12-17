@@ -127,9 +127,9 @@ namespace CreatureTime.Editor.Rpg
             ObjectField icon = new ObjectField
             {
                 label = "Icon",
-                bindingPath = "icon"
+                bindingPath = "icon",
+                objectType = typeof(Texture)
             };
-            icon.objectType = typeof(Texture);
             rootVisualElement.Add(icon);
 
             if (serializedObject.targetObject.GetType() == typeof(CtNpcDef))

@@ -55,12 +55,6 @@ namespace CreatureTime
 
         public void Play()
         {
-            // if (_emitter)
-            // {
-            //     _emitter.Stop();
-            //     _emitter = null;
-            // }
-
             if (!soundManager.TryGet(out _emitter)) return;
 
             _emitter.Initialize(_position, _clip, _isLooping, _playOnAwake, _pitch, _volume, _is2d);

@@ -41,9 +41,9 @@ namespace CreatureTime
             animator.SetTrigger("MeleeAttack");
         }
 
-        public float UseSkill(bool isMeleeSkill)
+        public float UseSkill(CtSkillDef skillDef)
         {
-            if (isMeleeSkill)
+            if (skillDef.IsWeaponSkill)
             {
                 MeleeAttack();
                 return 0f;
@@ -67,6 +67,11 @@ namespace CreatureTime
         public void ResetAttack()
         {
             Brain.Context.SetInt("TurnState", 0);
+        }
+
+        public void TakeDamage()
+        {
+            animator.SetTrigger("TakeDamage");
         }
     }
 }

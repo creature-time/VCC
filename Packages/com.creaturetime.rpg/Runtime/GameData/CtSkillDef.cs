@@ -1,5 +1,6 @@
 ﻿
 using UnityEngine;
+using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
@@ -12,7 +13,7 @@ namespace CreatureTime
 
         [SerializeField] private bool isWeaponSkill;
         [SerializeField] private ushort attributeType = CtConstants.InvalidId;
-        [SerializeField, HideInInspector] private ECombatEffectFlags flags;
+        [SerializeField] private ECombatEffectFlags flags;
 
         public ushort AttributeType => attributeType;
         public ECombatEffectFlags Flags => flags;
@@ -31,7 +32,7 @@ namespace CreatureTime
 
         public int Value => (Type == ESkillType.Adrenaline) ? Cost * 25 : Cost;
 
-        public virtual void OnUse(CtGameData gameData, CtEntity target, CtEntity source) {}
+        public virtual void OnUse(CtGameData gameData, CtEntity source, CtEntity target, DataList adjacentTargets) {}
         public virtual void OnEntryEffect(CtEntity target, CtEntity source) {}
         public virtual void OnPersistentEffect(CtEntity target, CtEntity source) {}
         public virtual void OnSkillUsed(CtGameData gameData, CtEntity target, CtEntity source, CtSkillDef usedSkill) {}
@@ -83,8 +84,9 @@ namespace CreatureTime
         public static void MeleeAttack(CtGameData gameData, CtEntity target, CtEntity source)
         {
             int damage = _CalcMeleeAttack(gameData, target, source, out var weaponDefinition, out var attributeRank, out var isCritical);
-            target.ApplyDamage(damage, weaponDefinition.DamageType, EDamageSourceType.Weapon, 
-                weaponDefinition.Identifier, source, isCritical);
+            source.GainAdrenaline(25);
+            _MeleeApplyDamage(
+                target, damage, weaponDefinition.DamageType, EDamageSourceType.Weapon, weaponDefinition.Identifier, source, isCritical);
         }
 
         private static int CalculateArmorRating(CtGameData gameData, CtEntity target)
@@ -151,8 +153,8 @@ namespace CreatureTime
                     int additionalArmorRating = CtDataBlock.GetOffHandModifierStat(offHandWeaponData);
                     int armorRatingCap = 16;
 
-                    // If source does not meet requirements to use the weapon.
-                    if (reqRank <= attributeRank)
+                    // If target does not meet requirements to block.
+                    if (attributeRank < reqRank)
                     {
                         additionalArmorRating /= 2;
                         armorRatingCap /= 2;
@@ -205,8 +207,20 @@ namespace CreatureTime
                 gameData, target, source, out var weaponDefinition, out var attributeRank, out var isCritical);
             damage += CalcDamage(
                 damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel, armorRating);
-            target.ApplyDamage(
-                damage, weaponDefinition.DamageType, EDamageSourceType.Skill, skillId, source, isCritical);
+            _MeleeApplyDamage(
+                target, damage, weaponDefinition.DamageType, EDamageSourceType.Skill, skillId, source, isCritical);
+        }
+
+        private static void _MeleeApplyDamage(CtEntity target, int damage, EDamageType damageType,
+            EDamageSourceType damageSourceType, ushort identifier, CtEntity instigator, bool isCritical)
+        {
+            int adrenaline = 25;
+#if DEBUG_LOGS
+            Debug.Log($"Adrenaline gained due to weapon used (adrenaline={adrenaline}).");
+#endif
+            instigator.GainAdrenaline(adrenaline);
+
+            target.ApplyDamage(damage, damageType, damageSourceType, identifier, instigator, isCritical);
         }
 
         public static void SpellSkill(CtGameData gameData, CtEntity target, CtEntity source, 

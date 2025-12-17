@@ -1,10 +1,9 @@
 
-using UnityEngine;
 using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
-    public class CtAbstractSignal : CtLoggerUdonScript
+    public abstract class CtAbstractSignal : CtLoggerUdonScript
     {
         private DataDictionary _callbacks = new DataDictionary();
 
@@ -24,7 +23,7 @@ namespace CreatureTime
         {
             if (!_callbacks.ContainsKey(typeId))
             {
-#if DEBUG_LOGS
+#if DEBUG_SIGNALS
                 LogDebug($"Adding typeId to callbacks (signal={this}, typeId={typeId}).");
 #endif
                 _callbacks.Add(typeId, new DataDictionary());
@@ -32,13 +31,13 @@ namespace CreatureTime
 
             if (!_callbacks[typeId].DataDictionary.ContainsKey(receiver))
             {
-#if DEBUG_LOGS
+#if DEBUG_SIGNALS
                 LogDebug($"Adding receiver to receivers (signal={this}, typeId={typeId}, receiver={receiver}).");
 #endif
                 _callbacks[typeId].DataDictionary.Add(receiver, new DataList());
             }
 
-#if DEBUG_LOGS
+#if DEBUG_SIGNALS
             LogDebug($"Connected (signal={this}, typeId={typeId}, receiver={receiver}, method={method}).");
 #endif
             _callbacks[typeId].DataDictionary[receiver].DataList.Add(method);
@@ -60,20 +59,20 @@ namespace CreatureTime
             DataList methods = receivers[receiver].DataList;
             methods.Remove(method);
 
-#if DEBUG_LOGS
+#if DEBUG_SIGNALS
             LogDebug($"Disconnected (signal={this}, typeId={typeId}, receiver={receiver}, method={method}).");
 #endif
 
             if (methods.Count > 0)
                 return;
-#if DEBUG_LOGS
+#if DEBUG_SIGNALS
             LogDebug($"Removing receiver from receivers (signal={this}, typeId={typeId}, receiver={receiver}).");
 #endif
             receivers.Remove(receiver);
 
             if (receivers.Count > 0)
                 return;
-#if DEBUG_LOGS
+#if DEBUG_SIGNALS
             LogDebug($"Removing typeId from callbacks (signal={this}, typeId={typeId}).");
 #endif
             _callbacks.Remove(typeId);
@@ -86,7 +85,7 @@ namespace CreatureTime
 
             _blocked = true;
 
-#if DEBUG_LOGS
+#if DEBUG_SIGNALS
             LogDebug($"Begin emitting (signal={this}, typeId={typeId}).");
 #endif
 
@@ -100,7 +99,7 @@ namespace CreatureTime
                     var receiver = tokens[i];
                     if (!receivers.ContainsKey(receiver))
                     {
-#if DEBUG_LOGS
+#if DEBUG_SIGNALS
                         LogWarning($"Receiver was invalid (signal={this}, typeId={typeId}, receiver={receiver}).");
 #endif
                         continue;
@@ -116,7 +115,7 @@ namespace CreatureTime
                     {
                         string method = methods[j].String;
 
-#if DEBUG_LOGS
+#if DEBUG_SIGNALS
                         LogDebug($"Emitting (signal={this}, typeId={typeId}, receiver={receiver}, method={method}).");
 #endif
 

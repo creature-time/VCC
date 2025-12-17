@@ -34,7 +34,7 @@ namespace CreatureTime
             if (identifier == -1)
             {
 #if DEBUG_LOGS
-                CtLogger.LogWarning("Sequence Manager", "Failed to find an available sequence.");
+                LogWarning("Failed to find an available sequence.");
 #endif
                 return -1;
             }

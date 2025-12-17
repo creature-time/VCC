@@ -2203,19 +2203,19 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: playerManager
+      Data: playerWorldPersistenceData
     - Name: $v
       Entry: 7
       Data: 119|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: playerManager
+      Data: playerWorldPersistenceData
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 120|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: CreatureTime.CtPlayerManager, com.creaturetime.rpg
+      Data: CreatureTime.CtPlayerWorldPersistenceData, com.creaturetime.worlds
     - Name: 
       Entry: 8
       Data: 

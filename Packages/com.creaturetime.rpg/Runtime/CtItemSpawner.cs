@@ -1,12 +1,17 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Components;
 using VRC.SDKBase;
-using VRC.Udon.Common;
 
-namespace CreatureTime.RpgGame
+namespace CreatureTime.RpgGame.Ui
 {
+    public enum EItemSpawnerSignal
+    {
+        PickupChange
+    }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtItemSpawner : CtAbstractSignal
     {
@@ -18,38 +23,37 @@ namespace CreatureTime.RpgGame
 
         private CtWeaponAttack _spawnedMainHandWeapon;
         private VRC_Pickup.PickupHand _pickupHand;
-        private EWeaponAttackType _attackType = EWeaponAttackType.None;
+        // private EWeaponAttackType _attackType = EWeaponAttackType.None;
 
-        private bool CanMelee
-        {
-            set
-            {
-                _spawnedMainHandWeapon.AttackType = value ? _attackType : EWeaponAttackType.None;
-
-                var meshRenderer = playerWeapon.GetComponent<MeshRenderer>();
-
-                MaterialPropertyBlock props = new MaterialPropertyBlock();
-                props.SetVector("_Color", value ? new Vector4(1, 0, 0, 1) :  new Vector4(1, 1, 1, 1));
-
-                const float size = 4f;
-                const float uvRange = 1.0f / 4f;
-
-                float palette = _spawnedMainHandWeapon.Palette;
-                var textureVector = new Vector4(
-                    uvRange,
-                    uvRange,
-                    uvRange * (palette % size),
-                    uvRange * Mathf.Floor(palette / size));
-                props.SetVector("_MainTex_ST", textureVector);
-
-                meshRenderer.SetPropertyBlock(props);
-            }
-        }
+        // private bool CanMelee
+        // {
+        //     set
+        //     {
+        //         _spawnedMainHandWeapon.AttackType = value ? _attackType : EWeaponAttackType.None;
+        //
+        //         var meshRenderer = playerWeapon.GetComponent<MeshRenderer>();
+        //
+        //         MaterialPropertyBlock props = new MaterialPropertyBlock();
+        //         props.SetVector("_Color", value ? new Vector4(1, 0, 0, 1) :  new Vector4(1, 1, 1, 1));
+        //
+        //         const float size = 4f;
+        //         const float uvRange = 1.0f / 4f;
+        //
+        //         float palette = _spawnedMainHandWeapon.Palette;
+        //         var textureVector = new Vector4(
+        //             uvRange,
+        //             uvRange,
+        //             uvRange * (palette % size),
+        //             uvRange * Mathf.Floor(palette / size));
+        //         props.SetVector("_MainTex_ST", textureVector);
+        //
+        //         meshRenderer.SetPropertyBlock(props);
+        //     }
+        // }
 
         void Start()
         {
             entityDef.Connect(EEntityStatsSignal.MainHandChanged, this, nameof(OnMainHandChanged));
-
             OnMainHandChanged();
         }
 
@@ -61,7 +65,7 @@ namespace CreatureTime.RpgGame
                 _spawnedMainHandWeapon = null;
             }
 
-            _attackType = EWeaponAttackType.None;
+            // _attackType = EWeaponAttackType.None;
             ulong mainHandWeapon = entityDef.MainHandWeapon;
             if (CtDataBlock.IsValid(mainHandWeapon))
             {
@@ -69,7 +73,7 @@ namespace CreatureTime.RpgGame
                 CtWeaponDef weaponDef = gameData.GetWeaponDef(weaponId);
                 if (weaponDef)
                 {
-                    _attackType = weaponDef.AttackType;
+                    // _attackType = weaponDef.AttackType;
 
                     var userData = weaponDef.UserData;
                     if (userData)
@@ -183,25 +187,31 @@ namespace CreatureTime.RpgGame
 #if DEBUG_LOGS
             LogDebug($"Pickup weapon (currentHand={playerWeapon.currentHand}).");
 #endif
-            _pickupHand = playerWeapon.currentHand;
-        }
+            // _pickupHand = playerWeapon.currentHand;
 
+            SetArgs.Add(Convert.ToInt32(playerWeapon.currentHand));
+            this.Emit(EItemSpawnerSignal.PickupChange);
+        }
+//
         public override void OnDrop()
         {
 #if DEBUG_LOGS
             LogDebug($"Drop weapon (currentHand={playerWeapon.currentHand}).");
 #endif
-            _pickupHand = VRC_Pickup.PickupHand.None;
-            if (_spawnedMainHandWeapon)
-                CanMelee = false;
-        }
+            // _pickupHand = VRC_Pickup.PickupHand.None;
 
-        public override void InputUse(bool value, UdonInputEventArgs args)
-        {
-            if (!_spawnedMainHandWeapon) return;
-            if (_pickupHand == VRC_Pickup.PickupHand.None) return;
-            if (args.handType == HandType.LEFT && _pickupHand != VRC_Pickup.PickupHand.Left) return;
-            CanMelee = args.boolValue;
+            SetArgs.Add(Convert.ToInt32(VRC_Pickup.PickupHand.None));
+            this.Emit(EItemSpawnerSignal.PickupChange);
+            // if (_spawnedMainHandWeapon)
+            //     CanMelee = false;
         }
+//
+//         public override void InputUse(bool value, UdonInputEventArgs args)
+//         {
+//             if (!_spawnedMainHandWeapon) return;
+//             if (_pickupHand == VRC_Pickup.PickupHand.None) return;
+//             if (args.handType == HandType.LEFT && _pickupHand != VRC_Pickup.PickupHand.Left) return;
+//             CanMelee = args.boolValue;
+//         }
     }
 }

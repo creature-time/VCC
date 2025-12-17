@@ -1,5 +1,4 @@
-﻿#define DEBUG_LOGS
-
+﻿
 using System;
 using UdonSharp;
 using UnityEngine;
@@ -30,7 +29,8 @@ namespace CreatureTime
         private const int MessageDamageValues = MessageBattleStart + 1;
 
         [SerializeField] private CtGameData gameData;
-        [SerializeField] private CtPlayerManager playerManager;
+        [SerializeField] private CtPlayerPersistenceManager playerPersistenceManager;
+        // [SerializeField] private CtPlayerManager playerManager;
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
         [SerializeField] private CtDialogueManager dialogueManager;
@@ -39,14 +39,14 @@ namespace CreatureTime
         [SerializeField] private CtStateMachine stateMachine;
 
         public CtGameData GameData => gameData;
-        public CtPlayerManager PlayerManager => playerManager;
+        public CtPlayerPersistenceManager PlayerPersistenceManager => playerPersistenceManager;
         public CtPartyManager PartyManager => partyManager;
         public CtEntityManager EntityManager => entityManager;
         public CtDialogueManager DialogueManager => dialogueManager;
 
-        private CtEntity _localEntity;
+        private CtPlayerEntity _localEntity;
 
-        public CtEntity LocalEntity
+        public CtPlayerEntity LocalEntity
         {
             get => _localEntity;
             private set
@@ -63,56 +63,78 @@ namespace CreatureTime
 #endif
 
             gameData.Init();
-            playerManager.Init();
+            playerPersistenceManager.Init();
             partyManager.Init();
             entityManager.Init();
 
-            playerManager.Connect(EPlayerManagerSignal.PlayerAdded, this, nameof(_OnPlayerAdded));
-            playerManager.Connect(EPlayerManagerSignal.PlayerRemoved, this, nameof(_OnPlayerRemoved));
+            playerPersistenceManager.Connect(EPlayerPersistenceManagerSignal.LocalPlayerChanged, this, nameof(_OnLocalPlayerChanged));
+            playerPersistenceManager.Connect(EPlayerPersistenceManagerSignal.PlayerAdded, this, nameof(_OnPlayerAdded));
+            playerPersistenceManager.Connect(EPlayerPersistenceManagerSignal.PlayerRemoved, this, nameof(_OnPlayerRemoved));
 
             entityManager.Connect(EEntityManagerSignal.NpcEntityChanged, this, nameof(_OnNpcEntityChanged));
 
             netSocket.Connect(ENetSocketSignal.PacketChanged, this, nameof(_OnPacketChanged));
         }
 
+        public void _OnLocalPlayerChanged()
+        {
+            var playerWorldPersistenceData = (CtPlayerWorldPersistenceData)GetArgs[0].Reference;
+            if (playerWorldPersistenceData)
+            {
+                var playerEntity = playerWorldPersistenceData.GetComponent<CtPlayerEntity>();
+                LocalEntity = playerEntity;
+            }
+            else
+            {
+                LocalEntity = null;
+            }
+        }
+
+        [SerializeField] private CtAvatarSnapshot avatarSnapshot;
         public void _OnPlayerAdded()
         {
-            var playerId = GetArgs[0].UShort;
+            var playerWorldPersistenceData = (CtPlayerWorldPersistenceData)GetArgs[0].Reference;
+            var playerPersistenceData = playerWorldPersistenceData.PlayerPersistenceData;
 
-            var playerDef = playerManager.GetPlayerDef(playerId);
-            if (!playerDef)
-            {
-                LogCritical($"Player def at playerId ({playerId}) does not exist.");
-                return;
-            }
+            avatarSnapshot.Register(playerPersistenceData.PlayerId, out var renderTexture);
+            var playerDef = (CtPlayerDef)playerPersistenceData.Extension;
+            playerDef.Setup(renderTexture);
 
-            entityManager.CreatePlayerEntity(playerId, playerDef, out var playerEntity);
-            if (playerDef.IsLocal)
+            var playerEntity = playerWorldPersistenceData.GetComponent<CtPlayerEntity>();
+            playerEntity.PlayerDef = playerDef;
+
+            if (playerPersistenceData.IsLocal)
                 LocalEntity = playerEntity;
+
+            // TODO: Make owner switch do a check and purge any invalid players, too.
+            if (Networking.IsMaster)
+            {
+                if (partyManager.TryGetConnectedParty(playerEntity, out var party))
+                    party.Reconnected(playerEntity);
+            }
         }
 
         public void _OnPlayerRemoved()
         {
-            var playerId = GetArgs[0].UShort;
+            var playerWorldPersistenceData = (CtPlayerWorldPersistenceData)GetArgs[0].Reference;
+            var playerPersistenceData = playerWorldPersistenceData.PlayerPersistenceData;
 
-            if (!entityManager.TryGetEntity(playerId, out var entity))
-            {
-                LogError($"Failed to find player entity (identifier={entity.Identifier}).");
-                return;
-            }
+            var playerEntity = playerWorldPersistenceData.GetComponent<CtPlayerEntity>();
+            playerEntity.PlayerDef = null;
 
-            var playerDef = (CtPlayerDef)entity.EntityDef;
-            if (playerDef.IsLocal)
+            avatarSnapshot.Unregister(playerPersistenceData.PlayerId);
+            var playerDef = (CtPlayerDef)playerPersistenceData.Extension;
+            playerDef.TearDown();
+
+            if (playerWorldPersistenceData.PlayerPersistenceData.IsLocal)
                 LocalEntity = null;
 
             // TODO: Make owner switch do a check and purge any invalid players, too.
             if (Networking.IsMaster)
             {
-                if (partyManager.TryGetEntityParty(entity, out var party))
-                    _LeaveParty(entity, party);
+                if (partyManager.TryGetEntityParty(playerEntity, out var party))
+                    party.Disconnected(playerEntity);
             }
-
-            entityManager.ReleasePlayerEntity(playerId);
         }
 
         public void _OnNpcEntityChanged()
@@ -137,7 +159,7 @@ namespace CreatureTime
             if (partyManager.TryGetEntityParty(playerEntity, out var party))
             {
 #if DEBUG_LOGS
-                LogWarning($"Entity already joined party  (identifier={party.Identifier})");
+                LogWarning($"Entity already joined party (identifier={party.Identifier})");
 #endif
                 return;
             }
@@ -191,20 +213,10 @@ namespace CreatureTime
         {
             for (int i = 0; i < 4; ++i)
             {
-                var identifier = party.GetMemberId(i);
-                if (identifier != CtConstants.InvalidId)
-                {
-                    if (!entityManager.TryGetEntity(identifier, out var entity))
-                    {
-#if DEBUG_LOGS
-                        LogCritical($"[_HasPlayers] Failed to find entity (identifier={identifier}).");
-#endif
-                        continue;
-                    }
-
-                    if (entity.IsPlayer)
-                        return true;
-                }
+                var entity = party.GetEntity(i);
+                if (!entity) continue;
+                if (entity.IsPlayer)
+                    return true;
             }
 
             return false;
@@ -227,9 +239,23 @@ namespace CreatureTime
             if (party.IsFull)
             {
 #if DEBUG_LOGS
-                LogCritical("Cannot add anymore members to party.");
+                LogWarning("Cannot add anymore members to party.");
 #endif
                 return;
+            }
+
+            for (int i = 0; i < party.MaxCount; i++)
+            {
+                var entity = party.GetEntity(i);
+                if (!entity) continue;
+                if (entity.IsPlayer) continue;
+                if (entity.EntityId != npcDef.Identifier)
+                {
+#if DEBUG_LOGS
+                    LogWarning($"Recruit already added to party (partyId={party.Identifier}, recruitId={npcDef.Identifier}).");
+#endif
+                    return;
+                }
             }
 
             if (!entityManager.TryAcquireRecruit(npcDef, out var recruit))
@@ -304,10 +330,8 @@ namespace CreatureTime
 
             for (int i = 0; i < party.MaxCount; ++i)
             {
-                var identifer = party.GetMemberId(i);
-                if (identifer == CtConstants.InvalidId)
-                    continue;
-                entityManager.TryGetEntity(identifer, out var entity);
+                var entity = party.GetEntity(i);
+                if (!entity) continue;
                 entity.OnStartBattle();
             }
 
@@ -331,10 +355,8 @@ namespace CreatureTime
         {
             for (int i = 0; i < party.MaxCount; ++i)
             {
-                var identifier = party.GetMemberId(i);
-                if (identifier == CtConstants.InvalidId)
-                    continue;
-                entityManager.TryGetEntity(identifier, out var entity);
+                var entity = party.GetEntity(i);
+                if (!entity) continue;
                 entity.OnEndBattle();
                 party.Leave(entity);
                 entityManager.ReleaseEnemy(entity);
@@ -348,24 +370,6 @@ namespace CreatureTime
             }
         }
 
-        public void _Client_TestAttack()
-        {
-            entityManager.TryGetEntity(2000, out var target);
-#if DEBUG_LOGS
-            LogDebug($"Test Attack (target={target.name})");
-#endif
-            playerManager.LocalPlayerDef.WeaponAttack(target);
-        }
-
-        public void _Client_TestSkill()
-        {
-            entityManager.TryGetEntity(2000, out var target);
-#if DEBUG_LOGS
-            LogDebug($"Test Attack (target={target.name})");
-#endif
-            playerManager.LocalPlayerDef.UseSkill(0, target);
-        }
-
         public void EndBattle(CtBattleState battleState)
         {
 #if DEBUG_LOGS
@@ -374,10 +378,9 @@ namespace CreatureTime
 
             for (int i = 0; i < battleState.AllyParty.MaxCount; ++i)
             {
-                var identifer = battleState.AllyParty.GetMemberId(i);
-                if (identifer == CtConstants.InvalidId)
+                var entity = battleState.AllyParty.GetEntity(i);
+                if (!entity)
                     continue;
-                entityManager.TryGetEntity(identifer, out var entity);
                 entity.OnEndBattle();
             }
 
@@ -478,7 +481,7 @@ namespace CreatureTime
 
         public void RequestProfession(CtProfessionDef professionDef)
         {
-            var localPlayerDef = playerManager.LocalPlayerDef;
+            var localPlayerDef = LocalEntity.EntityDef;
             for (int i = 0; i < 10; ++i)
                 localPlayerDef.SetSkill(i, CtConstants.InvalidId);
 
@@ -493,13 +496,13 @@ namespace CreatureTime
 
         public void RequestUpdatePlayerAttribute(int attributeIndex, int value)
         {
-            var localPlayerDef = playerManager.LocalPlayerDef;
+            var localPlayerDef = LocalEntity.EntityDef;
             localPlayerDef.AttributeData = CtDataBlock.SetAttributeRank(attributeIndex, value, localPlayerDef.AttributeData);
         }
 
         public void RequestUpdatePlayerSkillSlot(int skillIndex, CtSkillDef skillDef)
         {
-            var localPlayerDef = playerManager.LocalPlayerDef;
+            var localPlayerDef = LocalEntity.EntityDef;
             if (localPlayerDef.GetSkill(skillIndex) == skillDef.Identifier) return;
 
             for (int i = 0; i < 10; ++i)
@@ -552,7 +555,7 @@ namespace CreatureTime
             if (!partyManager.TryGetEntityParty(playerEntity, out var party))
             {
 #if DEBUG_LOGS
-                LogWarning($"Failed to find party for entity (identifier={playerEntity.Identifier})");
+                LogCritical($"Failed to find party for entity (identifier={playerEntity.Identifier})");
 #endif
                 return;
             }
@@ -591,16 +594,17 @@ namespace CreatureTime
 
         private void _HandleJoinParty(ushort playerId, ushort partyId)
         {
-            entityManager.TryGetEntity(playerId, out var playerEntity);
+            if (!entityManager.TryGetEntity(playerId, out var playerEntity)) return;
+
             if (partyId == CtConstants.InvalidId)
             {
                 JoinParty(playerEntity);
+                return;
             }
-            else
-            {
-                partyManager.TryGetParty(partyId, out var party);
-                JoinParty(playerEntity, party);
-            }
+
+            if (!partyManager.TryGetParty(partyId, out var party)) return;
+
+            JoinParty(playerEntity, party);
         }
 
         public void RequestLeaveParty(CtEntity playerEntity)
@@ -660,13 +664,19 @@ namespace CreatureTime
 
         private void _HandleRecruitNpc(ushort playerId, ushort npcId)
         {
-            entityManager.TryGetEntity(playerId, out var playerEntity);
+            if (!entityManager.TryGetEntity(playerId, out var playerEntity))
+            {
+#if DEBUG_LOGS
+                LogCritical($"Failed to find player entity (identifier={playerId})");
+#endif
+                return;
+            }
+
             AcquireRecruitNpc(playerEntity, gameData.GetNpcDef(npcId));
         }
 
         public void RequestLeaveNpc(CtEntity npcEntity)
         {
-            Debug.LogWarning(npcEntity);
             int size = 0;
 
             byte[] messageId = BitConverter.GetBytes(MessageRecruitLeave);

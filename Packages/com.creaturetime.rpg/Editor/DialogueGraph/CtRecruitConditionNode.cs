@@ -15,7 +15,6 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
 
         public override void Process(CtDialogueGraphAsset asset)
         {
-            Debug.Log($"Recruit: {recruitLeave}");
             var recruitCondition = asset.CreateCondition<CtRecruitCondition>();
 
             var so = new SerializedObject(recruitCondition);
