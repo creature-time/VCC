@@ -29,7 +29,7 @@ namespace CreatureTime
             renderTexture = null;
             foreach (var rt in playerRenderTextures)
             {
-                if (rt.IsCreated()) continue;
+                if (_registry.ContainsValue(rt)) continue;
 
 #if DEBUG_LOGS
                 LogDebug($"Registering render texture to player (playerId={playerId}, renderTexture={rt}).");
@@ -82,6 +82,11 @@ namespace CreatureTime
 
             transform.position = player.GetBonePosition(HumanBodyBones.Head);;
             transform.rotation = player.GetRotation();
+
+            int playerMask = LayerMask.NameToLayer("Player");
+            int mirrorReflectionMask = LayerMask.NameToLayer("MirrorReflection");
+
+            captureCamera.cullingMask = player.isLocal ? 1 << mirrorReflectionMask : 1 << playerMask;
 
             captureCamera.targetTexture = renderTexture;
             captureCamera.Render();

@@ -11,12 +11,10 @@ namespace CreatureTime
     {
         [SerializeField] private CtPlayerPersistenceManager playerPersistenceManager;
         [SerializeField] private UdonSharpBehaviour extension;
-        [SerializeField] private Transform rootTransform;
-        [SerializeField] private Transform headTransform;
-        [SerializeField] private Transform leftHandTransform;
-        [SerializeField] private Transform rightHandTransform;
 
         public UdonSharpBehaviour Extension => extension;
+
+        // [UdonSynced] private Vector3 _version;
 
         [UdonSynced, FieldChangeCallback(nameof(PlayerGuidCallback))] private string _playerGuid;
 
@@ -30,7 +28,8 @@ namespace CreatureTime
                 LogDebug($"Player Persistence Guid Updated (playerGuid={_playerGuid})");
 #endif
 
-                playerPersistenceManager.OnPlayerAdded(this);
+                if (PlayerId != 0)
+                    playerPersistenceManager.OnPlayerAdded(this);
             }
         }
 
@@ -44,11 +43,6 @@ namespace CreatureTime
             }
         }
 
-        public Transform RootTransform => rootTransform;
-        public Transform HeadTransform => headTransform;
-        public Transform LeftHandTransform => leftHandTransform;
-        public Transform RightHandTransform => rightHandTransform;
-
         public string DisplayName { get; private set; }
         public int PlayerId { get; private set; }
         public bool IsLocal { get; private set; }
@@ -59,15 +53,25 @@ namespace CreatureTime
             if (!player.IsOwner(gameObject)) return;
 
 #if DEBUG_LOGS
-            LogDebug($"Player Restored (name={gameObject.name}, displayName={player.displayName}, playerId={player.playerId}, playerGuid={PlayerGuid}, extension={Extension})");
+            LogDebug($"Player Restored (name={gameObject.name}, displayName={player.displayName}, playerId={player.playerId}, isLocal={player.isLocal}, playerGuid={PlayerGuid}, extension={Extension})");
 #endif
 
-            DisplayName = player.displayName;
+            DisplayName = $"{player.displayName} [{player.playerId}] [{player.isLocal}]";
             IsLocal = player.isLocal;
             PlayerId = (ushort)player.playerId;
 
-            if (player.isLocal && string.IsNullOrEmpty(PlayerGuid))
-                PlayerGuid = Guid.NewGuid().ToString();
+            if (string.IsNullOrEmpty(PlayerGuid))
+            {
+                if (IsLocal)
+                {
+                    // _version = new Vector3(0, 1, 0);
+                    PlayerGuid = Guid.NewGuid().ToString();
+                }
+            }
+            else
+            {
+                playerPersistenceManager.OnPlayerAdded(this);
+            }
         }
 
         public void OnDestroy()

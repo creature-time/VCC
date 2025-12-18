@@ -97,7 +97,7 @@ namespace CreatureTime.RpgGame
                     AssetDatabase.DeleteAsset(guid);
             }
 
-            for (int i = 0; i < capacity; i++)
+            for (int i = assets.Length; i < capacity; i++)
                 AssetDatabase.CopyAsset(renderTextureTemplate, 
                     $"{generatedPath}/AvatarRenderTexture_{i:0000}.renderTexture");
 
@@ -128,12 +128,12 @@ namespace CreatureTime.RpgGame
             var serializedObject = new SerializedObject(party);
 
             var partySlots = party.GetComponentsInChildren<CtPartySlot>(true);
-            for (int i = 0; i < partySlots.Length; i++)
-            {
-                var so = new SerializedObject(partySlots[i]);
-                so.FindProperty("slotIndex").intValue = i;
-                so.ApplyModifiedProperties();
-            }
+            // for (int i = 0; i < partySlots.Length; i++)
+            // {
+            //     var so = new SerializedObject(partySlots[i]);
+            //     so.FindProperty("slotIndex").intValue = i;
+            //     so.ApplyModifiedProperties();
+            // }
 
             var prop = serializedObject.FindProperty("slots");
             prop.arraySize = partySlots.Length;
@@ -156,19 +156,24 @@ namespace CreatureTime.RpgGame
             _UpdateTemplateCounts<CtPartyManager, CtParty>(partyManager, "enemyParty", "enemyParties", 1000, capacity, xform);
         }
 
-        private static void _UpdateTemplateCounts<TManager, T>(TManager manager, string prefix, string targetPropertyName, 
-            int start, int capacity, Transform partyTemplate)
-            where TManager : UdonSharpBehaviour
-            where T : UdonSharpBehaviour
+        private static void _ClearTemplates(Transform template)
         {
-            var group = partyTemplate.transform.parent;
+            var group = template.transform.parent;
             for (int i = group.childCount - 1; i >= 0; --i)
             {
                 var child = group.GetChild(i);
-                if (child == partyTemplate.transform)
+                if (child == template.transform)
                     continue;
                 Object.DestroyImmediate(child.gameObject);
             }
+        }
+
+        private static void _UpdateTemplateCounts<TManager, T>(TManager manager, string prefix, string targetPropertyName, 
+            int start, int capacity, Transform template)
+            where TManager : UdonSharpBehaviour
+            where T : UdonSharpBehaviour
+        {
+            _ClearTemplates(template);
 
             var serializedObject = new SerializedObject(manager);
 
@@ -176,7 +181,7 @@ namespace CreatureTime.RpgGame
             prop.arraySize = capacity;
             for (int i = 0; i < capacity; i++)
             {
-                var prefab = Object.Instantiate(partyTemplate.gameObject, partyTemplate.transform.parent);
+                var prefab = Object.Instantiate(template.gameObject, template.transform.parent);
 
                 // Remove EditorOnly tag
                 prefab.gameObject.tag = "Untagged";
@@ -195,21 +200,50 @@ namespace CreatureTime.RpgGame
             serializedObject.ApplyModifiedProperties();
         }
 
-        // private static void _UpdatePlayerDefs(int capacity)
-        // {
-        //     var playerManager = (CtPlayerManager)Object.FindObjectOfType(typeof(CtPlayerManager));
-        //     var serializedObject = new SerializedObject(playerManager);
-        //     var prop = serializedObject.FindProperty("playerDefs");
-        //     prop.arraySize = capacity;
-        //     serializedObject.ApplyModifiedProperties();
-        // }
+        private static void _UpdatePlayerEntities(int capacity, int extra = 4)
+        {
+            capacity += extra;
+
+            var playerPersistenceManager = (CtPlayerPersistenceManager)Object.FindObjectOfType(typeof(CtPlayerPersistenceManager));
+
+            var template = playerPersistenceManager.transform.Find("PlayerWorldPersistenceData/_Template");
+            _ClearTemplates(template);
+
+            var serializedObject = new SerializedObject(playerPersistenceManager);
+            var entityManagerSerializedObject = new SerializedObject((CtEntityManager)Object.FindObjectOfType(typeof(CtEntityManager)));
+
+            var prop = serializedObject.FindProperty("playerWorldPersistenceDataArray");
+            prop.arraySize = capacity;
+
+            var playerEntitiesProp = entityManagerSerializedObject.FindProperty("playerEntities");
+            playerEntitiesProp.arraySize = capacity;
+
+            for (int i = 0; i < capacity; i++)
+            {
+                var prefab = Object.Instantiate(template.gameObject, template.transform.parent);
+
+                // Remove EditorOnly tag
+                prefab.gameObject.tag = "Untagged";
+
+                var t = prefab.GetComponentInChildren<CtPlayerEntity>();
+                var so = new SerializedObject(t);
+                var idProp = so.FindProperty("identifier");
+                idProp.intValue = i;
+                so.ApplyModifiedProperties();
+
+                prefab.SetActive(true);
+                prefab.name = $"playerEntity_{i:0000}";
+                prop.GetArrayElementAtIndex(i).objectReferenceValue = prefab.GetComponent<CtPlayerWorldPersistenceData>();;
+                playerEntitiesProp.GetArrayElementAtIndex(i).objectReferenceValue = t;
+            }
+
+            serializedObject.ApplyModifiedProperties();
+            entityManagerSerializedObject.ApplyModifiedProperties();
+        }
 
         private static void _UpdateEntities(int capacity)
         {
             var entityManager = (CtEntityManager)Object.FindObjectOfType(typeof(CtEntityManager));
-
-            _UpdateTemplateCounts<CtEntityManager, CtEntity>(entityManager, "playerEntity", "playerEntities", 0, capacity, 
-                entityManager.transform.Find("PlayerEntities/_Template"));
 
             // NOTE: Max player party member count minus one.
             // TODO: Grab the template for the player party and grab the member count.
@@ -256,7 +290,7 @@ namespace CreatureTime.RpgGame
 
             _UpdateRenderTargets(worldData.Capacity);
             _UpdateTemplateCounts(worldData.Capacity);
-            // _UpdatePlayerDefs(worldData.Capacity);
+            _UpdatePlayerEntities(worldData.Capacity);
             _UpdateEntities(worldData.Capacity);
             _UpdateBattleStates(worldData.Capacity);
         }

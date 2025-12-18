@@ -8,6 +8,8 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtEyeLookFeature : CtNpcFeature
     {
+        [SerializeField] private CtRpgGame rpgGame;
+
         [SerializeField] private Vector2 minMaxEyeAngle = new Vector2(-35f, 35f);
         [SerializeField] private float lookDistance = 3.0f;
         [SerializeField] private float lookSpeed = 15.0f;
@@ -58,18 +60,15 @@ namespace CreatureTime
             if (!_eyeLeft || !_eyeRight)
                 return;
 
+            if (!rpgGame.LocalEntity) return;
+
             Quaternion targetEyeLeft = _eyeRotationLeft;
             Quaternion targetEyeRight = _eyeRotationRight;
-            Vector3 targetLookPosition;
+
+            Vector3 targetLookPosition = rpgGame.LocalEntity.HeadTransform.position;
             if (controller.LookTarget)
             {
                 targetLookPosition = controller.LookTarget.position;
-            }
-            else
-            {
-                if (Networking.LocalPlayer == null)
-                    return;
-                targetLookPosition = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position;
             }
 
             Vector3 eyePosition = (_eyeLeft.position + _eyeRight.position) / 2;
@@ -77,7 +76,8 @@ namespace CreatureTime
             Vector3 headLookDirection = controller.HeadBone.forward;
 
             float angle = Vector3.SignedAngle(worldLookDirection, headLookDirection, Vector3.up);
-            if (angle > minMaxEyeAngle.x && angle < minMaxEyeAngle.y && worldLookDirection.magnitude <= lookDistance)
+            if (angle > minMaxEyeAngle.x && angle < minMaxEyeAngle.y &&
+                worldLookDirection.magnitude <= lookDistance)
             {
                 Quaternion worldRotation;
                 if (_eyeLeft)

@@ -44,10 +44,15 @@ namespace CreatureTime
 
         [Header("Skeleton References")]
         [SerializeField] private Transform headBone;
+        [SerializeField] private Transform handBoneL;
+        [SerializeField] private Transform handBoneR;
         [SerializeField] private Transform eyeBoneL;
         [SerializeField] private Transform eyeBoneR;
 
         public Transform HeadBone => headBone;
+        public Transform HandBoneL => handBoneL;
+        public Transform HandBoneR => handBoneR;
+
         public Transform EyeBoneL => eyeBoneL;
         public Transform EyeBoneR => eyeBoneR;
 

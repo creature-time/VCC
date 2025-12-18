@@ -16,9 +16,10 @@ namespace CreatureTime
 
         public abstract ushort EntityId { get; }
 
-        // TODO: Can we swap these to a Transform without huge cost?
-        public abstract Vector3 Position { get; }
-        public abstract Quaternion Rotation { get; }
+        public abstract Transform RootTransform { get; }
+        public abstract Transform HeadTransform { get; }
+        public abstract Transform LeftHandTransform { get; }
+        public abstract Transform RightHandTransform { get; }
 
         public abstract void ApplyDamage(int damage, EDamageType damageType,
             EDamageSourceType damageSourceType, ushort identifier, CtEntity instigator, bool isCritical);

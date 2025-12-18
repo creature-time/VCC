@@ -45,6 +45,8 @@ namespace CreatureTime
         [SerializeField] private CtBattleNextTurnState nextTurnState;
         [SerializeField] private CtBattleEndState endState;
 
+        [SerializeField] private ushort identifier = CtConstants.InvalidId;
+
         public int DamageBlockCount => damageMessageBuilder.Count;
 
         public void GetDamage(int index, out EDamageSourceType damageSourceType, out ushort skillId,

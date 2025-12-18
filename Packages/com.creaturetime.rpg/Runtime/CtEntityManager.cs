@@ -1,7 +1,9 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
+using VRC.SDKBase;
 
 namespace CreatureTime
 {
@@ -11,12 +13,22 @@ namespace CreatureTime
         NpcEntityChanged
     }
 
+    [Flags]
+    enum EPlayerEntityTransformFlags
+    {
+        Root = 1 << 0,
+        Head = 1 << 1,
+        LeftHand = 1 << 2,
+        RightHand = 1 << 3
+    }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtEntityManager : CtSingleton
     {
         [SerializeField] private CtPlayerEntity[] playerEntities;
         [SerializeField, HideInInspector] private CtNpcEntity[] recruitEntities;
         [SerializeField, HideInInspector] private CtNpcEntity[] enemyEntities;
+        [SerializeField, EnumFlag] private EPlayerEntityTransformFlags playerEntityTransformFlags;
 
         private DataDictionary _entityLookup = new DataDictionary();
 
@@ -139,6 +151,50 @@ namespace CreatureTime
         {
             var npcEntity = (CtNpcEntity)entity;
             npcEntity.NpcId = CtConstants.InvalidId;
+        }
+
+        void Update()
+        {
+            if (playerEntityTransformFlags == 0) return;
+
+            foreach (var playerEntity in playerEntities)
+            {
+                if (!playerEntity.EntityDef) continue;
+
+                var player = Networking.GetOwner(playerEntity.EntityDef.gameObject);
+                if (player == null) continue;
+
+                if (((int)playerEntityTransformFlags & (int)EPlayerEntityTransformFlags.Root) != 0)
+                {
+                    var playerTransform = playerEntity.RootTransform;
+                    playerTransform.position = player.GetPosition();
+                    playerTransform.rotation = player.GetRotation();
+                }
+
+                if (((int)playerEntityTransformFlags & (int)EPlayerEntityTransformFlags.Head) != 0)
+                {
+                    var headTransform = playerEntity.HeadTransform;
+                    var trackingData = player.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+                    headTransform.position = trackingData.position;
+                    headTransform.rotation = trackingData.rotation;
+                }
+
+                if (((int)playerEntityTransformFlags & (int)EPlayerEntityTransformFlags.LeftHand) != 0)
+                {
+                    var leftHandTransform = playerEntity.LeftHandTransform;
+                    var trackingData = player.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
+                    leftHandTransform.position = trackingData.position;
+                    leftHandTransform.rotation = trackingData.rotation;
+                }
+
+                if (((int)playerEntityTransformFlags & (int)EPlayerEntityTransformFlags.RightHand) != 0)
+                {
+                    var rightHandTransform = playerEntity.RightHandTransform;
+                    var trackingData = player.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
+                    rightHandTransform.position = trackingData.position;
+                    rightHandTransform.rotation = trackingData.rotation;
+                }
+            }
         }
     }
 }

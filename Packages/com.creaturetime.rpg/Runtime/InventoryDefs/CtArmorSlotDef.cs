@@ -35,6 +35,9 @@ namespace CreatureTime
             string color = RarityDefaultColor;
             switch (rarity)
             {
+                case EItemRarity.None:
+                    // Do nothing...
+                    break;
                 case EItemRarity.Common:
                     color = RarityCommonColor;
                     break;

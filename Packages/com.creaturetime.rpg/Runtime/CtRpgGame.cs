@@ -52,6 +52,7 @@ namespace CreatureTime
             private set
             {
                 _localEntity = value;
+                Debug.Log(_localEntity);
                 this.Emit(ERpgGameSignal.LocalPlayerChanged);
             }
         }
@@ -81,8 +82,7 @@ namespace CreatureTime
             var playerWorldPersistenceData = (CtPlayerWorldPersistenceData)GetArgs[0].Reference;
             if (playerWorldPersistenceData)
             {
-                var playerEntity = playerWorldPersistenceData.GetComponent<CtPlayerEntity>();
-                LocalEntity = playerEntity;
+                LocalEntity = playerWorldPersistenceData.GetComponent<CtPlayerEntity>();
             }
             else
             {
@@ -117,7 +117,9 @@ namespace CreatureTime
         public void _OnPlayerRemoved()
         {
             var playerWorldPersistenceData = (CtPlayerWorldPersistenceData)GetArgs[0].Reference;
+            Debug.Log($"playerWorldPersistenceData {playerWorldPersistenceData} {playerWorldPersistenceData.PlayerGuid}");
             var playerPersistenceData = playerWorldPersistenceData.PlayerPersistenceData;
+            Debug.Log($"playerPersistenceData {playerPersistenceData} {playerPersistenceData.PlayerGuid}");
 
             var playerEntity = playerWorldPersistenceData.GetComponent<CtPlayerEntity>();
             playerEntity.PlayerDef = null;

@@ -9,17 +9,24 @@ namespace CreatureTime
     public class CtPlayerEntity : CtEntity
     {
         [SerializeField] private CtPlayerWorldPersistenceData playerWorldPersistenceData;
+        [SerializeField] private Transform rootTransform;
+        [SerializeField] private Transform headTransform;
+        [SerializeField] private Transform leftHandTransform;
+        [SerializeField] private Transform rightHandTransform;
 
         private CtPlayerTurn _playerTurn;
 
         public override ushort EntityId => CtConstants.InvalidId;
-        public override Vector3 Position => playerWorldPersistenceData.PlayerPersistenceData.RootTransform.position;
-        public override Quaternion Rotation => playerWorldPersistenceData.PlayerPersistenceData.RootTransform.rotation;
         public override bool IsPlayer => true;
+
+        public override Transform RootTransform => rootTransform;
+        public override Transform HeadTransform => headTransform;
+        public override Transform LeftHandTransform => leftHandTransform;
+        public override Transform RightHandTransform => rightHandTransform;
 
         public CtPlayerDef PlayerDef
         {
-            private get => (CtPlayerDef)EntityDef;
+            get => (CtPlayerDef)EntityDef;
             set
             {
                 EntityDef = value;

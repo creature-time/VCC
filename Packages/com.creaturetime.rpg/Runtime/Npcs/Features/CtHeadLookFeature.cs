@@ -37,36 +37,34 @@ namespace CreatureTime
             if (!_headBone)
                 return;
 
-            Vector3 headPosition;
             if (controller.LookTarget)
             {
-                headPosition = controller.LookTarget.position;
-            }
-            else
-            {
-                if (Networking.LocalPlayer == null)
-                    return;
-                headPosition = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position;
-            }
+                var headPosition = controller.LookTarget.position;
 
-            Vector3 eyeHeightPosition = new Vector3(controller.transform.position.x, _headBone.position.y, controller.transform.position.z);
-            Vector3 direction = headPosition - eyeHeightPosition;
-            float angle = Vector3.SignedAngle(direction.normalized, controller.transform.forward, transform.up);
-            if (angle > minMaxEyeAngle.x && angle < minMaxEyeAngle.y && direction.magnitude < lookDistance)
-            {
-                if (!_isLooking)
+                Vector3 eyeHeightPosition = new Vector3(controller.transform.position.x, _headBone.position.y,
+                    controller.transform.position.z);
+                Vector3 direction = headPosition - eyeHeightPosition;
+
+                var angle = Vector3.SignedAngle(direction.normalized, controller.transform.forward, transform.up);
+                if (angle > minMaxEyeAngle.x && angle < minMaxEyeAngle.y && direction.magnitude < lookDistance)
                 {
-                    _isLooking = true;
-                    _targetRotation = _headBone.rotation;
+                    if (!_isLooking)
+                    {
+                        _isLooking = true;
+                        _targetRotation = _headBone.rotation;
+                    }
+
+                    Quaternion targetRotation = Quaternion.LookRotation(headPosition - _headBone.position);
+                    float t = 1.0f - Mathf.Exp(-lookSpeed * Time.deltaTime);
+                    _targetRotation = Quaternion.Slerp(_targetRotation, targetRotation, t);
+
+                    _headBone.rotation = _targetRotation;
+
+                    return;
                 }
-
-                Quaternion targetRotation = Quaternion.LookRotation(headPosition - _headBone.position);
-                float t = 1.0f - Mathf.Exp(-lookSpeed * Time.deltaTime);
-                _targetRotation = Quaternion.Slerp(_targetRotation, targetRotation, t);
-
-                _headBone.rotation = _targetRotation;
             }
-            else if (_isLooking)
+
+            if (_isLooking)
             {
                 if (Quaternion.Angle(_headBone.rotation, _targetRotation) < 0.01f)
                 {

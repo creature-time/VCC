@@ -1,5 +1,6 @@
 
 using System;
+using CreatureTime.RpgGame.Ui;
 using UdonSharp;
 using UnityEngine;
 
@@ -12,8 +13,11 @@ namespace CreatureTime
 
         [SerializeField] private CtPlayerPersistenceData playerPersistenceData;
         [SerializeField] private CtPlayerTurn playerTurn;
+        [SerializeField] private CtItemSpawner itemSpawner;
 
         private int _playerId;
+
+        public CtItemSpawner ItemSpawner => itemSpawner;
 
         public void Setup(Texture texture)
         {
@@ -66,7 +70,7 @@ namespace CreatureTime
 
         public CtPlayerTurn PlayerTurn => playerTurn;
 
-        [HideInInspector, SerializeField, UdonSynced] private ulong[] inventory = new ulong[MaxInventoryCount]
+        [SerializeField, UdonSynced] private ulong[] inventory = new ulong[MaxInventoryCount]
         {
             CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
             CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,

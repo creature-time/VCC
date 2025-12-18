@@ -14,6 +14,11 @@ namespace CreatureTime
 
         public CtBattleNpcBrain Brain => brain;
 
+        public override Transform RootTransform => _controller.transform;
+        public override Transform HeadTransform => _controller.HeadBone;
+        public override Transform LeftHandTransform => _controller.HandBoneL;
+        public override Transform RightHandTransform => _controller.HandBoneR;
+
         [UdonSynced, FieldChangeCallback(nameof(EntityIdCallback))]
         private ushort _entityId = CtConstants.InvalidId;
 
@@ -63,9 +68,6 @@ namespace CreatureTime
         }
 
         public override ushort EntityId => EntityIdCallback;
-
-        public override Vector3 Position => _controller.transform.position;
-        public override Quaternion Rotation => _controller.transform.rotation;
 
         public override bool IsPlayer => false;
 

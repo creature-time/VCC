@@ -237,10 +237,10 @@ namespace CreatureTime
         public bool IsDazed { get; set; }
         public bool IsBlind { get; set; }
 
-        public float NormalizedHealth => Health / (float)_entityDef.MaxHealth;
-        public float NormalizedEnergy => Energy / (float)_entityDef.MaxEnergy;
-        public string DisplayName => "test";//_entityDef.DisplayName;
-        public Texture Icon => _entityDef.Icon;
+        public float NormalizedHealth => _entityDef ? Health / (float)_entityDef.MaxHealth : 0;
+        public float NormalizedEnergy => _entityDef ? Energy / (float)_entityDef.MaxEnergy : 0;
+        public string DisplayName => _entityDef ? _entityDef.DisplayName : "Disconnected";
+        public Texture Icon => _entityDef ? _entityDef.Icon : null;
 
         public abstract bool IsPlayer
         {
@@ -273,6 +273,7 @@ namespace CreatureTime
                 }
 
                 _entityDef = value;
+
                 if (_entityDef)
                 {
                     _OnSkillSlotChangedRaw(0, _entityDef.SkillSlot0);

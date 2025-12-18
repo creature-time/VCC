@@ -23,10 +23,6 @@ namespace CreatureTime
 
         public void Init()
         {
-            // foreach (var playerWorldPersistenceData in playerWorldPersistenceDataArray)
-            // {
-            //     playerWorldPersistenceData.Connect(EPlayerWorldPersistenceSignal.PlayerPersistenceDataChanged, this, nameof(_OnPlayerPersistenceDataChanged));
-            // }
         }
 
 //         public bool TryGetPlayerPersistenceData(string playerGuid, out CtPlayerPersistenceData playerPersistenceData)
@@ -146,17 +142,18 @@ namespace CreatureTime
 
             playerPersistenceDataArray.Add(playerPersistenceData);
             playerWorldPersistenceDataArray[index].PlayerPersistenceData = playerPersistenceData;
-            if (playerPersistenceData.IsLocal)
-            {
-                SetArgs.Add(playerWorldPersistenceData);
-                this.Emit(EPlayerPersistenceManagerSignal.LocalPlayerChanged);
-            }
 
             if (Networking.IsMaster)
                 playerWorldPersistenceData.PlayerGuid = playerPersistenceData.PlayerGuid;
 
             SetArgs.Add(playerWorldPersistenceData);
             this.Emit(EPlayerPersistenceManagerSignal.PlayerAdded);
+
+            if (playerPersistenceData.IsLocal)
+            {
+                SetArgs.Add(playerWorldPersistenceData);
+                this.Emit(EPlayerPersistenceManagerSignal.LocalPlayerChanged);
+            }
         }
 
         public void OnPlayerRemoved(CtPlayerPersistenceData playerPersistenceData)
@@ -174,7 +171,7 @@ namespace CreatureTime
             if (index == -1)
             {
 #if DEBUG_LOGS
-                LogCritical($"Failed to find player persistence data to remove (displayName={playerPersistenceData.PlayerGuid}).");
+                LogCritical($"Failed to find player persistence data to remove (playerGuid={playerPersistenceData.PlayerGuid}).");
 #endif
                 return;
             }
@@ -196,35 +193,6 @@ namespace CreatureTime
 #if DEBUG_LOGS
             LogDebug($"Player removed (displayName={playerPersistenceData.PlayerGuid}).");
 #endif
-        }
-
-        void Update()
-        {
-            for (int i = 0; i < playerPersistenceDataArray.Count; i++)
-            {
-                var data = (CtPlayerPersistenceData)playerPersistenceDataArray[i].Reference;
-                var player = Networking.GetOwner(data.gameObject);
-                if (player == null) continue;
-
-                var playerTransform = data.RootTransform;
-                playerTransform.position = player.GetPosition();
-                playerTransform.rotation = player.GetRotation();
-
-                var headTransform = data.HeadTransform;
-                var trackingData = player.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-                headTransform.position = trackingData.position;
-                headTransform.rotation = trackingData.rotation;
-
-                var leftHandTransform = data.LeftHandTransform;
-                trackingData = player.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                leftHandTransform.position = trackingData.position;
-                leftHandTransform.rotation = trackingData.rotation;
-
-                var rightHandTransform = data.RightHandTransform;
-                trackingData = player.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-                rightHandTransform.position = trackingData.position;
-                rightHandTransform.rotation = trackingData.rotation;
-            }
         }
     }
 }
