@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtBattleQuest
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: b6759e88d65c20746af885157a72af81, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: f80d6daf88241ce47ad7a32642c91e10,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: d2c8f6c6e3eb88a4eb6a32ecff726e02, type: 3}

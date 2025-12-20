@@ -181,6 +181,10 @@ namespace CreatureTime
             get => _isLocal;
             private set
             {
+#if DEBUG_LOGS
+                LogDebug($"Is local was changed (isLocal={_isLocal}).");
+#endif
+
                 _isLocal = value;
                 this.Emit(EBattleStateSignal.IsLocalChanged);
             }
@@ -204,13 +208,14 @@ namespace CreatureTime
                         var entity = _allyParty.GetEntity(i);
                         if (!entity) continue;
                         _OnAllyPartyRemovedRaw(_allyParty, i);
-                        if (entity == rpgGame.LocalEntity)
-                            IsLocal = false;
                     }
 
                     _allyParty = null;
                 }
 
+#if DEBUG_LOGS
+                LogDebug($"Battle state ally party has changed (prev={_allyId}, allyId={value}).");
+#endif
                 _allyId = value;
 
                 if (_allyId != CtConstants.InvalidId)
@@ -225,15 +230,11 @@ namespace CreatureTime
 
                     if (_allyParty)
                     {
-                        _AssignBattleStateToParty(_allyParty);
-    
                         for (int i = 0; i < _allyParty.MaxCount; i++)
                         {
                             var entity = _allyParty.GetEntity(i);
                             if (!entity) continue;
                             _OnAllyPartyAddedRaw(_allyParty, i);
-                            if (entity == rpgGame.LocalEntity)
-                                IsLocal = true;
                         }
 
                         _allyParty.Connect(EPartySignal.MemberAdded, this, nameof(_OnAllyPartyAdded));
@@ -278,8 +279,10 @@ namespace CreatureTime
                     _enemyParty = null;
                 }
 
+#if DEBUG_LOGS
+                LogDebug($"Battle state enemy party has changed (prev={_enemyId}, allyId={value}).");
+#endif
                 _enemyId = value;
-
                 if (_enemyId != CtConstants.InvalidId)
                 {
                     if (!partyManager.TryGetParty(_enemyId, out _enemyParty))
@@ -296,8 +299,6 @@ namespace CreatureTime
                         if (!entity) continue;
                         _OnEnemyPartyAddedRaw(_enemyParty, i);
                     }
-
-                    _AssignBattleStateToParty(_enemyParty);
 
                     if (_enemyParty)
                     {
@@ -330,9 +331,28 @@ namespace CreatureTime
 
         private void Start()
         {
+            rpgGame.Connect(ERpgGameSignal.LocalPlayerChanged, this, nameof(_OnLocalPlayerChanged));
             damageMessageBuilder.Connect(EDamageBlockSignal.DamageSource, this, nameof(_OnDamageSourceChanged));
             damageMessageBuilder.Connect(EDamageBlockSignal.DamageApplied, this, nameof(_OnDamageBlockChanged));
             statusEffectsMessageBuilder.Connect(EStatusEffectBlockSignal.DamageApplied, this, nameof(_OnStatusEffectDamageApplied));
+        }
+
+        public void _OnLocalPlayerChanged()
+        {
+            if (!_allyParty) return;
+
+            for (int i = 0; i < _allyParty.MaxCount; i++)
+            {
+                var entity = _allyParty.GetEntity(i);
+                if (!entity) continue;
+                _OnLocalPlayerChangedRaw(entity, true);
+            }
+        }
+
+        private void _OnLocalPlayerChangedRaw(CtEntity entity, bool value)
+        {
+            if (entity == rpgGame.LocalEntity)
+                IsLocal = value;
         }
 
         public void _OnDamageSourceChanged()
@@ -398,16 +418,6 @@ namespace CreatureTime
             }
         }
 
-        private void _AssignBattleStateToParty(CtParty party)
-        {
-            for (int i = 0; i < party.MaxCount; i++)
-            {
-                var entity = party.GetEntity(i);
-                if (!entity) continue;
-                entity.BattleState = this;
-            }
-        }
-
         public void _OnAllyPartyAdded()
         {
             _OnAllyPartyAddedRaw((CtParty)Sender, GetArgs[0].Int);
@@ -423,8 +433,11 @@ namespace CreatureTime
 #endif
                 return;
             }
+
             entity.BattleState = this;
             entity.Connect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
+
+            _OnLocalPlayerChangedRaw(entity, true);
         }
 
         public void _OnAllyPartyRemoved()
@@ -442,8 +455,11 @@ namespace CreatureTime
 #endif
                 return;
             }
+
             entity.Disconnect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = null;
+
+            _OnLocalPlayerChangedRaw(entity, false);
         }
 
         public void _OnEnemyPartyAdded()
@@ -608,10 +624,5 @@ namespace CreatureTime
                     break;
             }
         }
-
-        // public void Reset()
-        // {
-        //     damageMessageBuilder.Reset();
-        // }
     }
 }

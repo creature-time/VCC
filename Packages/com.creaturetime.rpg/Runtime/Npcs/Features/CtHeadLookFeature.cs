@@ -56,7 +56,7 @@ namespace CreatureTime
 
                     Quaternion targetRotation = Quaternion.LookRotation(headPosition - _headBone.position);
                     float t = 1.0f - Mathf.Exp(-lookSpeed * Time.deltaTime);
-                    _targetRotation = Quaternion.Slerp(_targetRotation, targetRotation, t);
+                    _targetRotation = Quaternion.Lerp(_targetRotation, targetRotation, t);
 
                     _headBone.rotation = _targetRotation;
 

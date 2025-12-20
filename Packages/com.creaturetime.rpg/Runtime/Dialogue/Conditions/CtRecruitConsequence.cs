@@ -17,6 +17,7 @@ namespace CreatureTime.RpgGame
             for (int i = 0; i < party.MaxCount; ++i)
             {
                 var entity = party.GetEntity(i);
+                if (!entity) continue;
                 if (entity.IsPlayer) continue;
                 if (entity.EntityId == dialogueActor.Identifier)
                     return true;

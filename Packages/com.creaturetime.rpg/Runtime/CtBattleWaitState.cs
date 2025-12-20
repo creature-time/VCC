@@ -52,6 +52,9 @@ namespace CreatureTime
                 return ENodeStatus.Success;
             }
 
+            if (!entity.IsValid)
+                return ENodeStatus.Running;
+
             if (entity.TryGetAttack(out var skillId, out var targetId))
                 return ENodeStatus.Success;
 

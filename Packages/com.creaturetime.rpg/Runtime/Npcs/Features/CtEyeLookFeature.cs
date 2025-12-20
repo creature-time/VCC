@@ -1,7 +1,6 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
-using VRC.SDKBase;
 
 namespace CreatureTime
 {
@@ -13,6 +12,8 @@ namespace CreatureTime
         [SerializeField] private Vector2 minMaxEyeAngle = new Vector2(-35f, 35f);
         [SerializeField] private float lookDistance = 3.0f;
         [SerializeField] private float lookSpeed = 15.0f;
+        [SerializeField] private Vector2 minMaxEyeContactRange = new Vector2(2.5f, 2.5f);
+        [SerializeField] private Vector2 minMaxEyeContactDuration = new Vector2(1f, 2f);
 
         #region Eye Left
         private Transform _eyeLeft;
@@ -27,6 +28,9 @@ namespace CreatureTime
         private Quaternion _eyeRotationRight;
         private Quaternion _eyeTargetRotationRight;
         #endregion
+
+        private float _eyeContactTimer;
+        private Quaternion _eyeContactOffset;
 
         public override void Init(CtNpcController controller)
         {
@@ -55,48 +59,61 @@ namespace CreatureTime
 #endif
         }
 
+        public override void ExecuteUpdate(CtNpcController controller)
+        {
+            _eyeContactTimer -= Time.deltaTime;
+            if (_eyeContactTimer <= 0)
+            {
+                _eyeContactTimer = Random.Range(minMaxEyeContactDuration.x, minMaxEyeContactDuration.y);
+                _eyeContactOffset = Quaternion.Euler(Random.Range(-minMaxEyeContactRange.x, minMaxEyeContactRange.x), 0.0f, Random.Range(-minMaxEyeContactRange.y, minMaxEyeContactRange.y));
+            }
+        }
+
         public override void ExecuteLateUpdate(CtNpcController controller)
         {
             if (!_eyeLeft || !_eyeRight)
                 return;
 
-            if (!rpgGame.LocalEntity) return;
-
             Quaternion targetEyeLeft = _eyeRotationLeft;
             Quaternion targetEyeRight = _eyeRotationRight;
 
-            Vector3 targetLookPosition = rpgGame.LocalEntity.HeadTransform.position;
-            if (controller.LookTarget)
+            if (rpgGame.LocalEntity)
             {
-                targetLookPosition = controller.LookTarget.position;
-            }
-
-            Vector3 eyePosition = (_eyeLeft.position + _eyeRight.position) / 2;
-            Vector3 worldLookDirection = targetLookPosition - eyePosition;
-            Vector3 headLookDirection = controller.HeadBone.forward;
-
-            float angle = Vector3.SignedAngle(worldLookDirection, headLookDirection, Vector3.up);
-            if (angle > minMaxEyeAngle.x && angle < minMaxEyeAngle.y &&
-                worldLookDirection.magnitude <= lookDistance)
-            {
-                Quaternion worldRotation;
-                if (_eyeLeft)
+                Vector3 targetLookPosition = rpgGame.LocalEntity.HeadTransform.position;
+                if (controller.LookTarget)
                 {
-                    worldRotation = Quaternion.LookRotation(worldLookDirection) * _eyeRotationLeft;
-                    targetEyeLeft = Quaternion.Inverse(_eyeLeft.parent.rotation) * worldRotation;
+                    targetLookPosition = controller.LookTarget.position;
                 }
 
-                if (_eyeRight)
+                Vector3 eyePosition = (_eyeLeft.position + _eyeRight.position) / 2;
+                eyePosition.x = controller.transform.position.x;
+                eyePosition.z = controller.transform.position.z;
+                Vector3 worldLookDirection = targetLookPosition - eyePosition;
+                Vector3 headLookDirection = controller.HeadBone.forward;
+
+                float angle = Vector3.SignedAngle(worldLookDirection, headLookDirection, Vector3.up);
+                if (angle > minMaxEyeAngle.x && angle < minMaxEyeAngle.y &&
+                    worldLookDirection.magnitude <= lookDistance)
                 {
-                    worldRotation = Quaternion.LookRotation(worldLookDirection) * _eyeRotationRight;
-                    targetEyeRight = Quaternion.Inverse(_eyeRight.parent.rotation) * worldRotation;
+                    Quaternion worldRotation;
+                    if (_eyeLeft)
+                    {
+                        worldRotation = Quaternion.LookRotation(worldLookDirection) * _eyeRotationLeft;
+                        targetEyeLeft = Quaternion.Inverse(_eyeLeft.parent.rotation) * worldRotation;
+                    }
+
+                    if (_eyeRight)
+                    {
+                        worldRotation = Quaternion.LookRotation(worldLookDirection) * _eyeRotationRight;
+                        targetEyeRight = Quaternion.Inverse(_eyeRight.parent.rotation) * worldRotation;
+                    }
                 }
             }
 
             if (_eyeLeft)
-                _UpdateEyeLook(_eyeLeft, targetEyeLeft, ref _eyeTargetRotationLeft);
+                _UpdateEyeLook(_eyeLeft, targetEyeLeft * _eyeContactOffset, ref _eyeTargetRotationLeft);
             if (_eyeRight)
-                _UpdateEyeLook(_eyeRight, targetEyeRight, ref _eyeTargetRotationRight);
+                _UpdateEyeLook(_eyeRight, targetEyeRight * _eyeContactOffset, ref _eyeTargetRotationRight);
         }
 
         private void _UpdateEyeLook(Transform eyeTransform, Quaternion targetRotation, ref Quaternion lastRotation)

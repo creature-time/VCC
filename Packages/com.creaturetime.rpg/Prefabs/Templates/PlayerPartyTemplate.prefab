@@ -60,10 +60,10 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 3689123659400942811}
   logger: {fileID: 0}
+  entityManager: {fileID: 0}
   partyManager: {fileID: 0}
   identifier: 65535
   slots: []
-  entityCache: []
 --- !u!114 &3689123659400942811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 6528327191651196472}
   - component: {fileID: 7578972823752153338}
   m_Layer: 0
-  m_Name: PartySlot (1)
+  m_Name: Slot_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,7 +146,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 7578972823752153338}
   logger: {fileID: 0}
-  entityManager: {fileID: 0}
+  party: {fileID: 8497565113430290012}
 --- !u!114 &7578972823752153338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 2579227617962289881}
   - component: {fileID: 6112518561611722723}
   m_Layer: 0
-  m_Name: PartySlot (3)
+  m_Name: Slot_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -229,7 +229,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 6112518561611722723}
   logger: {fileID: 0}
-  entityManager: {fileID: 0}
+  party: {fileID: 8497565113430290012}
 --- !u!114 &6112518561611722723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -268,7 +268,7 @@ GameObject:
   - component: {fileID: 1962062237749326656}
   - component: {fileID: 2979612630453995346}
   m_Layer: 0
-  m_Name: PartySlot (2)
+  m_Name: Slot_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -312,7 +312,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 2979612630453995346}
   logger: {fileID: 0}
-  entityManager: {fileID: 0}
+  party: {fileID: 8497565113430290012}
 --- !u!114 &2979612630453995346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,7 +351,7 @@ GameObject:
   - component: {fileID: 6262378913541377635}
   - component: {fileID: 382621836718700473}
   m_Layer: 0
-  m_Name: PartySlot
+  m_Name: Slot_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -395,7 +395,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 382621836718700473}
   logger: {fileID: 0}
-  entityManager: {fileID: 0}
+  party: {fileID: 8497565113430290012}
 --- !u!114 &382621836718700473
 MonoBehaviour:
   m_ObjectHideFlags: 0

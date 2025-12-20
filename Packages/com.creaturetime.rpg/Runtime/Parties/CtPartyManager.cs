@@ -114,29 +114,20 @@ namespace CreatureTime
             return false;
         }
 
-        public bool TryGetConnectedParty(CtEntity entity, out CtParty party)
-        {
-            foreach (var other in playerParties)
-            {
-                if (other.WasConnectedToParty(entity))
-                {
-                    party = other;
-                    return true;
-                }
-            }
-
-            foreach (var other in enemyParties)
-            {
-                if (other.WasConnectedToParty(entity))
-                {
-                    party = other;
-                    return true;
-                }
-            }
-
-            party = null;
-            return false;
-        }
+        // public bool TryGetConnectedParty(CtPlayerEntity entity, out CtParty party)
+        // {
+        //     foreach (var other in playerParties)
+        //     {
+        //         if (other.WasConnectedToParty(entity))
+        //         {
+        //             party = other;
+        //             return true;
+        //         }
+        //     }
+        //
+        //     party = null;
+        //     return false;
+        // }
 
         public void _OnPlayerPartyStarted()
         {

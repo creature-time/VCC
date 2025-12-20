@@ -27,7 +27,7 @@ namespace CreatureTime
         private DataList _entityCache = new DataList();
 
         [UdonSynced, FieldChangeCallback(nameof(QuestCallback))]
-        private ushort _questId = 0;
+        private ushort _questId = CtConstants.InvalidId;
 
         public ushort QuestCallback
         {
@@ -35,6 +35,8 @@ namespace CreatureTime
             set
             {
                 _questId = value;
+
+                SetArgs.Add(_questId);
                 this.Emit(EPartySignal.QuestChanged);
             }
         }
@@ -49,17 +51,16 @@ namespace CreatureTime
             }
         }
 
-        private void Start()
-        {
-            foreach (var slot in slots)
-            {
-                slot.Connect(EPartySlotSignal.IdentifierChanged, this, nameof(_OnPartySlotIdentifierChanged));
-            }
-        }
+        // private void Start()
+        // {
+        //     foreach (var slot in slots)
+        //     {
+        //         slot.Connect(EPartySlotSignal.IdentifierChanged, this, nameof(_OnPartySlotIdentifierChanged));
+        //     }
+        // }
 
-        public void _OnPartySlotIdentifierChanged()
+        public void HandlePartySlotChanged(CtPartySlot slot)
         {
-            var slot = (CtPartySlot)Sender;
             int index = Array.IndexOf(slots, slot);
             if (index == -1)
             {
@@ -69,20 +70,19 @@ namespace CreatureTime
                 return;
             }
 
-            var slotIdentifier = GetArgs[0].UShort;
-
-            // Get entity; return if failed.
-            if (!entityManager.TryGetEntity(slotIdentifier, out var entity)) return;
-
-            // No need to remove then add again if the entities are the same.
-            if (slot.EntityCache == entity) return;
+            CtEntity entity = null;
+            if (slot.Identifier != CtConstants.InvalidId)
+            {
+                if (!entityManager.TryGetEntity(slot.Identifier, out entity))
+                    return;
+            }
 
             if (slot.EntityCache)
             {
+                _entityCache.Remove(slot.EntityCache);
+
                 SetArgs.Add(index);
                 this.Emit(EPartySignal.MemberRemoved);
-
-                _entityCache.Remove(slot.EntityCache);
 
                 if (_entityCache.Count == 0)
                 {
@@ -90,6 +90,10 @@ namespace CreatureTime
                 }
             }
 
+#if DEBUG_LOGS
+            LogDebug("Updating entity for slot " +
+                     $"(party={this}, slot={slot}, prev={slot.EntityCache}, entity={entity}).");
+#endif
             slot.EntityCache = entity;
             if (slot.EntityCache)
             {
@@ -140,12 +144,12 @@ namespace CreatureTime
             {
                 var slot = slots[i];
                 if (slot.EntityCache) continue;
-                if (slot.HasDisconnectedAlias)
-                {
-                    if (!freeSlot)
-                        freeSlot = slot;
-                    continue;
-                }
+                // if (slot.HasDisconnectedAlias)
+                // {
+                //     if (!freeSlot)
+                //         freeSlot = slot;
+                //     continue;
+                // }
 
                 freeSlot = slot;
                 break;
@@ -174,65 +178,63 @@ namespace CreatureTime
                     slots[i].EntityCache = null;
         }
 
-        private bool _FindDisconnectedIndex(string alias, out int index)
-        {
-            for (int i = 0; i < slots.Length; i++)
-            {
-                var slot = slots[i];
-                if (slot.DisconnectedUuid == alias)
-                {
-                    index = i;
-                    return true;
-                }
-            }
-
-            index = -1;
-            return false;
-        }
-
-        public bool WasConnectedToParty(CtEntity entity)
-        {
-            return _FindDisconnectedIndex(entity.DisplayName, out var index);
-        }
-
-        public void Reconnected(CtEntity entity)
-        {
-            if (!_FindDisconnectedIndex(entity.DisplayName, out var index))
-            {
-#if DEBUG_LOGS
-                LogCritical($"Cannot find member to reconnect to party (uuid={entity.DisplayName}).");
-#endif
-                return;
-            }
-
-#if DEBUG_LOGS
-            LogDebug($"Reconnecting to party (partyId={identifier}, uuid={entity.DisplayName}).");
-#endif
-
-            slots[index].Reconnected(entity.DisplayName);
-            slots[index].EntityCache = entity;
-        }
-
-        public void Disconnected(CtEntity entity)
-        {
-#if DEBUG_LOGS
-            LogCritical($"Cannot find member to disconnect from party (uuid={entity.DisplayName}).");
-#endif
-            for (int i = 0; i < slots.Length; i++)
-            {
-                var slot = slots[i];
-                if (slot.EntityCache == entity)
-                {
-#if DEBUG_LOGS
-                    LogDebug($"Disconnecting from party (partyId={identifier}, uuid={entity.DisplayName}).");
-#endif
-
-                    slot.Disconnected(entity.DisplayName);
-                    slots[i].EntityCache = null;
-                    return;
-                }
-            }
-        }
+//         private bool _FindDisconnectedIndex(string playerGuid, out int index)
+//         {
+//             for (int i = 0; i < slots.Length; i++)
+//             {
+//                 var slot = slots[i];
+//                 if (slot.DisconnectedUuid == playerGuid)
+//                 {
+//                     index = i;
+//                     return true;
+//                 }
+//             }
+//
+//             index = -1;
+//             return false;
+//         }
+//
+//         public bool WasConnectedToParty(CtPlayerEntity entity)
+//         {
+//             return _FindDisconnectedIndex(entity.PlayerGuid, out var index);
+//         }
+//
+//         public void Reconnected(CtPlayerEntity entity)
+//         {
+// #if DEBUG_LOGS
+//             LogDebug($"Reconnecting to party (partyId={identifier}, uuid={entity.PlayerGuid}).");
+// #endif
+//
+//             if (!_FindDisconnectedIndex(entity.PlayerGuid, out var index))
+//             {
+// #if DEBUG_LOGS
+//                 LogCritical($"Cannot find member to reconnect to party (uuid={entity.PlayerGuid}).");
+// #endif
+//                 return;
+//             }
+//
+//             slots[index].Reconnected(entity.PlayerGuid);
+//         }
+//
+//         public void Disconnected(CtPlayerEntity entity)
+//         {
+//             foreach (var slot in slots)
+//             {
+//                 if (slot.EntityCache == entity)
+//                 {
+// #if DEBUG_LOGS
+//                     LogDebug($"Disconnecting from party (partyId={identifier}, uuid={entity.PlayerGuid}).");
+// #endif
+//
+//                     slot.Disconnected(entity.PlayerGuid);
+//                     return;
+//                 }
+//             }
+//
+// #if DEBUG_LOGS
+//             LogCritical($"Cannot find member to disconnect from party (uuid={entity.PlayerGuid}).");
+// #endif
+//         }
 
         public void Leave(CtEntity entity)
         {
@@ -240,11 +242,10 @@ namespace CreatureTime
             LogDebug($"Leaving party (party={this}, entity={entity}).");
 #endif
 
-            for (int i = 0; i < slots.Length; i++)
+            foreach (var slot in slots)
             {
-                var slot = slots[i];
                 if (slot.EntityCache != entity) continue;
-                slots[i].Identifier = CtConstants.InvalidId;
+                slot.Identifier = CtConstants.InvalidId;
                 return;
             }
 

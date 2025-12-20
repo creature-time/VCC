@@ -34,6 +34,8 @@ namespace CreatureTime
             }
         }
 
+        public string PlayerGuid => playerWorldPersistenceData.PlayerGuid;
+
         public override void OnStartBattle()
         {
             _playerTurn.SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(_playerTurn.ResetToWait));

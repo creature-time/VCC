@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtAvatarSnapshot
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 1a77802edfb8e604987b38b634afe84e, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 7f816603d8ae02645ab4bf7cd399ab87,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: a690b8dff81a7e349b097e31c334a48d, type: 3}

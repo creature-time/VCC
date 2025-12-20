@@ -52,7 +52,6 @@ namespace CreatureTime
             private set
             {
                 _localEntity = value;
-                Debug.Log(_localEntity);
                 this.Emit(ERpgGameSignal.LocalPlayerChanged);
             }
         }
@@ -95,6 +94,11 @@ namespace CreatureTime
         {
             var playerWorldPersistenceData = (CtPlayerWorldPersistenceData)GetArgs[0].Reference;
             var playerPersistenceData = playerWorldPersistenceData.PlayerPersistenceData;
+#if DEBUG_LOGS
+            LogDebug("Player added " +
+                     $"(worldData={playerWorldPersistenceData}, worldDataGuid={playerWorldPersistenceData.PlayerGuid}, " +
+                     $"playerData={playerPersistenceData}, playerDataGuid={playerPersistenceData.PlayerGuid}).");
+#endif
 
             avatarSnapshot.Register(playerPersistenceData.PlayerId, out var renderTexture);
             var playerDef = (CtPlayerDef)playerPersistenceData.Extension;
@@ -102,24 +106,17 @@ namespace CreatureTime
 
             var playerEntity = playerWorldPersistenceData.GetComponent<CtPlayerEntity>();
             playerEntity.PlayerDef = playerDef;
-
-            if (playerPersistenceData.IsLocal)
-                LocalEntity = playerEntity;
-
-            // TODO: Make owner switch do a check and purge any invalid players, too.
-            if (Networking.IsMaster)
-            {
-                if (partyManager.TryGetConnectedParty(playerEntity, out var party))
-                    party.Reconnected(playerEntity);
-            }
         }
 
         public void _OnPlayerRemoved()
         {
             var playerWorldPersistenceData = (CtPlayerWorldPersistenceData)GetArgs[0].Reference;
-            Debug.Log($"playerWorldPersistenceData {playerWorldPersistenceData} {playerWorldPersistenceData.PlayerGuid}");
             var playerPersistenceData = playerWorldPersistenceData.PlayerPersistenceData;
-            Debug.Log($"playerPersistenceData {playerPersistenceData} {playerPersistenceData.PlayerGuid}");
+#if DEBUG_LOGS
+            LogDebug("Player removed " +
+                     $"(worldData={playerWorldPersistenceData}, worldDataGuid={playerWorldPersistenceData.PlayerGuid}, " +
+                     $"playerData={playerPersistenceData}, playerDataGuid={playerPersistenceData.PlayerGuid}).");
+#endif
 
             var playerEntity = playerWorldPersistenceData.GetComponent<CtPlayerEntity>();
             playerEntity.PlayerDef = null;
@@ -127,16 +124,6 @@ namespace CreatureTime
             avatarSnapshot.Unregister(playerPersistenceData.PlayerId);
             var playerDef = (CtPlayerDef)playerPersistenceData.Extension;
             playerDef.TearDown();
-
-            if (playerWorldPersistenceData.PlayerPersistenceData.IsLocal)
-                LocalEntity = null;
-
-            // TODO: Make owner switch do a check and purge any invalid players, too.
-            if (Networking.IsMaster)
-            {
-                if (partyManager.TryGetEntityParty(playerEntity, out var party))
-                    party.Disconnected(playerEntity);
-            }
         }
 
         public void _OnNpcEntityChanged()

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtArmorSlotDef
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 9e29e10f2f5ca0f489b6a14199940fc6, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 8b21985a4fc3ab445bbb7abd0a693c61,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: fede23e4c3dd1b14995000cbdf5480d9, type: 3}

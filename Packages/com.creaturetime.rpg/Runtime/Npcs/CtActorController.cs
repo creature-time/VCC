@@ -69,9 +69,9 @@ namespace CreatureTime
             }
         }
 
-        public void TriggerBabble()
+        public bool IsTalking
         {
-            animator.SetTrigger("Babble");
+            set => animator.SetBool("Babble", value);
         }
 
         public override void OnPlayerTriggerEnter(VRCPlayerApi player)

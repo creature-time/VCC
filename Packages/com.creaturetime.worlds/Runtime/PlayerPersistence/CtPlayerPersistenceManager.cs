@@ -19,46 +19,31 @@ namespace CreatureTime
     {
         [SerializeField] private CtPlayerWorldPersistenceData[] playerWorldPersistenceDataArray;
 
-        private DataList playerPersistenceDataArray = new DataList();
+        private DataDictionary _playerPersistenceDataLookup = new DataDictionary();
 
         public void Init()
         {
         }
 
-//         public bool TryGetPlayerPersistenceData(string playerGuid, out CtPlayerPersistenceData playerPersistenceData)
+//         private bool _TryGetPlayerPersistenceData(string playerGuid, out CtPlayerPersistenceData playerPersistenceData)
 //         {
-//             playerPersistenceData = null;
-//
 // #if DEBUG_LOGS
 //             if (string.IsNullOrEmpty(playerGuid))
 //                 LogWarning("Player guid was null. Please valid player guid before calling function.");
 // #endif
 //
-//             for (int i = 0; i < playerPersistenceDataArray.Count; i++)
+//             if (_playerPersistenceDataLookup.TryGetValue(playerGuid, out var token))
 //             {
-//                 var data = (CtPlayerPersistenceData)playerPersistenceDataArray[i].Reference;
-//                 if (data.PlayerGuid == playerGuid)
-//                 {
-//                     playerPersistenceData = data;
-//                     return true;
-//                 }
+//                 playerPersistenceData = (CtPlayerPersistenceData)token.Reference;
+//                 return true;
 //             }
 //
 // #if DEBUG_LOGS
-//             LogCritical($"Failed to get player persistence data (playerGuid={playerGuid}).");
+//             LogDebug($"Failed to get player persistence data (playerGuid={playerGuid}).");
 // #endif
 //
+//             playerPersistenceData = null;
 //             return false;
-//         }
-//
-//         public void _OnPlayerPersistenceDataChanged()
-//         {
-//             var sender = (CtPlayerWorldPersistenceData)Sender;
-//             if (sender.PlayerPersistenceData.IsLocal)
-//             {
-//                 SetArgs.Add(sender);
-//                 this.Emit(EPlayerPersistenceManagerSignal.LocalPlayerChanged);
-//             }
 //         }
 
         private bool TryGetPlayerIndex(string playerGuid, out int index)
@@ -125,7 +110,7 @@ namespace CreatureTime
         public void OnPlayerAdded(CtPlayerPersistenceData playerPersistenceData)
         {
 #if DEBUG_LOGS
-            LogDebug($"Player added (displayName={playerPersistenceData.PlayerGuid}).");
+            LogDebug($"Player persistence added (playerGuid={playerPersistenceData.PlayerGuid}).");
 #endif
 
             if (!TryGetPlayerIndex(playerPersistenceData.PlayerGuid, out var index)) return;
@@ -140,16 +125,34 @@ namespace CreatureTime
                 return;
             }
 
-            playerPersistenceDataArray.Add(playerPersistenceData);
-            playerWorldPersistenceDataArray[index].PlayerPersistenceData = playerPersistenceData;
+            _playerPersistenceDataLookup.Add(playerPersistenceData.PlayerGuid, playerPersistenceData);
 
             if (Networking.IsMaster)
                 playerWorldPersistenceData.PlayerGuid = playerPersistenceData.PlayerGuid;
 
+            HandlePlayerPersistenceData(playerWorldPersistenceData);
+        }
+
+        public void HandlePlayerPersistenceData(CtPlayerWorldPersistenceData playerWorldPersistenceData)
+        {
+            if (playerWorldPersistenceData.PlayerPersistenceData) return;
+            var playerGuid = playerWorldPersistenceData.PlayerGuid;
+            if (string.IsNullOrEmpty(playerGuid)) return;
+            if (!_playerPersistenceDataLookup.TryGetValue(playerGuid, out var token)) return;
+
+            playerWorldPersistenceData.PlayerPersistenceData = (CtPlayerPersistenceData)token.Reference;
+        }
+
+        public void OnPlayerAdded(CtPlayerWorldPersistenceData playerWorldPersistenceData)
+        {
+#if DEBUG_LOGS
+            LogDebug($"Player world persistence added (displayName={playerWorldPersistenceData.PlayerGuid}).");
+#endif
+
             SetArgs.Add(playerWorldPersistenceData);
             this.Emit(EPlayerPersistenceManagerSignal.PlayerAdded);
 
-            if (playerPersistenceData.IsLocal)
+            if (playerWorldPersistenceData.PlayerPersistenceData.IsLocal)
             {
                 SetArgs.Add(playerWorldPersistenceData);
                 this.Emit(EPlayerPersistenceManagerSignal.LocalPlayerChanged);
@@ -171,27 +174,43 @@ namespace CreatureTime
             if (index == -1)
             {
 #if DEBUG_LOGS
-                LogCritical($"Failed to find player persistence data to remove (playerGuid={playerPersistenceData.PlayerGuid}).");
+                LogCritical(
+                    $"Failed to find player persistence data to remove (playerGuid={playerPersistenceData.PlayerGuid}).");
 #endif
                 return;
             }
 
-            if (playerPersistenceData.IsLocal)
+            var playerWorldPersistenceData = playerWorldPersistenceDataArray[index];
+            _playerPersistenceDataLookup.Remove(playerWorldPersistenceData.PlayerPersistenceData.PlayerGuid);
+            playerWorldPersistenceData.PlayerPersistenceData = null;
+
+#if DEBUG_LOGS
+            LogDebug($"Player persistence removed (playerGuid={playerWorldPersistenceData.PlayerGuid}).");
+#endif
+        }
+
+        public void OnPlayerRemoved(CtPlayerWorldPersistenceData playerWorldPersistenceData)
+        {
+            if (!playerWorldPersistenceData.PlayerPersistenceData)
+            {
+#if DEBUG_LOGS
+                LogCritical("Player world persistence data did not have a player persistence data attached " +
+                            $"(playerGuid={playerWorldPersistenceData.PlayerGuid}).");
+#endif
+                return;
+            }
+
+            if (playerWorldPersistenceData.PlayerPersistenceData.IsLocal)
             {
                 SetArgs.Add((CtPlayerWorldPersistenceData)null);
                 this.Emit(EPlayerPersistenceManagerSignal.LocalPlayerChanged);
             }
 
-            var playerWorldPersistenceData = playerWorldPersistenceDataArray[index];
-
             SetArgs.Add(playerWorldPersistenceData);
             this.Emit(EPlayerPersistenceManagerSignal.PlayerRemoved);
 
-            playerWorldPersistenceData.PlayerPersistenceData = null;
-            playerPersistenceDataArray.Remove(playerPersistenceData);
-
 #if DEBUG_LOGS
-            LogDebug($"Player removed (displayName={playerPersistenceData.PlayerGuid}).");
+            LogDebug($"Player world persistence removed (playerGuid={playerWorldPersistenceData.PlayerGuid}).");
 #endif
         }
     }

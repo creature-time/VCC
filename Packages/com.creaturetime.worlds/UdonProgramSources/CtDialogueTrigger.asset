@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtDialogueTrigger
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: c3e55a0cabb3dd54f8ea7162ae5cff73, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: ed7ee420b058d404d884254cbc665bf7,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 36663c409ecd7c143b0b4bc82379f7b1, type: 3}

@@ -23,6 +23,11 @@ namespace CreatureTime
             get => _playerGuid;
             set
             {
+#if DEBUG_LOGS
+                if (_playerGuid == value)
+                    LogWarning($"Player persistence player guid was already set (playerGuid={_playerGuid}).");
+#endif
+
                 _playerGuid = value;
 #if DEBUG_LOGS
                 LogDebug($"Player Persistence Guid Updated (playerGuid={_playerGuid})");

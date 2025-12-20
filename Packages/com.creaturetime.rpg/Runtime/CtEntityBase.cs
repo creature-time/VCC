@@ -14,6 +14,8 @@ namespace CreatureTime
             protected set => identifier = value;
         }
 
+        public abstract bool IsValid { get; }
+
         public abstract ushort EntityId { get; }
 
         public abstract Transform RootTransform { get; }

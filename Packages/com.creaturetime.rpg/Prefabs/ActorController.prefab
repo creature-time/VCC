@@ -72,6 +72,8 @@ MonoBehaviour:
   - {fileID: 7447304980423325743}
   - {fileID: 2282369194061277482}
   headBone: {fileID: 0}
+  handBoneL: {fileID: 0}
+  handBoneR: {fileID: 0}
   eyeBoneL: {fileID: 0}
   eyeBoneR: {fileID: 0}
   dialogueActor: {fileID: 0}
@@ -224,6 +226,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 106867220315175534}
+  logger: {fileID: 0}
   entryData: {fileID: 3961311127059320352}
   behaviorTree: {fileID: 4632333430892181662}
   arbiter: {fileID: 6881749011599528424}
@@ -375,6 +378,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 7947074516209614526}
+  logger: {fileID: 0}
   agent: {fileID: 0}
   animator: {fileID: 0}
 --- !u!114 &7947074516209614526
@@ -592,9 +596,12 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 2244385802782235597}
   logger: {fileID: 0}
+  rpgGame: {fileID: 0}
   minMaxEyeAngle: {x: -35, y: 35}
   lookDistance: 3
   lookSpeed: 15
+  minMaxEyeContactRange: {x: 2, y: 2}
+  minMaxEyeContactDuration: {x: 1, y: 2}
 --- !u!114 &2244385802782235597
 MonoBehaviour:
   m_ObjectHideFlags: 0

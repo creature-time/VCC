@@ -31,6 +31,8 @@ namespace CreatureTime
         [SerializeField] protected CtSkillInstances skillInstances;
         [SerializeField] protected CtStatusEffectInstances statusEffectInstances;
 
+        public override bool IsValid => EntityDef;
+
         public CtSkillInstances SkillInstances => skillInstances;
         public CtStatusEffectInstances StatusEffectInstances => statusEffectInstances;
 
@@ -241,6 +243,7 @@ namespace CreatureTime
         public float NormalizedEnergy => _entityDef ? Energy / (float)_entityDef.MaxEnergy : 0;
         public string DisplayName => _entityDef ? _entityDef.DisplayName : "Disconnected";
         public Texture Icon => _entityDef ? _entityDef.Icon : null;
+        public int Level => _entityDef ? _entityDef.CharacterLevel : 0;
 
         public abstract bool IsPlayer
         {

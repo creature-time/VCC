@@ -6,10 +6,10 @@ using VRC.SDKBase;
 
 namespace CreatureTime
 {
-    // public enum EPlayerWorldPersistenceSignal
-    // {
-    //     PlayerPersistenceDataChanged
-    // }
+    public enum EPlayerWorldPersistenceSignal
+    {
+        PlayerPersistenceDataChanged
+    }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtPlayerWorldPersistenceData : CtAbstractSignal
@@ -25,11 +25,24 @@ namespace CreatureTime
             {
 #if DEBUG_LOGS
                 if (_playerPersistenceData == value)
-                    LogWarning("Persistence data was already set.");
+                    LogWarning($"Persistence data was already set (data={_playerPersistenceData}).");
 #endif
 
+                if (_playerPersistenceData)
+                {
+                    playerPersistenceManager.OnPlayerRemoved(this);
+                }
+
+#if DEBUG_LOGS
+                LogDebug($"Persistence data was updated (prev={_playerPersistenceData}, data={value}).");
+#endif
                 _playerPersistenceData = value;
-                // this.Emit(EPlayerWorldPersistenceSignal.PlayerPersistenceDataChanged);
+                if (_playerPersistenceData)
+                {
+                    playerPersistenceManager.OnPlayerAdded(this);
+                }
+
+                this.Emit(EPlayerWorldPersistenceSignal.PlayerPersistenceDataChanged);
             }
         }
 
@@ -45,10 +58,17 @@ namespace CreatureTime
             get => _playerGuid;
             set
             {
-                _playerGuid = value;
 #if DEBUG_LOGS
-                LogDebug($"Player World Persistence Guid updated (playerGuid={_playerGuid}).");
+                if (_playerGuid == value)
+                    LogWarning($"Persistence world player guid was already set (data={_playerPersistenceData}).");
 #endif
+
+#if DEBUG_LOGS
+                LogDebug($"Player World Persistence Guid updated (prev={_playerGuid}, playerGuid={value}).");
+#endif
+                _playerGuid = value;
+
+                playerPersistenceManager.HandlePlayerPersistenceData(this);
             }
         }
 

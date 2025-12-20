@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtNpcBattleController
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 6aa8c9a92c460254f8076e9b54941441, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 3abfdf129cfc93a4b8ac39d19ca2cbdb,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: d22a4da1115cd2d409480ab6bb216b8e, type: 3}
