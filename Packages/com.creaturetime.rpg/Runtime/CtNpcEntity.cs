@@ -31,15 +31,35 @@ namespace CreatureTime
                 LogDebug($"Npc entity definition identifier updated (prev={_entityId}, next={value}).");
 #endif
 
-                var previousId = _entityId;
-                _entityId = value;
+                if (EntityDef)
+                {
+                    EntityDef.Disconnect(EEntityDefSignal.MainHandChanged, this, nameof(_OnMainHandChanged));
+                }
 
+                _entityId = value;
                 _OnEntityIdChanged();
 
-                SetArgs.Add(previousId);
-                SetArgs.Add(_entityId);
-                this.Emit(EEntitySignal.IdentifierChanged);
+                if (EntityDef)
+                {
+                    _OnMainHandChanged();
+
+                    EntityDef.Connect(EEntityDefSignal.MainHandChanged, this, nameof(_OnMainHandChanged));
+                }
             }
+        }
+
+        public void _OnMainHandChanged()
+        {
+            if (!_controller) return;
+
+            CtWeaponDef weaponDef = null;
+            if (CtDataBlock.IsValid(EntityDef.MainHandWeapon))
+            {
+                var weaponid = CtDataBlock.GetWeaponIdentifier(EntityDef.MainHandWeapon);
+                weaponDef = gameData.GetWeaponDef(weaponid);
+            }
+
+            _controller.SetWeaponDef(weaponDef);
         }
 
         public CtBattleController Controller
@@ -49,20 +69,21 @@ namespace CreatureTime
             {
                 if (_controller)
                 {
-                    _controller.Brain.Context.SetUShort("EntityId", CtConstants.InvalidId);
-                    _controller.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
-                    _controller.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
-                    _controller.Brain.Context.SetBool("Expert/IsChargingMelee", false);
+                    // _controller.Brain.Context.SetUShort("EntityId", CtConstants.InvalidId);
+                    // _controller.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
+                    // _controller.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
+                    // _controller.Brain.Context.SetBool("Expert/IsChargingMelee", false);
                 }
 
                 LogDebug($"NpcController was updated (entityId={Identifier}, prev={_controller}, next={value}).");
                 _controller = value;
                 if (_controller)
                 {
-                    _controller.Brain.Context.SetUShort("EntityId", Identifier);
-                    _controller.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
-                    _controller.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
-                    _controller.Brain.Context.SetBool("Expert/IsChargingMelee", false);
+                    _OnMainHandChanged();
+                    // _controller.Brain.Context.SetUShort("EntityId", Identifier);
+                    // _controller.Brain.Context.SetBool("Expert/IsDoneAttackingMelee", false);
+                    // _controller.Brain.Context.SetBool("Expert/IsAttackingMelee", false);
+                    // _controller.Brain.Context.SetBool("Expert/IsChargingMelee", false);
                 }
             }
         }
@@ -178,6 +199,8 @@ namespace CreatureTime
 
             return npcTurn.TryGetAttack(out skillId, out targetId);
         }
+
+        protected override void OnDeath() => _controller.HandleDeath();
 
         public override void ResetAttack()
         {

@@ -1,14 +1,17 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 
 namespace CreatureTime
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtChooseTargetNode : CtBehaviorTreeNodeBase
     {
-        private ushort[] _identifiers = { };
+        // private ushort[] _identifiers = { };
         private float[] _healthWeights = { };
+        private DataList _identifiers = new DataList();
+        private DataList _weights = new DataList();
 
         public override ENodeStatus Process(CtNpcContext context)
         {
@@ -18,120 +21,106 @@ namespace CreatureTime
 
             // CtNpcBehaviorUtils.AssertIfTargetIsValid(target);
 
+            var targetType = ETargetType.SingleEnemy;
             context.TryGetInt("Result/SkillIndex", out var skillIndex);
-
-            bool isTargetEnemy = true;
             if (skillIndex != -1)
             {
-                // Early out with self-targeting if skill used is self targeting only.
-                context.TryGetInt($"Skills.Values[{skillIndex}]/IsSelfTargetOnly", out var isSelfTarget);
-                if (isSelfTarget > 0)
-                {
-                    context.TryGetUShort("Self/Identifier", out var identifier);
-                    context.SetInt("Result/TargetId", identifier);
-                    return ENodeStatus.Success;
-                }
-
-                context.TryGetBool($"Skills.Values[{skillIndex}]/IsTargetEnemy", out isTargetEnemy);
+                context.TryGetEnum($"Skills.Values[{skillIndex}]/TargetType", out targetType);
             }
 
-            context.TryGetFloat("Self/Party", out var isAllyTeam);
+            context.TryGetUShort("Self/Identifier", out var self);
 
-            if (isTargetEnemy)
+            _identifiers.Clear();
+            _weights.Clear();
+
+            if (((int)targetType & (int)ETargetType.AllAllies) != 0)
             {
-                if (isAllyTeam < 0)
+                context.TryGetInt("Allies.Count", out var count);
+                for (int i = 0; i < count; ++i)
                 {
-                    context.TryGetInt("Allies.Count", out var count);
-                    if (_identifiers.Length != count || _healthWeights.Length != count)
-                    {
-                        _identifiers = new ushort[count];
-                        _healthWeights = new float[count];
-                    }
-
-                    for (int i = 0; i < count; ++i)
-                    {
-                        context.TryGetUShort($"Allies.Values[{i}]/Identifier", out _identifiers[i]);
-                        context.TryGetFloat($"Allies.Values[{i}]/Health", out _healthWeights[i]);
-                    }
-                }
-                else
-                {
-                    context.TryGetInt("Enemies.Count", out var count);
-                    if (_identifiers.Length != count || _healthWeights.Length != count)
-                    {
-                        _identifiers = new ushort[count];
-                        _healthWeights = new float[count];
-                    }
-
-                    for (int i = 0; i < count; ++i)
-                    {
-                        context.TryGetUShort($"Enemies.Values[{i}]/Identifier", out _identifiers[i]);
-                        context.TryGetFloat($"Enemies.Values[{i}]/Health", out _healthWeights[i]);
-                    }
-                }
-
-                for (int i = 0; i < _healthWeights.Length; ++i)
-                {
-                    if (_healthWeights[i] <= 0)
-                    {
-                        _healthWeights[i] = 0;
-                    }
-                    else
-                    {
-                        _healthWeights[i] = Mathf.Max(1.0f - _healthWeights[i], 0.2f);
-                    }
+                    context.TryGetUShort($"Allies.Values[{i}]/Identifier", out var identifier);
+                    context.TryGetFloat($"Allies.Values[{i}]/Health", out var health);
+                    _identifiers.Add(identifier);
+                    _weights.Add(health);
                 }
             }
             else
             {
-                if (isAllyTeam < 0)
+                if (((int)targetType & (int)ETargetType.Self) != 0)
                 {
-                    context.TryGetInt("Enemies.Count", out var count);
-                    if (_identifiers.Length != count || _healthWeights.Length != count)
-                    {
-                        _identifiers = new ushort[count];
-                        _healthWeights = new float[count];
-                    }
-
-                    for (int i = 0; i < count; ++i)
-                    {
-                        context.TryGetUShort($"Enemies.Values[{i}]/Identifier", out _identifiers[i]);
-                        context.TryGetFloat($"Enemies.Values[{i}]/Health", out _healthWeights[i]);
-                    }
+                    _identifiers.Add(self);
+                    context.TryGetFloat("Self/Health", out var selfHealth);
+                    _weights.Add(selfHealth);
                 }
-                else
+
+                if (((int)targetType & (int)ETargetType.SingleAlly) != 0)
                 {
                     context.TryGetInt("Allies.Count", out var count);
-                    if (_identifiers.Length != count || _healthWeights.Length != count)
-                    {
-                        _identifiers = new ushort[count];
-                        _healthWeights = new float[count];
-                    }
-
                     for (int i = 0; i < count; ++i)
                     {
-                        context.TryGetUShort($"Allies.Values[{i}]/Identifier", out _identifiers[i]);
-                        context.TryGetFloat($"Allies.Values[{i}]/Health", out _healthWeights[i]);
+                        context.TryGetUShort($"Allies.Values[{i}]/Identifier", out var identifier);
+                        if (identifier == self) continue;
+                        context.TryGetFloat($"Allies.Values[{i}]/Health", out var health);
+                        _identifiers.Add(identifier);
+                        _weights.Add(health);
                     }
                 }
+            }
 
-                for (int i = 0; i < _healthWeights.Length; ++i)
+            if (((int)targetType & (int)ETargetType.SingleEnemy) != 0 || ((int)targetType & (int)ETargetType.AllEnemies) != 0)
+            {
+                context.TryGetInt("Enemies.Count", out var count);
+                for (int i = 0; i < count; ++i)
                 {
-                    if (_healthWeights[i] <= 0)
-                    {
-                        _healthWeights[i] = 0;
-                    }
-                    else
-                    {
-                        _healthWeights[i] = Mathf.Max(1.0f - _healthWeights[i], 0.1f);
-                    }
+                    context.TryGetUShort($"Enemies.Values[{i}]/Identifier", out var identifier);
+                    context.TryGetFloat($"Enemies.Values[{i}]/Health", out var health);
+                    _identifiers.Add(identifier);
+                    _weights.Add(health);
                 }
+            }
+
+            _healthWeights = new float[_weights.Count];
+            for (int i = 0; i < _healthWeights.Length; ++i)
+            {
+                var health = _weights[i].Float;
+                if (health <= 0)
+                    _healthWeights[i] = 0;
+                else
+                    _healthWeights[i] = Mathf.Max(1.0f - health, 0.1f);
             }
 
             var index = CtRandomizer.GetRandomFromArray(_healthWeights);
             if (index != -1)
             {
-                context.SetUShort("Result/TargetId", _identifiers[index]);
+                context.SetUShort("Result/TargetId", _identifiers[index].UShort);
+                return ENodeStatus.Success;
+            }
+            else
+            {
+                // TODO: We know that this flow is kinda garbage. We need to make smarter decisions based on the
+                //       state of the field, choose the target, then the skill based on that information.
+#if DEBUG_LOGS
+                LogDebug("Failed to find a target for skill... running fallback!");
+#endif
+                // Fallback if everything else fails...
+                context.TryGetInt("Enemies.Count", out var count);
+                _identifiers.Clear();
+                _healthWeights = new float[count];
+                for (int i = 0; i < count; ++i)
+                {
+                    context.TryGetUShort($"Enemies.Values[{i}]/Identifier", out var identifier);
+                    _identifiers.Add(identifier);
+                    context.TryGetFloat($"Enemies.Values[{i}]/Health", out var health);
+                    if (health <= 0)
+                        _healthWeights[i] = 0;
+                    else
+                        _healthWeights[i] = Mathf.Max(1.0f - health, 0.1f);
+                }
+
+                index = CtRandomizer.GetRandomFromArray(_healthWeights);
+                context.SetUShort("Result/SkillId", CtConstants.InvalidId);
+                context.SetUShort("Result/TargetId", _identifiers[index].UShort);
+
                 return ENodeStatus.Success;
             }
 

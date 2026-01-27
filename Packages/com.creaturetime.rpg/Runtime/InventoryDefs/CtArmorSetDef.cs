@@ -8,6 +8,7 @@ namespace CreatureTime
     public class CtArmorSetDef : CtAbstractDefinition
     {
         [SerializeField] private string displayName;
+        [SerializeField] private ushort allowedProfessionFlags;
         [SerializeField] private EItemRarity rarity;
         [SerializeField] private CtArmorSlotDef headSlot;
         [SerializeField] private CtArmorSlotDef chestSlot;
@@ -22,6 +23,9 @@ namespace CreatureTime
         public CtArmorSlotDef HandsSlot => handsSlot;
         public CtArmorSlotDef LegsSlot => legsSlot;
         public CtArmorSlotDef FeetSlot => feetSlot;
+
+        public bool IsAllowedProfession(CtProfessionDef profession) => 
+            profession && (allowedProfessionFlags & 1 << profession.Identifier) != 0;
 
         public CtArmorSlotDef GetArmorSlot(EArmorSlot armorSlot)
         {

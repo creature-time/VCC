@@ -71,7 +71,7 @@ namespace CreatureTime
             playerPersistenceManager.Connect(EPlayerPersistenceManagerSignal.PlayerAdded, this, nameof(_OnPlayerAdded));
             playerPersistenceManager.Connect(EPlayerPersistenceManagerSignal.PlayerRemoved, this, nameof(_OnPlayerRemoved));
 
-            entityManager.Connect(EEntityManagerSignal.NpcEntityChanged, this, nameof(_OnNpcEntityChanged));
+            // entityManager.Connect(EEntityManagerSignal.NpcEntityChanged, this, nameof(_OnNpcEntityChanged));
 
             netSocket.Connect(ENetSocketSignal.PacketChanged, this, nameof(_OnPacketChanged));
         }
@@ -126,22 +126,22 @@ namespace CreatureTime
             playerDef.TearDown();
         }
 
-        public void _OnNpcEntityChanged()
-        {
-            var entity = (CtEntity)GetArgs[0].Reference;
-            var previousId = GetArgs[1].UShort;
-            var entityId = GetArgs[2].UShort;
-
-            if (previousId != CtConstants.InvalidId)
-            {
-                entity.Reset();
-            }
-
-            if (entityId != CtConstants.InvalidId)
-            {
-                entity.OnStartBattle();
-            }
-        }
+        // public void _OnNpcEntityChanged()
+        // {
+        //     var entity = (CtEntity)GetArgs[0].Reference;
+        //     var previousId = GetArgs[1].UShort;
+        //     var entityId = GetArgs[2].UShort;
+        //
+        //     if (previousId != CtConstants.InvalidId)
+        //     {
+        //         entity.Reset();
+        //     }
+        //
+        //     if (entityId != CtConstants.InvalidId)
+        //     {
+        //         entity.OnStartBattle();
+        //     }
+        // }
 
         private void JoinParty(CtEntity playerEntity)
         {
@@ -238,7 +238,7 @@ namespace CreatureTime
                 var entity = party.GetEntity(i);
                 if (!entity) continue;
                 if (entity.IsPlayer) continue;
-                if (entity.EntityId != npcDef.Identifier)
+                if (entity.EntityId == npcDef.Identifier)
                 {
 #if DEBUG_LOGS
                     LogWarning($"Recruit already added to party (partyId={party.Identifier}, recruitId={npcDef.Identifier}).");

@@ -56,6 +56,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 8389041296695257104}
   logger: {fileID: 0}
+  entity: {fileID: 9153725628680974074}
 --- !u!114 &8389041296695257104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -398,6 +399,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 8405157779223957559}
+  logger: {fileID: 0}
   gameData: {fileID: 0}
   entity: {fileID: 9153725628680974074}
   behaviorTree: {fileID: 912925278985565736}
@@ -502,6 +504,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1880471999509903718}
+  logger: {fileID: 0}
   agent: {fileID: 0}
   animator: {fileID: 0}
 --- !u!114 &1880471999509903718

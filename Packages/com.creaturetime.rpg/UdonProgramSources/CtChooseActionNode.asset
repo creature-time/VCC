@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtChooseActionNode
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 1368186c385e3704fac05a5e0edf7437,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: d53b978bad31208459ad872f4f099ba0, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 4a97babae6f46c946a46c33c8633165f, type: 3}

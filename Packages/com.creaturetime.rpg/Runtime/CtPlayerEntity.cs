@@ -15,6 +15,7 @@ namespace CreatureTime
         [SerializeField] private Transform rightHandTransform;
 
         private CtPlayerTurn _playerTurn;
+        private string _playerGuid;
 
         public override ushort EntityId => CtConstants.InvalidId;
         public override bool IsPlayer => true;
@@ -31,10 +32,13 @@ namespace CreatureTime
             {
                 EntityDef = value;
                 _playerTurn = value ? value.PlayerTurn : null;
+                if (_playerGuid != playerWorldPersistenceData.PlayerGuid)
+                {
+                    Reset();
+                    _playerGuid = playerWorldPersistenceData.PlayerGuid;
+                }
             }
         }
-
-        public string PlayerGuid => playerWorldPersistenceData.PlayerGuid;
 
         public override void OnStartBattle()
         {

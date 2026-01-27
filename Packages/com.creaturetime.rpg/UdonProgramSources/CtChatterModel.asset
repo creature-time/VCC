@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtChatterModel
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 1a29b21e8b662dd44a89cbd550bf9d41,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: d20c98a05f9fd854e9e75279e6dc7cb1, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 405fe07f20e51eb48a415664d36aec5e, type: 3}

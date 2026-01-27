@@ -1,6 +1,6 @@
 {
   "name": "com.creaturetime.worlds",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "displayName": "CreatureTime-Worlds",
   "description": "Core code used in worlds designed by CreatureTime",
   "unity": "2022.3",

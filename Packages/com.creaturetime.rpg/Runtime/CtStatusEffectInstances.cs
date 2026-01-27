@@ -1,5 +1,6 @@
 ﻿
 using UdonSharp;
+using UnityEngine;
 
 namespace CreatureTime
 {
@@ -11,6 +12,10 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtStatusEffectInstances : CtAbstractSignal
     {
+        [SerializeField] private CtEntity entity;
+
+        public CtEntity Entity => entity;
+
         public int Count => 8;
 
         [UdonSynced, FieldChangeCallback(nameof(StatusEffect0Callback))] private ulong _statusEffect0 = CtDataBlock.InvalidData;
@@ -217,6 +222,12 @@ namespace CreatureTime
 
         public void SetStatusEffect(int index, ulong value)
         {
+#if DEBUG_LOGS
+            var identifier = CtDataBlock.GetEffectIdentifier(value);
+            var turns = CtDataBlock.GetEffectTurns(value);
+            LogDebug($"Settings status effect (index={index}, identifier={identifier}, turns={turns}).");
+#endif
+
             switch (index)
             {
                 case 0: StatusEffect0 = value; break;

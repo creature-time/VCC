@@ -1,6 +1,8 @@
 ﻿
+using System;
 using UnityEngine;
 using VRC.SDK3.Data;
+using Random = UnityEngine.Random;
 
 namespace CreatureTime
 {
@@ -14,23 +16,31 @@ namespace CreatureTime
         [SerializeField] private bool isWeaponSkill;
         [SerializeField] private ushort attributeType = CtConstants.InvalidId;
         [SerializeField] private ECombatEffectFlags flags;
+        [SerializeField] private ETargetType targetType;
+        [SerializeField] private ESkillSubType subType;
+        [SerializeField] private bool isBeneficial;
+        [SerializeField] private ESkillType skillType;
+        [SerializeField] private int cost;
+        [SerializeField] private int rechargeTime;
 
+        public ETargetType TargetType => targetType;
+        public ESkillSubType SubType => subType;
         public ushort AttributeType => attributeType;
         public ECombatEffectFlags Flags => flags;
-        public virtual bool IsWeaponSkill => isWeaponSkill;
+        public bool IsWeaponSkill => isWeaponSkill;
+        public bool IsBeneficial => isBeneficial;
+        public ESkillType SkillType => skillType;
+        public int Cost => cost;
+        public int RechargeTime => rechargeTime;
+
+        public bool IsTargetType(ETargetType value) => ((int)targetType & (int)value) != 0;
 
         public bool HasUse => ((int)flags & (int)ECombatEffectFlags.Use) != 0;
         public bool HasPersistentEffect => ((int)flags & (int)ECombatEffectFlags.PersistentEffect) != 0;
         public bool HasSkillUsedEffect => ((int)flags & (int)ECombatEffectFlags.SkillUsedEffect) != 0;
         public bool HasTickEffect => ((int)flags & (int)ECombatEffectFlags.TickEffect) != 0;
 
-        public virtual bool IsBeneficial => false;
-        public virtual ESkillType Type => ESkillType.Energy;
-        public virtual int Cost => 0;
-        public virtual int RechargeTime => 0;
-        public virtual ETargetType TargetType => ETargetType.None;
-
-        public int Value => (Type == ESkillType.Adrenaline) ? Cost * 25 : Cost;
+        public int Value => (SkillType == ESkillType.Adrenaline) ? Cost * 25 : Cost;
 
         public virtual void OnUse(CtGameData gameData, CtEntity source, CtEntity target, DataList adjacentTargets) {}
         public virtual void OnEntryEffect(CtEntity target, CtEntity source) {}
@@ -38,6 +48,7 @@ namespace CreatureTime
         public virtual void OnSkillUsed(CtGameData gameData, CtEntity target, CtEntity source, CtSkillDef usedSkill) {}
         public virtual void OnTickEffect(CtEntity target, CtEntity source) {}
         public virtual void OnLeaveEffect(CtEntity target, CtEntity source) {}
+        public virtual void OnTakeDamage(CtGameData gameData, CtEntity target, CtEntity source) {}
 
         public virtual string GetDescription(int attributeRank) => "<Invalid Description>";
 
@@ -45,6 +56,21 @@ namespace CreatureTime
         {
             return Mathf.RoundToInt(baseValue + valuePerAttribute * attributeRank);
         }
+
+        // private static void HandleTakeDamage(CtGameData gameData, CtEntity target, CtEntity source)
+        // {
+        //     for (int i = 0; i < target.StatusEffectInstances.Count; i++)
+        //     {
+        //         var statusEffect = target.StatusEffectInstances.GetStatusEffect(i);
+        //         if (statusEffect == CtDataBlock.InvalidData) continue;
+        //
+        //         var effectIdentifier = CtDataBlock.GetEffectIdentifier(statusEffect);
+        //         var skillDef = gameData.GetSkillDef(effectIdentifier);
+        //         if (!skillDef.Flags.HasFlag(ECombatEffectFlags.TakeDamage)) continue;
+        //
+        //         skillDef.OnTakeDamage(gameData, target, source);
+        //     }
+        // }
 
         public static int CalcValue(int skillValue, int characterLevel, int targetArmorLevel)
         {
@@ -78,18 +104,46 @@ namespace CreatureTime
             int attributeRank =
                 TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, attributeType);
             int skillValue = CalcSkillValue(-healingBase, healingPerAttribute, attributeRank);
-            target.ApplyDamage(skillValue, EDamageType.Healing, EDamageSourceType.Skill, identifier, source, false);
+
+            _ApplyDamage(skillValue, target, source, identifier, EDamageSourceType.Skill, EDamageType.None, false);
         }
 
-        public static void MeleeAttack(CtGameData gameData, CtEntity target, CtEntity source)
+        private static bool DoesAttackMiss(CtEntity target, CtEntity source, CtWeaponDef weaponDef)
         {
-            int damage = _CalcMeleeAttack(gameData, target, source, out var weaponDefinition, out var attributeRank, out var isCritical);
+            bool missed = source.IsBlind && Random.Range(0.0f, 1.0f) <= 0.9f;
+#if DEBUG_LOGS
+            Debug.LogWarning($"Does attack miss? (missed={missed}).");
+#endif
+
+            if (missed)
+                _ApplyDamage(0, target, source, weaponDef.Identifier, EDamageSourceType.Weapon, EDamageType.Missed, false);
+            return missed;
+        }
+
+        private static bool IsAttackBlocked(CtEntity target, CtEntity source, CtWeaponDef weaponDef)
+        {
+            bool blocked = target.Block > 0 && Random.Range(0.0f, 1.0f) <= target.Block;
+#if DEBUG_LOGS
+            Debug.LogWarning($"Is attack blocked? (blocked={blocked}).");
+#endif
+
+            if (blocked)
+                _ApplyDamage(0, target, source, weaponDef.Identifier, EDamageSourceType.Weapon, EDamageType.Blocked, false);
+            return blocked;
+        }
+
+        public static void MeleeAttack(CtGameData gameData, CtEntity target, CtEntity source, float armorPenetration = 0)
+        {
+            int damage = _CalcMeleeAttack(gameData, target, source, armorPenetration, out var weaponDefinition, out var attributeRank, out var isCritical);
+            if (DoesAttackMiss(target, source, weaponDefinition)) return;
+            if (IsAttackBlocked(target, source, weaponDefinition)) return;
+
             source.GainAdrenaline(25);
             _MeleeApplyDamage(
                 target, damage, weaponDefinition.DamageType, EDamageSourceType.Weapon, weaponDefinition.Identifier, source, isCritical);
         }
 
-        private static int CalculateArmorRating(CtGameData gameData, CtEntity target)
+        private static int CalculateArmorRating(CtGameData gameData, CtEntity target, EDamageType damageType)
         {
             var armorHitRoll = CtArmorSetDef.RollArmorHit();
             ulong armorData;
@@ -121,14 +175,23 @@ namespace CreatureTime
                 CtArmorSetDef armorSetDef = gameData.GetArmorDef(identifier);
                 if (armorSetDef)
                 {
-                    var armorSlot = armorSetDef.GetArmorSlot(armorHitRoll);
-                    if (armorSlot)
-                        armorRating = armorSlot.ArmorRating;
+                    if (armorSetDef.IsAllowedProfession(target.Profession))
+                    {
+                        var armorSlot = armorSetDef.GetArmorSlot(armorHitRoll);
+                        if (armorSlot)
+                            armorSlot.CalcArmorRating(damageType);
 #if DEBUG_LOGS
-                else
-                {
-                    Debug.LogWarning($"Failed to find armor slot (armorSlot={armorSlot}).");
-                }
+                        else
+                        {
+                            Debug.LogWarning($"Failed to find armor slot (armorSlot={armorSlot}).");
+                        }
+#endif
+                    }
+#if DEBUG_LOGS
+                    else
+                    {
+                        Debug.LogWarning($"Target is wearing armor not valid for their profession (armorSetDef={armorSetDef}, profession={target.Profession}).");
+                    }
 #endif
                 }
 #if DEBUG_LOGS
@@ -165,7 +228,45 @@ namespace CreatureTime
                 }
             }
 
-            armorRating -= target.ArmorRatingReduction;
+            switch (damageType)
+            {
+                case EDamageType.Slashing:
+                    armorRating += target.SlashArmorIncrease - target.SlashArmorReduction;
+                    break;
+                case EDamageType.Blunt:
+                    armorRating += target.BluntArmorIncrease - target.BluntArmorReduction;
+                    break;
+                case EDamageType.Piercing:
+                    armorRating += target.PierceArmorIncrease - target.PierceArmorReduction;
+                    break;
+                case EDamageType.Earth:
+                    armorRating += target.EarthArmorIncrease - target.EarthArmorReduction;
+                    break;
+                case EDamageType.Fire:
+                    armorRating += target.FireArmorIncrease - target.FireArmorReduction;
+                    break;
+                case EDamageType.Air:
+                    armorRating += target.AirArmorIncrease - target.AirArmorReduction;
+                    break;
+                case EDamageType.Water:
+                    armorRating += target.WaterArmorIncrease - target.WaterArmorReduction;
+                    break;
+                case EDamageType.Holy:
+                    armorRating += target.HolyArmorIncrease - target.HolyArmorReduction;
+                    break;
+                case EDamageType.Bleeding:
+                case EDamageType.Burning:
+                case EDamageType.Disease:
+                case EDamageType.Poison:
+                    break;
+                default:
+#if DEBUG_LOGS
+                    // LogCritical($"Damage type not supported (damageType={damageType}.");
+#endif
+                    break;
+            }
+
+            armorRating += target.ArmorRatingIncrease - target.ArmorRatingReduction;
             armorRating = Mathf.Max(0, armorRating);
 
 #if DEBUG_LOGS
@@ -178,19 +279,20 @@ namespace CreatureTime
         }
 
         private static int _CalcMeleeAttack(CtGameData gameData, CtEntity target, CtEntity source,
-            out CtWeaponDef weaponDefinition, out int attributeRank, out bool isCritical)
+            float armorPenetration, out CtWeaponDef weaponDefinition, out int attributeRank, out bool isCritical)
         {
             ushort identifier = CtDataBlock.GetWeaponIdentifier(source.EntityDef.MainHandWeapon);
             weaponDefinition = gameData.GetWeaponDef(identifier);
 #if DEBUG_LOGS
             if (!weaponDefinition)
-                Debug.Log($"Weapon could not be found (identifier={identifier})");
+                Debug.LogError($"Weapon could not be found (identifier={identifier})");
 #endif
 
             attributeRank =
                 TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, weaponDefinition.AttributeType);
 
-            int armorRating = CalculateArmorRating(gameData, target);
+            int armorRating = CalculateArmorRating(gameData, target, weaponDefinition.DamageType);
+            armorRating = (int)(armorRating * (1.0f - armorPenetration));
 
             int weaponAttributeLevel = CtDataBlock.GetWeaponRequirement(source.EntityDef.MainHandWeapon);
             return weaponDefinition.CalcDamage(weaponAttributeLevel, attributeRank, source.EntityDef.CharacterLevel,
@@ -200,40 +302,124 @@ namespace CreatureTime
         public static void MeleeSkill(CtGameData gameData, CtEntity target, CtEntity source, ushort skillId, 
             int damageBase, float damagePerAttribute, float armorPenetration = 0)
         {
-            int armorRating = CalculateArmorRating(gameData, target);
-
             // Skill Weapon Damage
             int damage = _CalcMeleeAttack(
-                gameData, target, source, out var weaponDefinition, out var attributeRank, out var isCritical);
+                gameData, target, source, armorPenetration, out var weaponDefinition, out var attributeRank, out var isCritical);
+            if (DoesAttackMiss(target, source, weaponDefinition)) return;
+            if (IsAttackBlocked(target, source, weaponDefinition)) return;
+
+            // int armorRating = CalculateArmorRating(gameData, target, weaponDefinition.DamageType);
             damage += CalcDamage(
-                damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel, armorRating);
+                damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel, 0);
             _MeleeApplyDamage(
                 target, damage, weaponDefinition.DamageType, EDamageSourceType.Skill, skillId, source, isCritical);
         }
 
         private static void _MeleeApplyDamage(CtEntity target, int damage, EDamageType damageType,
-            EDamageSourceType damageSourceType, ushort identifier, CtEntity instigator, bool isCritical)
+            EDamageSourceType damageSourceType, ushort identifier, CtEntity source, bool isCritical)
         {
             int adrenaline = 25;
 #if DEBUG_LOGS
             Debug.Log($"Adrenaline gained due to weapon used (adrenaline={adrenaline}).");
 #endif
-            instigator.GainAdrenaline(adrenaline);
+            source.GainAdrenaline(adrenaline);
 
-            target.ApplyDamage(damage, damageType, damageSourceType, identifier, instigator, isCritical);
+            _ApplyDamage(damage, target, source, identifier, damageSourceType, damageType, isCritical);
         }
 
         public static void SpellSkill(CtGameData gameData, CtEntity target, CtEntity source, 
             ushort attributeType, ushort skillId, EDamageType damageType, int damageBase, 
             float damagePerAttribute)
         {
-            int armorRating = CalculateArmorRating(gameData, target);
+            int armorRating = CalculateArmorRating(gameData, target, damageType);
 
             int attributeRank =
                 TryGetAttributeLevelByAttributeType(gameData, source.EntityDef, attributeType);
             int damage = CalcDamage(damageBase, damagePerAttribute, attributeRank, source.EntityDef.CharacterLevel,
                 armorRating);
-            target.ApplyDamage(damage, damageType, EDamageSourceType.Skill, skillId, source, false);
+            _ApplyDamage(damage, target, source, skillId, EDamageSourceType.Skill, damageType, false);
+        }
+
+        private static void _ApplyDamage(int damage, CtEntity target, CtEntity source,
+            ushort skillId, EDamageSourceType damageSourceType, EDamageType damageType, bool isCritical)
+        {
+            if (damage >= 0)
+            {
+                // Pre-damage calculations.
+                target.GainAdrenalineOnHit(damage);
+
+                // Check for resistances.
+                int damageMod = 0;
+
+                // Ignore condition damage.
+                switch (damageType)
+                {
+                    case EDamageType.Bleeding:
+                    case EDamageType.Burning:
+                    case EDamageType.Disease:
+                    case EDamageType.Poison:
+                        break;
+                    default:
+                        damageMod += target.DamageIncrease - target.DamageReduction;
+                        break;
+                }
+
+                switch (damageType)
+                {
+                    case EDamageType.Slashing:
+                        damageMod += target.SlashDamageReduction - target.SlashDamageReduction;
+                        break;
+                    case EDamageType.Blunt:
+                        damageMod += target.BluntDamageReduction - target.BluntDamageReduction;
+                        break;
+                    case EDamageType.Piercing:
+                        damageMod += target.PierceDamageReduction - target.PierceDamageReduction;
+                        break;
+                    case EDamageType.Earth:
+                        damageMod += target.EarthDamageReduction - target.EarthDamageReduction;
+                        break;
+                    case EDamageType.Fire:
+                        damageMod += target.FireDamageReduction - target.FireDamageReduction;
+                        break;
+                    case EDamageType.Air:
+                        damageMod += target.AirDamageReduction - target.AirDamageReduction;
+                        break;
+                    case EDamageType.Water:
+                        damageMod += target.WaterDamageIncrease - target.WaterDamageReduction;
+                        break;
+                    case EDamageType.Holy:
+                        damageMod += target.HolyDamageReduction - target.HolyDamageReduction;
+                        break;
+                    case EDamageType.Bleeding:
+                    case EDamageType.Burning:
+                    case EDamageType.Disease:
+                    case EDamageType.Poison:
+                        break;
+                    default:
+#if DEBUG_LOGS
+                        // LogCritical($"Damage type not supported (damageType={damageType}.");
+#endif
+                        break;
+                }
+
+                damage += damageMod;
+
+                // Make sure that we do not resist more than the damage, so we do not heal on accident.
+                damage = Mathf.Max(damage, 0);
+
+                // // Calculate damage so we don't overkill.
+                // damage = Mathf.Min(target.Health, damage);
+
+                // // Update total damage resisted stats.
+                // DamageTakenResisted += resistedDamage;
+                // instigator.DamageResisted += resistedDamage;
+
+                // // Update total damage taken stats.
+                // DamageTaken += damage;
+                // instigator.DamageDealt += damage;
+            }
+
+            target.ApplyDamage(damage, damageType, damageSourceType, skillId, source, isCritical);
         }
 
         public static int CalcAttributePoints(int level)

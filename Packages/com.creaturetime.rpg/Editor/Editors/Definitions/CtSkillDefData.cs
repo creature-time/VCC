@@ -19,5 +19,11 @@ namespace CreatureTime
         [SerializeField] public Texture2D icon;
         [SerializeField] public bool isWeaponSkill;
         [SerializeField] public CtAttributeDefData attributeType;
+        [SerializeField] public ETargetType targetType;
+        [SerializeField] public ESkillSubType subType;
+        [SerializeField] public bool isBeneficial;
+        [SerializeField] public ESkillType skillType;
+        [SerializeField] public int cost;
+        [SerializeField] public int rechargeTime;
     }
 }

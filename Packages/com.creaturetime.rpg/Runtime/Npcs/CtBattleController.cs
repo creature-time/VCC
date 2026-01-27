@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿using System;
+using UdonSharp;
 using UnityEngine;
 
 namespace CreatureTime
@@ -49,7 +50,7 @@ namespace CreatureTime
                 return 0f;
             }
 
-            animator.SetTrigger("MeleeAttack");
+            animator.SetTrigger("CastSpell");
             return 2f;
         }
 
@@ -64,6 +65,26 @@ namespace CreatureTime
         //     MeleeAttackingState();
         // }
 
+        private GameObject _weaponArt;
+
+        public void SetWeaponDef(CtWeaponDef weaponDef)
+        {
+            if (_weaponArt)
+            {
+                Destroy(_weaponArt);
+                _weaponArt = null;
+            }
+
+            EWeaponType weaponType = EWeaponType.None;
+            if (weaponDef)
+            {
+                _weaponArt = Instantiate(weaponDef.UserData.gameObject, HandBoneR);
+                weaponType = weaponDef.WeaponType;
+            }
+
+            animator.SetFloat("WeaponType", Convert.ToInt32(weaponType));
+        }
+
         public void ResetAttack()
         {
             Brain.Context.SetInt("TurnState", 0);
@@ -72,6 +93,21 @@ namespace CreatureTime
         public void TakeDamage()
         {
             animator.SetTrigger("TakeDamage");
+        }
+
+        public void TakeHeal()
+        {
+            animator.SetTrigger("TakeHeal");
+        }
+
+        public void HandleDeath()
+        {
+            animator.SetBool("IsDead", true);
+        }
+
+        public void HandleRevive()
+        {
+            animator.SetBool("IsDead", false);
         }
     }
 }

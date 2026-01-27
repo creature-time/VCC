@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UdonSharp;
 using UnityEngine;
 
@@ -54,6 +55,11 @@ namespace CreatureTime
         {
             var allyParty = BattleState.AllyParty;
             var enemyParty = BattleState.EnemyParty;
+            if (enemyParty.HasMember(entity))
+            {
+                allyParty = BattleState.EnemyParty;
+                enemyParty = BattleState.AllyParty;
+            }
 
             npcContext.SetInt("Result/SkillIndex", -1);
 
@@ -63,7 +69,6 @@ namespace CreatureTime
             npcContext.SetInt("Enemies/Health.Count", enemyParty.Count);
 
             npcContext.SetUShort("Self/Identifier", entity.Identifier);
-            npcContext.SetFloat("Self/Party", allyParty.HasMember(entity) ? 1.0f : -1.0f);
             npcContext.SetFloat("Self/Health", entity.NormalizedHealth);
 
             npcContext.SetFloat("Self/AttackCoolDown", entity.AttackCoolDown);
@@ -102,7 +107,7 @@ namespace CreatureTime
             {
                 npcContext.SetUShort($"Skills.Values[{i}]/Identifier", CtConstants.InvalidId);
 
-                npcContext.SetBool($"Skills.Values[{i}]/IsSelfTargetOnly", false);
+                npcContext.SetBool($"Skills.Values[{i}]/IsSelfTarget", false);
                 npcContext.SetBool($"Skills.Values[{i}]/IsTargetEnemy", false);
 
                 npcContext.SetFloat($"Skills.Values[{i}]/SkillRecharging", 0);
@@ -124,7 +129,7 @@ namespace CreatureTime
                 npcContext.SetUShort($"Skills.Values[{i}]/Identifier", skillDef.Identifier);
                 npcContext.SetFloat($"Skills.Values[{i}]/SkillRecharging", recharge);
 
-                switch (skillDef.Type)
+                switch (skillDef.SkillType)
                 {
                     case ESkillType.Energy:
                         if (entity.Energy < skillDef.Value)
@@ -136,34 +141,17 @@ namespace CreatureTime
                         break;
                     default:
 #if DEBUG_LOGS
-                        LogCritical($"Skill type not supported (skillType={skillDef.Type}).");
+                        LogCritical($"Skill type not supported (skillType={skillDef.SkillType}).");
 #endif
                         continue;
                 }
 
-                float isSelfTarget = 0;
-                float isEnemyTarget = 0;
                 float supportScore = 0;
                 float healingScore = 0;
                 float buffingScore = 0;
                 float deBuffingScore = 0;
                 float conditionScore = 0;
                 float damageScore = 0;
-
-                switch (skillDef.TargetType)
-                {
-                    case ETargetType.EnemyOnly:
-                    case ETargetType.AllEnemies:
-                        isEnemyTarget = 1.0f;
-                        break;
-                    case ETargetType.AllyOnly:
-                        isEnemyTarget = -1.0f;
-                        break;
-                    case ETargetType.SelfOnly:
-                        isSelfTarget = 1.0f;
-                        isEnemyTarget = -1.0f;
-                        break;
-                }
 
                 if (skillDef.IsBeneficial)
                 {
@@ -185,14 +173,13 @@ namespace CreatureTime
 
 #if DEBUG_LOGS
                 LogDebug($"Skill {i} stats " +
-                         $"(isSelfTarget={isSelfTarget}, isEnemyTarget={isEnemyTarget}, supportScore={supportScore}, " +
+                         $"(targetType={skillDef.TargetType}, supportScore={supportScore}, " +
                          $"healingScore={healingScore}, buffingScore={buffingScore}, " +
                          $"deBuffingScore={deBuffingScore}, conditionScore={conditionScore}, " +
                          $"damageScore={damageScore}).");
 #endif
 
-                npcContext.SetFloat($"Skills.Values[{i}]/IsSelfTargetOnly", isSelfTarget);
-                npcContext.SetFloat($"Skills.Values[{i}]/IsTargetEnemy", isEnemyTarget);
+                npcContext.SetEnum($"Skills.Values[{i}]/TargetType", skillDef.TargetType);
 
                 npcContext.SetFloat($"Skills.Values[{i}]/SupportScore", supportScore);
                 npcContext.SetFloat($"Skills.Values[{i}]/HealingScore", healingScore);

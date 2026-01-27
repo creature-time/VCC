@@ -88,6 +88,7 @@ namespace CreatureTime
 #endif
         }
 
+        // TODO: Convert all of these to "bool TryGet<T>(id, out T t)" methods.
         public CtNpcDef GetNpcDef(ushort identifier)
         {
             if (!_npcDefinitions.TryGetValue(identifier, out var dataToken))

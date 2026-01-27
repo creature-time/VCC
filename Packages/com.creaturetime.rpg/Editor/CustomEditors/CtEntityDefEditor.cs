@@ -202,6 +202,7 @@ namespace CreatureTime.Editor.Rpg
             CtArmorStatsElement armorHead = new CtArmorStatsElement
             {
                 Label = "Head",
+                ForceArmorSlot = true,
                 AllowedArmorSlot = EArmorSlot.Head,
                 BindingPath = "headSlotData",
                 style =
@@ -215,6 +216,7 @@ namespace CreatureTime.Editor.Rpg
             CtArmorStatsElement armorChest = new CtArmorStatsElement
             {
                 Label = "Chest",
+                ForceArmorSlot = true,
                 AllowedArmorSlot = EArmorSlot.Chest,
                 BindingPath = "chestSlotData"
             };
@@ -224,6 +226,7 @@ namespace CreatureTime.Editor.Rpg
             CtArmorStatsElement armorHands = new CtArmorStatsElement
             {
                 Label = "Hands",
+                ForceArmorSlot = true,
                 AllowedArmorSlot = EArmorSlot.Hands,
                 BindingPath = "handsSlotData",
                 style =
@@ -237,6 +240,7 @@ namespace CreatureTime.Editor.Rpg
             CtArmorStatsElement armorLegs = new CtArmorStatsElement
             {
                 Label = "Legs",
+                ForceArmorSlot = true,
                 AllowedArmorSlot = EArmorSlot.Legs,
                 BindingPath = "legsSlotData"
             };
@@ -246,6 +250,7 @@ namespace CreatureTime.Editor.Rpg
             CtArmorStatsElement armorFeet = new CtArmorStatsElement
             {
                 Label = "Feet",
+                ForceArmorSlot = true,
                 AllowedArmorSlot = EArmorSlot.Feet,
                 BindingPath = "feetSlotData",
                 style =

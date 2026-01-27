@@ -13,8 +13,24 @@ namespace CreatureTime
     public class CtArmorStatsElement : CtAbstractItemStatsElement
     {
         private ObjectField _armorSelect;
+        private EnumField _armorSlot;
 
-        public EArmorSlot AllowedArmorSlot { get; set; }
+        private bool _forceArmorSlot;
+
+        public bool ForceArmorSlot
+        {
+            set
+            {
+                _forceArmorSlot = value;
+                _armorSlot.SetEnabled(!_forceArmorSlot);
+            }
+        }
+
+        public EArmorSlot AllowedArmorSlot
+        {
+            get => (EArmorSlot)_armorSlot.value;
+            set => _armorSlot.value = value;
+        }
 
         public string Label
         {
@@ -56,11 +72,25 @@ namespace CreatureTime
             };
             _container.Add(_armorSelect);
 
+            _armorSlot = new EnumField
+            {
+                label = "Slot"
+            };
+            _armorSlot.SetEnabled(!_forceArmorSlot);
+            _armorSlot.Init(EArmorSlot.Head);
+            _container.Add(_armorSlot);
+
             _armorSelect.RegisterValueChangedCallback(evt =>
             {
                 randomize.SetEnabled(evt.newValue);
                 UpdateData();
             });
+
+            _armorSlot.RegisterValueChangedCallback(evt =>
+            {
+                UpdateData();
+            });
+
             randomize.clicked += () =>
             {
                 CtArmorSlotDef armorSetDefinition = _armorSelect.value as CtArmorSlotDef;
@@ -81,17 +111,12 @@ namespace CreatureTime
 
         private void SetupFields()
         {
-            const string RarityDefaultColor = "#000000";
-            const string RarityCommonColor = "#000000";
-            const string RarityMagicalColor = "#182e6f";
-            const string RarityUncommonColor = "#520075";
-            const string RarityRareColor = "#db9d00";
-
             string displayName = "<Empty>";
             Texture2D texture = null;
             string stats = String.Empty;
 
             CtArmorSetDef found = null;
+            EArmorSlot armorSlot = EArmorSlot.Head;
             // EWeaponPrefix prefix = EWeaponPrefix.None;
             // EWeaponSuffix suffix = EWeaponSuffix.None;
 
@@ -102,60 +127,35 @@ namespace CreatureTime
                 if (dataType == EDataType.Equipment)
                 {
                     int armorRating = 0;
-                    string color = RarityDefaultColor;
                     ushort identifier = CtDataBlock.GetEquipmentIdentifier(data);
                     var armorDefs = 
                         Object.FindObjectsByType<CtArmorSetDef>(FindObjectsInactive.Include, FindObjectsSortMode.None).ToList();
                     found = armorDefs.Find(def => def.Identifier == identifier);
                     if (found)
                     {
-                        var armorSlot = found.GetArmorSlot(AllowedArmorSlot);
-                        if (armorSlot)
+                        armorSlot = CtDataBlock.GetEquipmentSlot(data);
+                        var armorSlotDef = found.GetArmorSlot(armorSlot);
+                        if (armorSlotDef)
                         {
-                            var rarity = found.Rarity;
-                            switch (rarity)
+                            if (armorSlotDef.TryGetFormattedStats(out displayName, out stats))
                             {
-                                case EItemRarity.None:
-                                    color = RarityDefaultColor;
-                                    break;
-                                case EItemRarity.Common:
-                                    color = RarityCommonColor;
-                                    break;
-                                case EItemRarity.Magical:
-                                    color = RarityMagicalColor;
-                                    break;
-                                case EItemRarity.Uncommon:
-                                    color = RarityUncommonColor;
-                                    break;
-                                case EItemRarity.Rare:
-                                    color = RarityRareColor;
-                                    break;
-                                default:
-                                    Debug.LogError($"Item rarity not supported (rarity={rarity}).");
-                                    break;
+                                texture = armorSlotDef.Icon;
                             }
-
-                            displayName = $"<color={color}>{armorSlot.DisplayName}</color>";
-                            texture = armorSlot.Icon;
-                            armorRating = armorSlot.ArmorRating;
                         }
 
                         if (!texture)
                             texture = AssetDatabase.LoadAssetAtPath<Texture2D>(
                                 "Assets/CreatureTime/Worlds/CreatureTimeRPG/Editor/unknown.png");
                     }
-
-                    stats += $"<color={color}>{displayName}</color>\nArmor: {armorRating}";
-                    stats = stats.Trim();
                 }
             }
 
             _icon.image = texture;
             _title.text = displayName;
-            _stats.visible = false;
             _stats.text = stats;
 
             _armorSelect.SetValueWithoutNotify(found);
+            _armorSlot.SetValueWithoutNotify(armorSlot);
 
             _title.tooltip = stats;
         }

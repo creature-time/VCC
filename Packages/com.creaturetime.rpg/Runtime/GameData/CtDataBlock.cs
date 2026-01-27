@@ -17,6 +17,9 @@ namespace CreatureTime
         public const ulong InvalidData = 0xFFFFFFFFFFFFFFFF;
         private const int DataTypeBitMask = 0x000000000000000F;
 
+        public static string Serialize(ulong data) => $"{data:X16}";
+        public static ulong Deserialize(string data) => Convert.ToUInt64(data, 16);
+
         public static EDataType GetDataType(ulong data) => (EDataType)(data & DataTypeBitMask);
         public static bool IsValid(ulong data) => data != InvalidData;
 
@@ -522,7 +525,7 @@ namespace CreatureTime
                 return;
             }
 
-            data = ((ulong)turns & EffectTurnsBitMask) << EffectTurnsShiftBit | data & ~EffectTurnsBitMask;
+            data = ((ulong)turns & EffectTurnsBitShiftMask) << EffectTurnsShiftBit | data & ~EffectTurnsBitMask;
         }
 
         public static ulong CreateEffectData(ushort identifier, ushort sourceId, int turns)

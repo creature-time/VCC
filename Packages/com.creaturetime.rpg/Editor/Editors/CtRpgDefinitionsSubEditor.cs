@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using CreatureTime.RpgGame;
 using UdonSharp;
@@ -34,6 +35,9 @@ namespace CreatureTime
         {
             var type = typeof(T);
 
+            var splitPanel = new TwoPaneSplitView(1, 350, TwoPaneSplitViewOrientation.Horizontal);
+            Add(splitPanel);
+
             _view = new MultiColumnListView
             {
                 showBoundCollectionSize = false,
@@ -53,8 +57,38 @@ namespace CreatureTime
             int variant = 0;
             _PopulateRow(type, ref variant);
 
-            Add(_view);
+            splitPanel.Add(_view);
+
+            var propertyEditor = new ScrollView();
+            splitPanel.Add(propertyEditor);
+
+            _view.selectionChanged += objects =>
+            {
+                propertyEditor.Clear();
+                _serializedObject.Clear();
+
+                foreach (var obj in objects)
+                {
+                    var scriptableObject = (ScriptableObject)obj;
+                    Debug.Log(scriptableObject);
+                    _serializedObject.Add(scriptableObject);
+                }
+
+                if (_serializedObject.Count == 0) return;
+
+                var fallbackEditorType =
+                    typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GenericInspector");
+                var editor = UnityEditor.Editor.CreateEditor(_serializedObject.ToArray(), fallbackEditorType);
+                var imgui = new IMGUIContainer(() =>
+                {
+                    editor.OnInspectorGUI();
+                });
+
+                propertyEditor.Add(imgui);
+            };
         }
+
+        private List<Object> _serializedObject = new List<Object>();
 
         // private void _CreateCateogry(string text)
         // {
@@ -99,11 +133,22 @@ namespace CreatureTime
             Func<VisualElement> makeCellFunc;
             if (type.IsEnum)
             {
-                makeCellFunc = () =>
+                if (type.GetCustomAttribute<FlagsAttribute>() != null)
                 {
-                    var field = new EnumField();
-                    return field;
-                };
+                    makeCellFunc = () =>
+                    {
+                        var field = new EnumFlagsField();
+                        return field;
+                    };
+                }
+                else
+                {
+                    makeCellFunc = () =>
+                    {
+                        var field = new EnumField();
+                        return field;
+                    };
+                }
             }
             else if (type.IsSubclassOf(typeof(Object)))
             {
@@ -143,16 +188,18 @@ namespace CreatureTime
             {
                 bindCellFunc = (element, i) =>
                 {
-                    var field = (EnumField)element;
-                    field.bindingPath = bindingPath;
-
-                    var so = new SerializedObject(Data[i]);
-                    var enumProp = so.FindProperty(bindingPath);
-                    var array = type.GetEnumValues();
-                    if (Array.IndexOf(array, Enum.ToObject(type, enumProp.enumValueIndex)) == -1)
+                    VisualElement field;
+                    if (type.GetCustomAttribute<FlagsAttribute>() != null)
                     {
-                        enumProp.enumValueIndex = Convert.ToInt32(array.GetValue(0));
-                        so.ApplyModifiedPropertiesWithoutUndo();
+                        var enumField = (EnumFlagsField)element;
+                        enumField.bindingPath = bindingPath;
+                        field = enumField;
+                    }
+                    else
+                    {
+                        var enumField = (EnumField)element;
+                        enumField.bindingPath = bindingPath;
+                        field = enumField;
                     }
 
                     _Bind(field, i);
@@ -312,7 +359,7 @@ namespace CreatureTime
 
             Type type = typeof(T);
             var assets = AssetDatabase.FindAssets($"t:{type.Name}", 
-                new string[] { "Assets/CreatureTime/Editor/Data/Rpg" });
+                new string[] { "Assets/CreatureTime/Worlds/RpgGame/Editor/RpgData" });
             foreach (var asset in assets)
             {
                 var assetPath = AssetDatabase.GUIDToAssetPath(asset);
@@ -342,13 +389,16 @@ namespace CreatureTime
 
     public class CtRpgDefinitionsSubEditor : CtCreatureTimeSubEditor
     {
-        private const string DefinitionsLocation = "Assets/CreatureTime/Editor/Data/Rpg";
+        private const string RpgEditorDirectory = "Assets/CreatureTime/Worlds/RpgGame/Editor/Settings";
 
         public override string Name => "RPG Def Editor";
 
-        private Dictionary<Type, CtRpgDefinition> _definitionViews = new Dictionary<Type, CtRpgDefinition>();
+        private List<CtRpgDefinition> _definitionViews = new List<CtRpgDefinition>();
 
-        private CtTabElement _tabElement;
+        private DropdownField _editorSelect;
+        private ScrollView _scrollView;
+
+        private SerializedObject _serializedObject;
 
         private void RenameDefinitions<T>(string prefix)
             where T : CtAbstractDefData
@@ -362,13 +412,35 @@ namespace CreatureTime
             }
         }
 
+        private CtRpgDefinitionsSubEditorSettings _GetOrCreateSettings()
+        {
+            var info = AssetDatabase.LoadAssetAtPath<CtRpgDefinitionsSubEditorSettings>($"{RpgEditorDirectory}/rpg-definitions-sub-editor.asset");
+            if (!info)
+            {
+                info = ScriptableObject.CreateInstance<CtRpgDefinitionsSubEditorSettings>();
+                Directory.CreateDirectory(RpgEditorDirectory);
+                AssetDatabase.CreateAsset(info, $"{RpgEditorDirectory}/rpg-definitions-sub-editor.asset");
+                AssetDatabase.Refresh();
+            }
+
+            return info;
+        }
+
         public CtRpgDefinitionsSubEditor()
         {
+            _serializedObject = new SerializedObject(_GetOrCreateSettings());
+
             var toolbar = new VisualElement()
             {
                 style = { flexDirection = FlexDirection.Row }
             };
             Add(toolbar);
+ 
+            _editorSelect = new DropdownField();
+            _editorSelect.style.width = 256;
+            _editorSelect.bindingPath = "selectedView";
+            _editorSelect.Bind(_serializedObject);
+            toolbar.Add(_editorSelect);
 
             var generateGameData = new CtImportantButton
             {
@@ -391,11 +463,18 @@ namespace CreatureTime
             refresh.clicked += _RefreshViews;
             toolbar.Add(refresh);
 
-            _tabElement = new CtTabElement
+            _editorSelect.RegisterValueChangedCallback(evt =>
             {
-                style = { flexGrow = 1f }
-            };
-            Add(_tabElement);
+                _scrollView.contentViewport.Clear();
+                var index = _editorSelect.choices.IndexOf(_editorSelect.value);
+                if (index == -1) return;
+
+                _scrollView.contentViewport.Add(_definitionViews[index]);
+            });
+
+            _scrollView = new ScrollView();
+            _scrollView.style.flexGrow = 1;
+            Add(_scrollView);
 
             _CreateView<CtBattleQuestData>("Battle Quest Definitions");
             _CreateView<CtSquadDefData>("Squad Definitions");
@@ -416,19 +495,24 @@ namespace CreatureTime
             where T : CtAbstractDefData
         {
             var view = new CtRpgDefintionEditor<T>(title);
-            _tabElement.AddTab(title, view);
-            _definitionViews.Add(typeof(T), view);
+            view.style.flexGrow = 1;
+            _editorSelect.choices.Add(title);
+            _definitionViews.Add(view);
         }
 
         private CtRpgDefintionEditor<T> _GetView<T>()
             where T : CtAbstractDefData
         {
-            return (CtRpgDefintionEditor<T>)_definitionViews[typeof(T)];
+            var type = typeof(CtRpgDefintionEditor<T>);
+            foreach (var view in _definitionViews)
+                if (view.GetType() == type)
+                    return (CtRpgDefintionEditor<T>)view;
+            return null;
         }
 
         private void _RefreshViews()
         {
-            foreach (var view in _definitionViews.Values)
+            foreach (var view in _definitionViews)
                 view.RefreshView();
         }
 
@@ -546,14 +630,14 @@ namespace CreatureTime
                     so.FindProperty("displayName").stringValue = data.displayName;
                     so.FindProperty("icon").objectReferenceValue = data.icon;
                     so.FindProperty("characterLevel").intValue = data.characterLevel;
-                    so.FindProperty("attributeData").ulongValue = data.professionDataBlock.DataBlock;
-                    so.FindProperty("mainHandWeaponData").ulongValue = data.mainHandDataBlock.DataBlock;
-                    so.FindProperty("offHandWeaponData").ulongValue = data.offHandDataBlock.DataBlock;
-                    so.FindProperty("headSlotData").ulongValue = data.headArmorDataBlock.CreateDataBlock(EArmorSlot.Head);
-                    so.FindProperty("chestSlotData").ulongValue = data.chestArmorDataBlock.CreateDataBlock(EArmorSlot.Chest);
-                    so.FindProperty("handsSlotData").ulongValue = data.handsArmorDataBlock.CreateDataBlock(EArmorSlot.Hands);
-                    so.FindProperty("legsSlotData").ulongValue = data.legsArmorDataBlock.CreateDataBlock(EArmorSlot.Legs);
-                    so.FindProperty("feetSlotData").ulongValue = data.feetArmorDataBlock.CreateDataBlock(EArmorSlot.Feet);
+                    so.FindProperty("attributeData").stringValue = CtDataBlock.Serialize(data.professionDataBlock.DataBlock);
+                    so.FindProperty("mainHandWeaponData").stringValue = CtDataBlock.Serialize(data.mainHandDataBlock.DataBlock);
+                    so.FindProperty("offHandWeaponData").stringValue = CtDataBlock.Serialize(data.offHandDataBlock.DataBlock);
+                    so.FindProperty("headSlotData").stringValue = CtDataBlock.Serialize(data.headArmorDataBlock.CreateDataBlock(EArmorSlot.Head));
+                    so.FindProperty("chestSlotData").stringValue = CtDataBlock.Serialize(data.chestArmorDataBlock.CreateDataBlock(EArmorSlot.Chest));
+                    so.FindProperty("handsSlotData").stringValue = CtDataBlock.Serialize(data.handsArmorDataBlock.CreateDataBlock(EArmorSlot.Hands));
+                    so.FindProperty("legsSlotData").stringValue = CtDataBlock.Serialize(data.legsArmorDataBlock.CreateDataBlock(EArmorSlot.Legs));
+                    so.FindProperty("feetSlotData").stringValue = CtDataBlock.Serialize(data.feetArmorDataBlock.CreateDataBlock(EArmorSlot.Feet));
                     so.FindProperty("skillSlot0").intValue =
                         data.skillsBlock.skillDef0 ? data.skillsBlock.skillDef0.identifier : CtConstants.InvalidId;
                     so.FindProperty("skillSlot1").intValue =
@@ -645,6 +729,7 @@ namespace CreatureTime
                     weaponDefSo.FindProperty("weaponType").enumValueIndex = Convert.ToInt32(data.weaponType);
                     weaponDefSo.FindProperty("attackType").enumValueIndex = Convert.ToInt32(data.attackType);
                     weaponDefSo.FindProperty("attributeType").intValue = data.attributeType.identifier;
+                    weaponDefSo.FindProperty("damageType").enumValueIndex = Convert.ToInt32(data.damageType);
 
                     GameObject prefabInstance;
                     if (!weaponPool.TryGetValue(data.userData.userData, out var value))
@@ -746,6 +831,7 @@ namespace CreatureTime
 
                     so.FindProperty("identifier").intValue = data.identifier;
                     so.FindProperty("displayName").stringValue = data.displayName;
+                    so.FindProperty("allowedProfessionFlags").intValue = Convert.ToInt32(data.allowedProfessionFlags);
                     so.FindProperty("rarity").enumValueIndex = Convert.ToInt32(data.rarity);
                     so.FindProperty("headSlot").objectReferenceValue =
                         _GenerateArmorDefs(def, data.identifier, data.displayName, data.headSlot);
@@ -827,7 +913,13 @@ namespace CreatureTime
                         var data = view.Data[i];
                         if (!data.attributeType)
                         {
-                            Debug.LogWarning("Skill did not have attribute type");
+                            Debug.LogWarning("Skill did not have attribute type.");
+                            continue;
+                        }
+
+                        if (!data.script)
+                        {
+                            Debug.LogWarning("Skill did not have script type.");
                             continue;
                         }
 
@@ -842,6 +934,12 @@ namespace CreatureTime
                         so.FindProperty("icon").objectReferenceValue = data.icon;
                         so.FindProperty("isWeaponSkill").boolValue = data.isWeaponSkill;
                         so.FindProperty("attributeType").intValue = data.attributeType.identifier;
+                        so.FindProperty("targetType").intValue = Convert.ToInt32(data.targetType);
+                        so.FindProperty("subType").enumValueIndex = Convert.ToInt32(data.subType);
+                        so.FindProperty("isBeneficial").boolValue = data.isBeneficial;
+                        so.FindProperty("skillType").intValue = Convert.ToInt32(data.skillType);
+                        so.FindProperty("cost").intValue = data.cost;
+                        so.FindProperty("rechargeTime").intValue = data.rechargeTime;
 
                         so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -1020,6 +1118,11 @@ namespace CreatureTime
                 string.IsNullOrEmpty(data.suffix) ? displayName : $"{displayName} {data.suffix}";
             so.FindProperty("icon").objectReferenceValue = data.icon;
             so.FindProperty("armorRating").intValue = data.armorRating;
+            so.FindProperty("armorRatingBonus").intValue = data.armorRatingBonus;
+            so.FindProperty("armorRatingBonusType").enumValueIndex = Convert.ToInt32(data.armorRatingBonusType);
+            so.FindProperty("energyRegenerationBonus").intValue = data.energyRegenerationBonus;
+            so.FindProperty("energyIncreaseBonus").intValue = data.energyIncreaseBonus;
+            so.FindProperty("healthIncreaseBonus").intValue = data.healthIncreaseBonus;
 
             so.FindProperty("armorSet").objectReferenceValue = armorSetDef;
 
@@ -1032,10 +1135,10 @@ namespace CreatureTime
         {
             var gameObject = new GameObject(data.GenerateName);
             gameObject.transform.SetParent(group);
-        
+
             var def = AddUdonSharpComponentWithUdonBehavior<CtNpcBehavior>(gameObject);
             var so = new SerializedObject(def);
-        
+
             so.FindProperty("selfHealingThreshold").floatValue = data.selfHealingThreshold;
             so.FindProperty("defensiveWeight").floatValue = data.selfHealingThreshold;
             so.FindProperty("supportWeight").floatValue = data.selfHealingThreshold;

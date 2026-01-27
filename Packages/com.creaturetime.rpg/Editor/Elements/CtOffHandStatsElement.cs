@@ -151,9 +151,8 @@ namespace CreatureTime
                     {
                         requirement = CtDataBlock.GetOffHandRequirement(data);
                         found.GetFormattedStats(data, ref displayName, ref stats, ref rarity, ref modifierStat, ref requirement);
-                        stats = $"{displayName}\n{stats}";
 
-                        texture = found.Icon as Texture2D;
+                        texture = found.Icon;
                         if (!texture)
                             texture = AssetDatabase.LoadAssetAtPath<Texture2D>(
                                 "Assets/CreatureTime/Worlds/CreatureTimeRPG/Editor/unknown.png");
@@ -163,7 +162,6 @@ namespace CreatureTime
 
             _icon.image = texture;
             _title.text = displayName;
-            _stats.visible = false;
             _stats.text = stats;
 
             _offHandSelect.SetValueWithoutNotify(found);

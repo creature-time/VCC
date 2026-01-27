@@ -2,7 +2,6 @@
 using System;
 using UnityEditor;
 using UnityEngine.UIElements;
-using VRC.SDK3.Editor;
 
 namespace CreatureTime
 {
@@ -66,7 +65,7 @@ namespace CreatureTime
             _offHandStats.Bind(_serializedObject);
 
             var bindingProperty = _serializedObject.FindProperty(_bindingPath);
-            ulong value = bindingProperty.ulongValue;
+            ulong value = CtDataBlock.Deserialize(bindingProperty.stringValue);
             var dataType = EDataType.None;
             if (value != CtDataBlock.InvalidData)
                 dataType = CtDataBlock.GetDataType(value);

@@ -151,6 +151,8 @@ namespace CreatureTime
             {
                 case EOffHandType.Shield:
                     stats = $"Armor: {modifierStat}";
+                    if (requirement > 0)
+                        stats += $" (Req {requirement})";
                     break;
                 case EOffHandType.Focus:
                     stats = string.Empty;

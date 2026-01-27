@@ -61,7 +61,7 @@ namespace CreatureTime
             LogDebug($"Player Restored (name={gameObject.name}, displayName={player.displayName}, playerId={player.playerId}, isLocal={player.isLocal}, playerGuid={PlayerGuid}, extension={Extension})");
 #endif
 
-            DisplayName = $"{player.displayName} [{player.playerId}] [{player.isLocal}]";
+            DisplayName = player.displayName;
             IsLocal = player.isLocal;
             PlayerId = (ushort)player.playerId;
 

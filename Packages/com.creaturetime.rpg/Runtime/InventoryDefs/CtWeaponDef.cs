@@ -231,7 +231,7 @@ namespace CreatureTime
                 case EDamageType.Water:
                     damageTypeName = "Water";
                     break;
-                case EDamageType.Smiting:
+                case EDamageType.Holy:
                     damageTypeName = "Holy";
                     break;
                 default:

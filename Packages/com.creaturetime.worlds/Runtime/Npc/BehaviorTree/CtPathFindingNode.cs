@@ -39,6 +39,17 @@ namespace CreatureTime
             if (!Networking.IsOwner(agent.gameObject))
                 return ENodeStatus.Running;
 
+            if (!context.TryGetBool("Pathfinding/Pause", out var isHalted))
+                return ENodeStatus.Failure;
+
+            if (isHalted)
+            {
+                agent.enabled = false;
+                return ENodeStatus.Running;
+            }
+
+            agent.enabled = true;
+
             var targetPosition = wayPoints[CurrentIndex].position;
             agent.SetDestination(targetPosition);
             float distance = Vector3.Distance(targetPosition, context.transform.position);

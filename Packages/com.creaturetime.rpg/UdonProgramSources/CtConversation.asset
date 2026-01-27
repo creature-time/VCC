@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtConversation
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 388ef0a305a58884ba178ae9dff5f9a3,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 7235b2a8eae43244f88dd05b018cdfc2, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 96d81d127e49e2f4ba0baed4e418554a, type: 3}

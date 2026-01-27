@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CtInventoryChest
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 638905f5eaecb1a458a89f77532e3fce,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 8d41df6c1f3ee6245882be0658ec17e3, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: ca001e71c0579d14494428723f29b9c8, type: 3}

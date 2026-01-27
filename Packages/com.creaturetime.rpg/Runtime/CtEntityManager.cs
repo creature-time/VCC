@@ -7,12 +7,6 @@ using VRC.SDKBase;
 
 namespace CreatureTime
 {
-    enum EEntityManagerSignal
-    {
-        DamageApplied,
-        NpcEntityChanged
-    }
-
     [Flags]
     enum EPlayerEntityTransformFlags
     {
@@ -42,26 +36,12 @@ namespace CreatureTime
             foreach (var entity in recruitEntities)
             {
                 _entityLookup.Add(entity.Identifier, entity);
-                entity.Connect(EEntitySignal.IdentifierChanged, this, nameof(_OnIdentifierChanged));
             }
 
             foreach (var entity in enemyEntities)
             {
                 _entityLookup.Add(entity.Identifier, entity);
-                entity.Connect(EEntitySignal.IdentifierChanged, this, nameof(_OnIdentifierChanged));
             }
-        }
-
-        public void _OnIdentifierChanged()
-        {
-            var entity = (CtEntity)Sender;
-            var previousId = GetArgs[0].UShort;
-            var entityId = GetArgs[1].UShort;
-
-            SetArgs.Add(entity);
-            SetArgs.Add(previousId);
-            SetArgs.Add(entityId);
-            this.Emit(EEntityManagerSignal.NpcEntityChanged);
         }
 
         public bool TryGetEntity(ushort identifer, out CtEntity entity)

@@ -10,14 +10,14 @@ namespace CreatureTime
 
         private HelpBox _helpBox;
         private TextField _hexDisplay;
-        private LongField _dataBlock;
+        private TextField _dataBlock;
 
-        public LongField DataBlockElement => _dataBlock;
+        public TextField DataBlockElement => _dataBlock;
 
         public ulong Value
         {
-            get => (ulong)_dataBlock.value;
-            set => _dataBlock.value = (long)value;
+            get => CtDataBlock.Deserialize(_dataBlock.value);
+            set => _dataBlock.value = CtDataBlock.Serialize(value);
         }
 
         public string Label
@@ -39,11 +39,12 @@ namespace CreatureTime
             };
             Add(_helpBox);
 
-            _dataBlock = new LongField
+            _dataBlock = new TextField
             {
                 label = "Attribute Data",
-                bindingPath = "attributeData",
-                isReadOnly = true
+                // bindingPath = "attributeData",
+                isReadOnly = true,
+                value = CtDataBlock.Serialize(CtDataBlock.InvalidData)
             };
             Add(_dataBlock);
 
@@ -70,9 +71,9 @@ namespace CreatureTime
 
             _dataBlock.RegisterValueChangedCallback(evt =>
             {
-                ulong value = (ulong)evt.newValue;
+                ulong value = CtDataBlock.Deserialize(evt.newValue);
                 _helpBox.visible = !CtDataBlock.IsValid(value);
-                _hexDisplay.value = $"0x{value:x16}";
+                _hexDisplay.value = evt.newValue;
             });
         }
     }

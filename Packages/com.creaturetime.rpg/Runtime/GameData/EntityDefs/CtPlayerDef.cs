@@ -13,11 +13,11 @@ namespace CreatureTime
 
         [SerializeField] private CtPlayerPersistenceData playerPersistenceData;
         [SerializeField] private CtPlayerTurn playerTurn;
-        [SerializeField] private CtItemSpawner itemSpawner;
+        // [SerializeField] private CtItemSpawner itemSpawner;
 
         private int _playerId;
 
-        public CtItemSpawner ItemSpawner => itemSpawner;
+        // public CtItemSpawner ItemSpawner => itemSpawner;
 
         public void Setup(Texture texture)
         {
@@ -40,6 +40,11 @@ namespace CreatureTime
             playerTurn.Submit(CTBattleInteractType.Attack, skillId, target.Identifier);
         }
 
+        public void UseSkill(ushort skillId)
+        {
+            playerTurn.Submit(CTBattleInteractType.Attack, skillId, CtConstants.InvalidId);
+        }
+
         public void Run()
         {
             playerTurn.Submit(CTBattleInteractType.Run, CtConstants.InvalidId, CtConstants.InvalidId);
@@ -54,7 +59,7 @@ namespace CreatureTime
             set
             {
                 barks = value;
-                this.Emit(EEntityStatsSignal.BarksChanged);
+                this.Emit(EEntityDefSignal.BarksChanged);
             }
         }
 
@@ -70,20 +75,28 @@ namespace CreatureTime
 
         public CtPlayerTurn PlayerTurn => playerTurn;
 
-        [SerializeField, UdonSynced] private ulong[] inventory = new ulong[MaxInventoryCount]
+        [SerializeField, UdonSynced] private string[] inventory = new string[MaxInventoryCount]
         {
-            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
-            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
-            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
-            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData)
         };
 
-        private ulong[] _cmpInventory = new ulong[MaxInventoryCount]
+        private string[] _cmpInventory = new string[MaxInventoryCount]
         {
-            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
-            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
-            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData,
-            CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData, CtDataBlock.InvalidData
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData),
+            CtDataBlock.Serialize(CtDataBlock.InvalidData), CtDataBlock.Serialize(CtDataBlock.InvalidData)
         };
 
         public int InvSize => inventory.Length;
@@ -93,7 +106,7 @@ namespace CreatureTime
             int count = 0;
             for (int i = 0; i < inventory.Length; ++i)
             {
-                if ((inventory[i] & 0x0000FFFF) == identifier)
+                if ((Convert.ToUInt64(inventory[i], 16) & 0x0000FFFF) == identifier)
                     count++;
             }
         
@@ -104,7 +117,7 @@ namespace CreatureTime
         {
             for (int i = start; i < inventory.Length; ++i)
             {
-                if ((inventory[i] & 0x0000FFFF) == identifier)
+                if ((Convert.ToUInt64(inventory[i], 16) & 0x0000FFFF) == identifier)
                     return i;
             }
 
@@ -123,7 +136,7 @@ namespace CreatureTime
 
         public ulong InvDataAtSlot(int index)
         {
-            return inventory[index];
+            return Convert.ToUInt64(inventory[index], 16);
         }
 
         public void InvRemoveFrom(int index)
@@ -133,7 +146,7 @@ namespace CreatureTime
 
         private void SetInventoryData(int index, ulong data)
         {
-            inventory[index] = data;
+            inventory[index] = $"0x{data:X}";
             RequestSerialization();
             OnDeserialization();
         }
@@ -141,7 +154,7 @@ namespace CreatureTime
         private void _OnInventoryChanged(int index)
         {
             _cmpInventory[index] = inventory[index];
-            this.Emit(EEntityStatsSignal.InventoryChanged);
+            this.Emit(EEntityDefSignal.InventoryChanged);
         }
 
         public override void OnDeserialization()

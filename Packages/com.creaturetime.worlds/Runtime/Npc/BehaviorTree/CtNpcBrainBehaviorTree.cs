@@ -13,6 +13,11 @@ namespace CreatureTime
 
         public override CtBlackboard Context => behaviorTree.Context;
 
+        private void Start()
+        {
+            Context.SetupBlackboard(entryData);
+        }
+
         // Translate game state to world state.
         public override void Sense()
         {

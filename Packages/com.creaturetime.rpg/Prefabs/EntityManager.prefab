@@ -539,6 +539,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5943021611397780927, guid: 92529daf37f66a34a8a28c1ad52bacc0,
         type: 3}
+      propertyPath: logger
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5943021611397780927, guid: 92529daf37f66a34a8a28c1ad52bacc0,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 5943021611397780927, guid: 92529daf37f66a34a8a28c1ad52bacc0,
@@ -674,6 +679,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: _Template
+      objectReference: {fileID: 0}
+    - target: {fileID: 5943021611397780927, guid: 92529daf37f66a34a8a28c1ad52bacc0,
+        type: 3}
+      propertyPath: logger
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5943021611397780927, guid: 92529daf37f66a34a8a28c1ad52bacc0,
         type: 3}

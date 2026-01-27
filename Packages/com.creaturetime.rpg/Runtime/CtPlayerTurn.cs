@@ -26,6 +26,14 @@ namespace CreatureTime
             LogDebug($"(interactType={interactType}, skillId={skillId}, targetIndex={targetIndex})");
 #endif
 
+// #if DEBUG_LOGS
+//             if (targetIndex == CtConstants.InvalidId)
+//             {
+//                 LogCritical($"Failed to assign a target when submitting turn (targetIndex={targetIndex}).");
+//                 return;
+//             }
+// #endif
+
             _interactType = interactType;
             _skillId = skillId;
             _targetIndex = targetIndex;

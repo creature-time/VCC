@@ -48,7 +48,7 @@ namespace CreatureTime
 #if DEBUG_LOGS
                 LogError($"Failed to find entity (identifier={identifier}).");
 #endif
-                return ENodeStatus.Success;
+                return ENodeStatus.Failure;
             }
 
             if (!entity.HasAttackReady())
@@ -56,7 +56,7 @@ namespace CreatureTime
 #if DEBUG_LOGS
                 LogCritical("Attack should be ready at this point.");
 #endif
-                return ENodeStatus.Success;
+                return ENodeStatus.Failure;
             }
 
             if (!entity.TryGetAttack(out var skillId, out var targetId))
@@ -97,6 +97,7 @@ namespace CreatureTime
                 {
                     var otherEntity = party.GetEntity(i);
                     if (!otherEntity) continue;
+                    if (otherEntity.State == ECombatState.Dead) continue;
                     adjacentTargets.Add(otherEntity);
                 }
 

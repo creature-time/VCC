@@ -33,8 +33,9 @@ namespace CreatureTime
 
     public enum EWeaponType
     {
-        OneHanded,
-        TwoHanded
+        None = 0,
+        OneHanded = 1,
+        TwoHanded = 2
     }
 
     public enum EWeaponAttackType
@@ -72,20 +73,26 @@ namespace CreatureTime
 
     public enum EArmorSlot
     {
-        Head,
-        Chest,
-        Hands,
-        Legs,
-        Feet
+        Head = 0,
+        Chest = 1,
+        Hands = 2,
+        Legs = 3,
+        Feet = 4
     }
 
-    public enum EBonusType
+    public enum EArmorBonusType
     {
         None,
         EnergyRecovery,
         EnergyIncrease,
-        ArmorIncrease,
         HealthIncrease,
+    }
+
+    public enum EArmorRatingBonusType
+    {
+        None,
+        PhysicalDamage,
+        ElementalDamage
     }
 
     public enum EDamageSourceType
@@ -97,6 +104,8 @@ namespace CreatureTime
 
     public enum EDamageType
     {
+        None,
+
         Slashing,
         Blunt,
         Piercing,
@@ -106,21 +115,18 @@ namespace CreatureTime
         Air,
         Water,
 
-        Healing,
-        Protection,
-        Smiting,
-        
+        Holy,
+        Shadow,
+
         Bleeding,
         Burning,
         Disease,
         Poison,
 
-        Dazed,
-        Blind,
-
-        Exhausted,
+        Missed,
+        Blocked,
     }
-    
+
     public enum ESkillType
     {
         None,
@@ -136,15 +142,26 @@ namespace CreatureTime
         PersistentEffect = 1 << 1,
         SkillUsedEffect = 1 << 2,
         TickEffect = 1 << 3,
+        TakeDamage = 1 << 4,
     }
 
+    [Flags]
     public enum ETargetType
     {
-        None = 0,
+        Self                = 1 << 0, // 00001
+        SingleAlly          = 1 << 1, // 00010
+        AllAllies           = 1 << 2, // 00100
+        SingleEnemy         = 1 << 3, // 01000
+        AllEnemies          = 1 << 4, // 10000
+    }
 
-        EnemyOnly = 1,
-        AllEnemies = 2,
-        AllyOnly = 3,
-        SelfOnly = 4
+    public enum ESkillSubType
+    {
+        None                = 0,
+        Enchantment         = 1,
+        Hex                 = 2,
+        Unused0             = 3,
+        ShadowBound         = 4,
+        Unused1             = 5
     }
 }

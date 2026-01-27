@@ -137,7 +137,6 @@ namespace CreatureTime
                     {
                         requirement = CtDataBlock.GetWeaponRequirement(data);
                         found.GetFormattedStats(data, ref displayName, ref stats, ref rarity, ref requirement);
-                        stats = $"{displayName}\n{stats}";
 
                         texture = found.Icon;
                         if (!texture)
@@ -149,7 +148,6 @@ namespace CreatureTime
 
             _icon.image = texture;
             _title.text = displayName;
-            _stats.visible = false;
             _stats.text = stats;
 
             _weaponSelect.SetValueWithoutNotify(found);

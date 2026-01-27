@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace CreatureTime.Editor.Graph.DialogueGraph
@@ -12,6 +13,7 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
         [OnOpenAsset]
         public static bool OnOpenAsset(int instanceID, int line)
         {
+            Debug.LogWarning(EditorUtility.InstanceIDToObject(instanceID));
             var asset = (CtDialogueGraphAsset)EditorUtility.InstanceIDToObject(instanceID);
             if (asset.GetType() == typeof(CtDialogueGraphAsset))
             {
