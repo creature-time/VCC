@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43bf0d3b7aa005f48844620002661086, type: 3}
+  m_Name: arm_00002_test-heavy-armor
+  m_EditorClassIdentifier: 
+  identifier: 2
+  displayName: Test Heavy Armor
+  rarity: 4
+  headSlot:
+    suffix: Helm
+    icon: {fileID: 2800000, guid: d7c2382e86baab147889d71d64c441f1, type: 3}
+    armorRating: 60
+  chestSlot:
+    suffix: Chest
+    icon: {fileID: 2800000, guid: f769c4c1c7e8aa64cac999b5d9524857, type: 3}
+    armorRating: 60
+  handsSlot:
+    suffix: Guantlets
+    icon: {fileID: 2800000, guid: 4ce78c26daa47de4596f5fea49f19dce, type: 3}
+    armorRating: 60
+  legsSlot:
+    suffix: Leggings
+    icon: {fileID: 2800000, guid: ac4151cb914fc6a4089786a4a24f44a8, type: 3}
+    armorRating: 60
+  feetSlot:
+    suffix: Sabatons
+    icon: {fileID: 2800000, guid: d9b217c45ad986e4d9d3b83da677875d, type: 3}
+    armorRating: 60

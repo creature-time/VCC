@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc47cd9096c71a43b099d5a9b7f4852, type: 3}
+  m_Name: mhw_00000_test-axe
+  m_EditorClassIdentifier: 
+  identifier: 0
+  displayName: Test Axe
+  icon: {fileID: 0}
+  weaponType: 1
+  attributeType: {fileID: 11400000, guid: 3c2b17bddd42d6b4182326a5b9cd3d82, type: 2}
+  attributeRequirement: 0
+  damageType: 0
+  damageMin: 15
+  damageMax: 26
+  rarity: 4
+  userData:
+    userData: {fileID: 8251482470564793108, guid: 1561d8900dd585745a9db14777be0c1b, type: 3}
+    material: {fileID: 2100000, guid: 98bac0b7f8c11f041b602cb6976a7db2, type: 2}
+    palette: 8
