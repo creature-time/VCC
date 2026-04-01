@@ -21,10 +21,6 @@ namespace CreatureTime
 
         private DataDictionary _playerPersistenceDataLookup = new DataDictionary();
 
-        public void Init()
-        {
-        }
-
 //         private bool _TryGetPlayerPersistenceData(string playerGuid, out CtPlayerPersistenceData playerPersistenceData)
 //         {
 // #if DEBUG_LOGS

@@ -17,6 +17,7 @@ namespace CreatureTime.RpgGame
                 { ECombatEffectFlags.PersistentEffect, "OnPersistentEffect" },
                 { ECombatEffectFlags.SkillUsedEffect, "OnSkillUsed" },
                 { ECombatEffectFlags.TickEffect, "OnTickEffect" },
+                { ECombatEffectFlags.BlockEffect, "TryBlock"}
             };
 
             CtSkillDef[] skillDefinitions;

@@ -38,7 +38,7 @@ namespace CreatureTime
         public override string GenerateName =>
             $"{identifier:00000}_{(string.IsNullOrEmpty(displayName) ? "NoName" : displayName.Replace(' ', '-'))}";
 
-        public override int Identifier => identifier;
+        public override ushort Identifier => identifier;
 
         [SerializeField] public ushort identifier;
         [SerializeField] public string displayName;

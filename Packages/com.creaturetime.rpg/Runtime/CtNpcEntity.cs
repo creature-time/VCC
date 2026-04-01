@@ -48,18 +48,11 @@ namespace CreatureTime
             }
         }
 
-        public void _OnMainHandChanged()
+        protected override void OnMainHandChangedRaw()
         {
+            base.OnMainHandChangedRaw();
             if (!_controller) return;
-
-            CtWeaponDef weaponDef = null;
-            if (CtDataBlock.IsValid(EntityDef.MainHandWeapon))
-            {
-                var weaponid = CtDataBlock.GetWeaponIdentifier(EntityDef.MainHandWeapon);
-                weaponDef = gameData.GetWeaponDef(weaponid);
-            }
-
-            _controller.SetWeaponDef(weaponDef);
+            _controller.SetWeaponDef(MainHand);
         }
 
         public CtBattleController Controller
@@ -75,7 +68,9 @@ namespace CreatureTime
                     // _controller.Brain.Context.SetBool("Expert/IsChargingMelee", false);
                 }
 
+#if DEBUG_LOGS
                 LogDebug($"NpcController was updated (entityId={Identifier}, prev={_controller}, next={value}).");
+#endif
                 _controller = value;
                 if (_controller)
                 {
@@ -94,6 +89,7 @@ namespace CreatureTime
 
         public ushort NpcId
         {
+            get => _entityId;
             set
             {
                 EntityIdCallback = value;
@@ -175,6 +171,7 @@ namespace CreatureTime
 
         public override CtBattleState BattleState
         {
+            get => brain.BattleState;
             set => brain.BattleState = value;
         }
 
@@ -200,7 +197,11 @@ namespace CreatureTime
             return npcTurn.TryGetAttack(out skillId, out targetId);
         }
 
-        protected override void OnDeath() => _controller.HandleDeath();
+        protected override void OnDeath()
+        {
+            base.OnDeath();
+            _controller.HandleDeath();
+        }
 
         public override void ResetAttack()
         {
@@ -211,6 +212,37 @@ namespace CreatureTime
         {
             npcTurn.Reset();
             base.OnEndBattle();
+        }
+
+        public bool TryGenerateLoot(out ulong[] items)
+        {
+            var npcDef = (CtNpcDef)EntityDef;
+
+            var rolls = 1;
+
+            // var maxCurrency = Level * 10;
+
+            if (npcDef.IsBoss)
+            {
+                rolls += 2;
+                // maxCurrency *= 2;
+            }
+
+            // var t = Mathf.Pow(Random.value, 2);
+            // currency = Mathf.FloorToInt(Mathf.Lerp(0, maxCurrency, t));
+
+            items = new ulong[] { };
+            if (npcDef.LootTable)
+            {
+                var loot = npcDef.LootTable.GetResult(rolls);
+                foreach (var item in loot)
+                {
+                    if (item.IsNull) continue;
+                    CtArrayUtils.Add(ref items, item.CreateInstance());
+                }
+            }
+
+            return true;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace CreatureTime
         Disbanded,
         MemberAdded,
         MemberRemoved,
-        QuestChanged
+        BattleChanged
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
@@ -26,27 +26,38 @@ namespace CreatureTime
         [SerializeField, HideInInspector] private CtPartySlot[] slots;
         private DataList _entityCache = new DataList();
 
-        [UdonSynced, FieldChangeCallback(nameof(QuestCallback))]
-        private ushort _questId = CtConstants.InvalidId;
+        [SerializeField] private CtMap map;
 
-        public ushort QuestCallback
+        public CtMap Map => map;
+
+        public bool HasMap => map.Nodes.Length > 0;
+
+        public void GenerateMap(CtLocationDef locationDef)
         {
-            get => _questId;
+            map.GenerateMap(locationDef, 7, 7, 4);
+        }
+
+        [UdonSynced, FieldChangeCallback(nameof(BattleCallback))]
+        private ushort _battleId = CtConstants.InvalidId;
+
+        public ushort BattleCallback
+        {
+            get => _battleId;
             set
             {
-                _questId = value;
+                _battleId = value;
 
-                SetArgs.Add(_questId);
-                this.Emit(EPartySignal.QuestChanged);
+                SetArgs.Add(_battleId);
+                this.Emit(EPartySignal.BattleChanged);
             }
         }
 
-        public ushort Quest
+        public ushort Battle
         {
-            get => QuestCallback;
+            get => BattleCallback;
             set
             {
-                QuestCallback = value;
+                BattleCallback = value;
                 RequestSerialization();
             }
         }

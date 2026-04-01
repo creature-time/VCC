@@ -9,12 +9,12 @@ namespace CreatureTime
     {
         [SerializeField] private CtBattleState battleState;
         [SerializeField] private CtBattleWaitState waitState;
-        [SerializeField] private CtBattleEndState endState;
+        [SerializeField] private CtBattleResultsState resultState;
 
         public override CtStateBase GetNext(CtBlackboard context)
         {
             if (battleState.IsAllyTeamDead() || battleState.IsEnemyTeamDead())
-                return endState;
+                return resultState;
             return waitState;
         }
 

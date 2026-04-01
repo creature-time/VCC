@@ -15,16 +15,16 @@ namespace CreatureTime
     public class CtCreatureTimeEditor : CtAbstractEditorWindow
     {
         [MenuItem("CreatureTime/Editor")]
-        public static void ShowExample()
+        public static void ShowWindow()
         {
-            var wnd = GetWindow<CtCreatureTimeEditor>();
+            var wnd = GetWindow<CtCreatureTimeEditor>(typeof(CtCreatureTimeEditor), typeof(SceneView));
             wnd.titleContent =
                 new GUIContent("Creature Time", (Texture2D)EditorGUIUtility.Load(DefaultWhiteX16));
         }
 
         private CtTabElement _tabElement;
 
-        private protected override void SetUp()
+        protected override void OnEnable()
         {
             _tabElement = new CtTabElement
             {

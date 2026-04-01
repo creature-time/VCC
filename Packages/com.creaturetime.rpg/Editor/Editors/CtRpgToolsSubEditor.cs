@@ -1,5 +1,9 @@
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using UdonSharp;
 using UnityEditor;
@@ -39,6 +43,13 @@ namespace CreatureTime.RpgGame
             updateCounts.clickable.clicked += _UpdateCounts;
             Add(updateCounts);
 
+            var skillDump = new Button
+            {
+                text = "Skill Dump",
+            };
+            skillDump.clickable.clicked += _SkillDump;
+            Add(skillDump);
+
             Add(new Label());
 
             var runAll = new Button
@@ -47,6 +58,21 @@ namespace CreatureTime.RpgGame
             };
             runAll.clickable.clicked += _RunAll;
             Add(runAll);
+        }
+
+        private static void _SkillDump()
+        {
+            var attributeDefs = Object.FindObjectsOfType<CtAttributeDef>(true);
+            var attributeDefsLookup = attributeDefs.ToDictionary(x => x.Identifier, x => x);
+            var skillDefs = Object.FindObjectsOfType<CtSkillDef>(true);
+
+            var csvContent = new StringBuilder("Skill Name,Description,Attribute,Target Type,Sub Type,Is Beneficial,Skill Type,Cost,Recharge Time\n");
+            foreach (var skillDef in skillDefs)
+            {
+                if (skillDef.AttributeType == CtConstants.InvalidId) continue;
+                csvContent.AppendLine($"{skillDef.DisplayName},\"{skillDef.GetDebugDescription()}\",{attributeDefsLookup[skillDef.AttributeType].DisplayName},\"{skillDef.TargetType}\",{skillDef.SubType},{skillDef.IsBeneficial},{skillDef.SkillType},{skillDef.Cost},{skillDef.RechargeTime}");
+            }
+            File.WriteAllText(Application.dataPath + "/SkillDump.csv", csvContent.ToString());
         }
 
         private static async Task<VRCWorld> _GetWorld()

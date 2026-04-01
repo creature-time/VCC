@@ -4,6 +4,12 @@ using UnityEngine;
 
 namespace CreatureTime
 {
+    public enum EDialogueEntrySignal
+    {
+        Enter,
+        Exit
+    }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtDialogueEntry : CtAbstractSignal
     {
@@ -26,24 +32,34 @@ namespace CreatureTime
         public CtDialogueResponse[] Responses => responses;
         public ushort NextId => nextId;
 
+        private void Start()
+        {
+            foreach (var trigger in onEnterTriggers)
+                this.Connect(EDialogueEntrySignal.Enter, trigger.target, trigger.eventTrigger);
+            foreach (var trigger in onExitTriggers)
+                this.Connect(EDialogueEntrySignal.Exit, trigger.target, trigger.eventTrigger);
+        }
+
         public void OnEnterTriggers()
         {
-            Debug.Log($"OnEnterTriggers {gameObject}");
-            foreach (var trigger in onEnterTriggers)
-            {
-                trigger.target.SetProgramVariable("actor", actor);
-                trigger.target.SendCustomEvent(trigger.eventTrigger);
-            }
+            SetArgs.Add(actor);
+            this.Emit(EDialogueEntrySignal.Enter);
+            // foreach (var trigger in onEnterTriggers)
+            // {
+            //     trigger.target.SetProgramVariable("actor", actor);
+            //     trigger.target.SendCustomEvent(trigger.eventTrigger);
+            // }
         }
 
         public void OnExitTriggers()
         {
-            Debug.Log($"OnExitTriggers {gameObject}");
-            foreach (var trigger in onExitTriggers)
-            {
-                trigger.target.SetProgramVariable("actor", actor);
-                trigger.target.SendCustomEvent(trigger.eventTrigger);
-            }
+            SetArgs.Add(actor);
+            this.Emit(EDialogueEntrySignal.Exit);
+            // foreach (var trigger in onExitTriggers)
+            // {
+            //     trigger.target.SetProgramVariable("actor", actor);
+            //     trigger.target.SendCustomEvent(trigger.eventTrigger);
+            // }
         }
     }
 }

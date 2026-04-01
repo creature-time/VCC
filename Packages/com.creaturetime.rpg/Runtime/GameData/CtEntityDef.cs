@@ -5,10 +5,31 @@ using UnityEngine;
 
 namespace CreatureTime
 {
+    public class CtProfessionAndAttributesAttribute : PropertyAttribute {}
+
+    public class CtItemAttribute : PropertyAttribute
+    {
+        public EDataType DataType { get; }
+        public EArmorSlot ArmorSlot { get; }
+
+        public CtItemAttribute(EDataType dataType=EDataType.None)
+        {
+            DataType = dataType;
+            ArmorSlot = EArmorSlot.Head;
+        }
+
+        public CtItemAttribute(EArmorSlot armorSlot)
+        {
+            DataType = EDataType.Equipment;
+            ArmorSlot = armorSlot;
+        }
+    }
+
+    public class CtSkillAttribute : PropertyAttribute {}
+
     public enum EEntityDefSignal
     {
         NameChanged,
-        LevelChanged,
         ExpChanged,
         MainHandChanged,
         OffHandChanged,
@@ -19,8 +40,7 @@ namespace CreatureTime
         FeetSlotChanged,
         SkillSlotChanged,
         AttributesChanged,
-        InventoryChanged,
-        BarksChanged,
+        Extension
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
@@ -28,11 +48,12 @@ namespace CreatureTime
     {
         public const int MaxSkillCount = 10;
 
-        [SerializeField] protected CtGameData gameData;
         [SerializeField] protected string displayName;
         [SerializeField] protected Texture icon;
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(AttributeDataCallback))]
+        public virtual bool IsBoss => false;
+
+        [CtProfessionAndAttributes, SerializeField, UdonSynced, FieldChangeCallback(nameof(AttributeDataCallback))]
         private string attributeData = CtDataBlock.Serialize(CtDataBlock.InvalidData);
 
         public string AttributeDataCallback
@@ -55,7 +76,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(MainHandWeaponCallback))]
+        [CtItem(EDataType.Weapon), SerializeField, UdonSynced, FieldChangeCallback(nameof(MainHandWeaponCallback))]
         private string mainHandWeaponData = CtDataBlock.Serialize(CtDataBlock.InvalidData);
 
         public string MainHandWeaponCallback
@@ -78,7 +99,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(OffHandWeaponCallback))]
+        [CtItem(EDataType.OffHand), SerializeField, UdonSynced, FieldChangeCallback(nameof(OffHandWeaponCallback))]
         private string offHandWeaponData = CtDataBlock.Serialize(CtDataBlock.InvalidData);
 
         public string OffHandWeaponCallback
@@ -101,7 +122,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(HeadSlotCallback))]
+        [CtItem(EArmorSlot.Head), SerializeField, UdonSynced, FieldChangeCallback(nameof(HeadSlotCallback))]
         private string headSlotData = CtDataBlock.Serialize(CtDataBlock.InvalidData);
 
         public string HeadSlotCallback
@@ -128,7 +149,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(ChestSlotCallback))] 
+        [CtItem(EArmorSlot.Chest), SerializeField, UdonSynced, FieldChangeCallback(nameof(ChestSlotCallback))] 
         private string chestSlotData = CtDataBlock.Serialize(CtDataBlock.InvalidData);
 
         public string ChestSlotCallback
@@ -155,7 +176,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(HandsSlotCallback))] 
+        [CtItem(EArmorSlot.Hands), SerializeField, UdonSynced, FieldChangeCallback(nameof(HandsSlotCallback))] 
         private string handsSlotData = CtDataBlock.Serialize(CtDataBlock.InvalidData);
 
         public string HandsSlotCallback
@@ -182,7 +203,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(LegsSlotCallback))] 
+        [CtItem(EArmorSlot.Legs), SerializeField, UdonSynced, FieldChangeCallback(nameof(LegsSlotCallback))] 
         private string legsSlotData = CtDataBlock.Serialize(CtDataBlock.InvalidData);
         
         public string LegsSlotCallback
@@ -209,7 +230,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(FeetSlotCallback))] 
+        [CtItem(EArmorSlot.Feet), SerializeField, UdonSynced, FieldChangeCallback(nameof(FeetSlotCallback))] 
         private string feetSlotData = CtDataBlock.Serialize(CtDataBlock.InvalidData);
 
         public string FeetSlotCallback
@@ -259,7 +280,7 @@ namespace CreatureTime
         }
 #endif
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot0Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot0Callback))] 
         private ushort skillSlot0;
 
         public ushort SkillSlot0Callback
@@ -283,7 +304,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot1Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot1Callback))] 
         private ushort skillSlot1;
 
         public ushort SkillSlot1Callback
@@ -307,7 +328,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot2Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot2Callback))] 
         private ushort skillSlot2;
 
         public ushort SkillSlot2Callback
@@ -331,7 +352,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot3Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot3Callback))] 
         private ushort skillSlot3;
 
         public ushort SkillSlot3Callback
@@ -355,7 +376,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot4Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot4Callback))] 
         private ushort skillSlot4;
 
         public ushort SkillSlot4Callback
@@ -379,7 +400,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot5Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot5Callback))] 
         private ushort skillSlot5;
 
         public ushort SkillSlot5Callback
@@ -403,7 +424,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot6Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot6Callback))] 
         private ushort skillSlot6;
 
         public ushort SkillSlot6Callback
@@ -427,7 +448,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot7Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot7Callback))] 
         private ushort skillSlot7;
 
         public ushort SkillSlot7Callback
@@ -451,7 +472,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot8Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot8Callback))] 
         private ushort skillSlot8;
 
         public ushort SkillSlot8Callback
@@ -475,7 +496,7 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot9Callback))] 
+        [CtSkill, SerializeField, UdonSynced, FieldChangeCallback(nameof(SkillSlot9Callback))] 
         private ushort skillSlot9;
 
         public ushort SkillSlot9Callback
@@ -554,29 +575,6 @@ namespace CreatureTime
             }
         }
 
-        [SerializeField, UdonSynced, FieldChangeCallback(nameof(CharacterLevelCallback))]
-        private int characterLevel = 0;
-
-        public int CharacterLevelCallback
-        {
-            get => characterLevel;
-            set
-            {
-                characterLevel = value;
-                this.Emit(EEntityDefSignal.LevelChanged);
-            }
-        }
-
-        public int CharacterLevel
-        {
-            get => CharacterLevelCallback;
-            set
-            {
-                CharacterLevelCallback = value;
-                RequestSerialization();
-            }
-        }
-
         [SerializeField, UdonSynced, FieldChangeCallback(nameof(ExpCallback))]
         private int exp = 0;
 
@@ -609,7 +607,6 @@ namespace CreatureTime
 
         public void Copy(CtEntityDef other)
         {
-            CharacterLevel = other.CharacterLevel;
             Exp = other.Exp;
 
             // Profession and Attributes
@@ -644,67 +641,9 @@ namespace CreatureTime
             RequestSerialization();
         }
 
-        // TODO: Move these from this class.
-
-        
-
-        public int ExpToNextLevel => CalcExpPerLevel(CharacterLevel);
-//         public int EnergyRegeneration
-//         {
-//             get
-//             {
-//                 int result = 2;
-//                 ulong[] equipment =
-//                 {
-//                     HeadSlot,
-//                     ChestSlot,
-//                     HandsSlot,
-//                     LegsSlot,
-//                     FeetSlot
-//                 };
-//                 for (int i = 0; i < equipment.Length; i++)
-//                 {
-//                     var slotData = equipment[i];
-//                     if (!CtDataBlock.IsValid(slotData)) continue;
-//
-//                     var slot = (EArmorSlot)i;
-//                     var identifier = CtDataBlock.GetEquipmentIdentifier(slotData);
-//                     var armorDef = gameData.GetArmorDef(identifier);
-//                     if (!armorDef)
-//                     {
-// #if DEBUG_LOGS
-//                         LogWarning($"Failed to find armor definition for equipment in armor slot (slot={slot}).");
-// #endif
-//                         continue;
-//                     }
-//
-//                     var armorSlotDef = armorDef.GetArmorSlot(slot);
-//                     if (!armorSlotDef)
-//                     {
-// #if DEBUG_LOGS
-//                         LogWarning($"Failed to find slot for equipment in armor slot (armorDef={armorDef}, slot={slot}).");
-// #endif
-//                         continue;
-//                     }
-//
-//                     result += armorSlotDef.EnergyRegenerationBonus;
-//                 }
-//
-//                 return result;
-//             }
-//         }
-
-        public int MaxEnergy => 20;
-        public int MaxHealth => 100 + 20 * (CharacterLevel - 1);
-
-        private static int CalcExpPerLevel(int level)
-        {
-            return 1400 + 600 * level;
-        }
-
-        public static int CalculateDamage(int baseDamage, int strikeLevel, int targetArmorLevel)
-        {
-            return (int)(baseDamage * Mathf.Pow(2, (strikeLevel - targetArmorLevel) / 40.0f));
-        }
+        // public static int CalculateDamage(int baseDamage, int strikeLevel, int targetArmorLevel)
+        // {
+        //     return (int)(baseDamage * Mathf.Pow(2, (strikeLevel - targetArmorLevel) / 40.0f));
+        // }
     }
 }

@@ -1,14 +1,133 @@
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VRC.SDK3.Editor;
+using Object = UnityEngine.Object;
 
 namespace CreatureTime
 {
+    [CustomPropertyDrawer(typeof(CtProfessionAndAttributesAttribute))]
+    public class CtProfessionAndAttributesDrawer : PropertyDrawer
+    {
+        private CtProfessionDef[] _professionDefinitions;
+        private string[] _choices;
+
+        public CtProfessionAndAttributesDrawer()
+        {
+            var professionDefinitions = Object.FindObjectsOfType<CtProfessionDef>(true).ToList();
+            professionDefinitions.Sort((a, b) => a.Identifier - b.Identifier);
+
+            _professionDefinitions = new CtProfessionDef[professionDefinitions.Count];
+            _choices = new string[professionDefinitions.Count];
+            for (int i = 0; i < professionDefinitions.Count; i++)
+            {
+                var professionDef = professionDefinitions[i];
+                _professionDefinitions[i] = professionDef;
+                _choices[i] = professionDef.DisplayName;
+            }
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            var data = CtDataBlock.InvalidData;
+            if (!string.IsNullOrEmpty(property.stringValue))
+                data = CtDataBlock.Deserialize(property.stringValue);
+
+            var professionId = CtDataBlock.GetProfession(data);
+            var index = Array.FindIndex(_professionDefinitions, def => def.Identifier == professionId);
+            if (index == -1) index = 0;
+
+            var professionDef = _professionDefinitions[index];
+
+            // Return the total height needed for all fields + spacing
+            var count = professionDef.Attributes.Length;
+
+            count += 2;
+
+            float lineHeight = EditorGUIUtility.singleLineHeight;
+            float padding = 2f;
+
+            // total height = two lines + padding between them
+            return lineHeight * (count + 1) + padding * count;
+        }
+
+        // IMGUI fallback
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            float lineHeight = EditorGUIUtility.singleLineHeight;
+            float padding = 2;
+
+            GUIStyle title = new GUIStyle(GUI.skin.box);
+            title.alignment = TextAnchor.MiddleLeft;
+            title.stretchWidth = true;
+
+            var rect = new Rect(position.x, position.y, position.width, lineHeight);
+            EditorGUI.LabelField(rect, "Profession", title);
+
+            // Validate data is valid to begin with.
+            var data = CtDataBlock.InvalidData;
+            if (!string.IsNullOrEmpty(property.stringValue))
+                data = CtDataBlock.Deserialize(property.stringValue);
+
+            if (!CtDataBlock.IsValid(data))
+            {
+                var firstProfession = _professionDefinitions[0];
+                data = CtDataBlock.SetProfession(firstProfession.Identifier, firstProfession.Attributes.Length);
+                property.stringValue = CtDataBlock.Serialize(data);
+                property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            var professionId = CtDataBlock.GetProfession(data);
+            var index = Array.FindIndex(_professionDefinitions, def => def.Identifier == professionId);
+            if (index == -1) index = 0;
+
+            var professionDef = _professionDefinitions[index];
+            EditorGUI.BeginChangeCheck();
+            rect = new Rect(rect.x, rect.y + lineHeight + padding, position.width, lineHeight);
+            var selectedIndex = EditorGUI.Popup(rect, "Profession", index, _choices);
+            if (EditorGUI.EndChangeCheck())
+            {
+                professionDef = _professionDefinitions[selectedIndex];
+                professionId = professionDef.Identifier;
+                data = CtDataBlock.SetProfession(professionId, professionDef.Attributes.Length);
+                property.stringValue = CtDataBlock.Serialize(data);
+                property.serializedObject.ApplyModifiedProperties();
+            }
+
+            rect = new Rect(rect.x, rect.y + lineHeight + padding, position.width, lineHeight);
+            EditorGUI.LabelField(rect, "Attributes", title);
+
+            for (var i = 0; i < professionDef.Attributes.Length; i++)
+            {
+                rect = new Rect(rect.x, rect.y + lineHeight + padding, position.width, lineHeight);
+
+                var attributeDef = professionDef.Attributes[i];
+
+                EditorGUI.BeginChangeCheck();
+                var value = EditorGUI.IntField(rect, new GUIContent(attributeDef.DisplayName), CtDataBlock.GetAttributeRank(data, i));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    data = CtDataBlock.SetAttributeRank(i, value, data);
+                    property.stringValue = CtDataBlock.Serialize(data);
+                    property.serializedObject.ApplyModifiedProperties();
+                }
+            }
+        }
+
+        // // UI Toolkit path
+        // public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        // {
+        //     var attr = (MyAttribute)attribute;
+        //
+        //     var field = new PropertyField(property, attr.label);
+        //     return field;
+        // }
+    }
+
     public class CtProfessionAndAttributesElement : VisualElement
     {
         private List<CtProfessionDef> _professionDefinitions;
@@ -71,7 +190,7 @@ namespace CreatureTime
             };
             _unused.SetEnabled(false);
             Add(_unused);
-            _unused.RegisterValueChangedCallback(evt => _unusedPointError.visible = evt.newValue < 0);
+            _unused.RegisterValueChangedCallback(evt => HandleUnusedPoints());
 
             _attributeContainer = new Foldout
             {
@@ -98,13 +217,14 @@ namespace CreatureTime
             {
                 if (_characterLevel > 0)
                 {
-                    int maxAttributePoints = CtSkillDef.CalcAttributePoints(_characterLevel);
+                    int maxAttributePoints = CtRpgFormulas.CalcAttributePoints(_characterLevel);
                     int usedPoints = CtDataBlock.TotalPointsForAttributeRank(_dataBlock.Value);
                     unusedPoints = maxAttributePoints - usedPoints;
                 }
             }
 
             _unused.value = unusedPoints;
+            _unusedPointError.visible = _unused.value < 0;
         }
 
         private int FindProfessionIndexByIdentifier(ushort identifier)

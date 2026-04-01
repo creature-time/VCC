@@ -8,7 +8,7 @@ namespace CreatureTime
         None = 0,
         Waiting = 1,
         Attack = 2,
-        Run = 3
+        Leave = 3
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]

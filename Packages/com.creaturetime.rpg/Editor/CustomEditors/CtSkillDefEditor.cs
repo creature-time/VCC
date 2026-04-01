@@ -60,9 +60,8 @@ namespace CreatureTime.Editor.Rpg
 
          private void UpdateDescription(SerializedObject _)
          {
-             CtSkillDef skillDefinition = target as CtSkillDef;
-             string description = skillDefinition.GetDescription(12);
-             _description.text = description;
+             var skillDef = (CtSkillDef)target;
+             _description.text = skillDef.GetDebugDescription();
          }
      }
 }

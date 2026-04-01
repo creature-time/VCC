@@ -22,7 +22,6 @@ namespace CreatureTime.Editor.Graph
     public class CtWindowSearchProvider : ScriptableObject, ISearchWindowProvider
     {
         public CtGraphView view;
-        public VisualElement target;
 
         public static List<SearchContextElement> elements;
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
@@ -63,8 +62,8 @@ namespace CreatureTime.Editor.Graph
 
         public bool OnSelectEntry(SearchTreeEntry searchTreeEntry, SearchWindowContext context)
         {
-            var windowMousePosition = view.ChangeCoordinatesTo(view, context.screenMousePosition - view.Window.position.position);
-            var graphMousePosition = view.WorldToLocal(windowMousePosition);
+            var windowMousePosition = context.screenMousePosition - view.Window.position.position;
+            var graphMousePosition = view.contentViewContainer.WorldToLocal(windowMousePosition);
 
             var element = (SearchContextElement)searchTreeEntry.userData;
             var node = (CtGraphNode)element.Target;

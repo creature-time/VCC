@@ -3,12 +3,24 @@ using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
+using Random = UnityEngine.Random;
 
 namespace CreatureTime
 {
     public enum ERpgGameSignal
     {
-        LocalPlayerChanged
+        LocalPlayerChanged,
+        PlayerProfessionChanged
+    }
+
+    public enum EGameState
+    {
+        OpenWorld,
+        TransitionToOpenWorld,
+        CampSite,
+        TransitionToCampSite,
+        Battle,
+        TransitionToBattle
     }
 
     [DefaultExecutionOrder(-1)]
@@ -16,9 +28,10 @@ namespace CreatureTime
     public class CtRpgGame : CtSingleton
     {
         private const int MessagePartyStart = 100;
-        private const int MessagePartyAcceptQuest = MessagePartyStart + 0;
-        private const int MessagePartyJoin = MessagePartyStart + 1;
-        private const int MessagePartyLeave = MessagePartyStart + 2;
+        private const int MessagePartyAcceptBattle = MessagePartyStart + 0;
+        private const int MessagePartyStartAdventure = MessagePartyStart + 1;
+        private const int MessagePartyJoin = MessagePartyStart + 2;
+        private const int MessagePartyLeave = MessagePartyStart + 3;
 
         private const int MessageRecruitStart = 200;
         private const int MessageRecruitJoin = MessageRecruitStart + 0;
@@ -26,23 +39,43 @@ namespace CreatureTime
 
         private const int MessageBattleStart = 300;
         private const int MessageStartBattle = MessageBattleStart + 0;
-        private const int MessageDamageValues = MessageBattleStart + 1;
+        // private const int MessageDamageValues = MessageBattleStart + 1;
 
         [SerializeField] private CtGameData gameData;
         [SerializeField] private CtPlayerPersistenceManager playerPersistenceManager;
-        // [SerializeField] private CtPlayerManager playerManager;
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
         [SerializeField] private CtDialogueManager dialogueManager;
         [SerializeField] private CtNetSocket netSocket;
         [SerializeField] private CtBattleStateManager battleStateManager;
         [SerializeField] private CtStateMachine stateMachine;
+        [SerializeField] private CtQuestSystem questSystem;
+        [SerializeField] private CtShopSystem shopSystem;
+        [SerializeField] private CtSoundManager soundSystem;
+        [SerializeField] private CtOpenWorldInput openWorldInput;
+
+        [SerializeField] private CtStateMachine gameStateMachine;
+        [SerializeField] private CtStateBase openWorldGameState;
 
         public CtGameData GameData => gameData;
         public CtPlayerPersistenceManager PlayerPersistenceManager => playerPersistenceManager;
         public CtPartyManager PartyManager => partyManager;
         public CtEntityManager EntityManager => entityManager;
         public CtDialogueManager DialogueManager => dialogueManager;
+
+        public EGameState GameState { get; set; }
+        public ushort WorldId { get; set; }
+
+        public void _Test_TransitionToWorld()
+        {
+            WorldId = gameData.LocationDefinitions[Random.Range(0, gameData.LocationDefinitions.Length)].Identifier;
+            GameState = EGameState.TransitionToOpenWorld;
+        }
+
+        public void _Test_TransitionToCampSite()
+        {
+            GameState = EGameState.TransitionToCampSite;
+        }
 
         private CtPlayerEntity _localEntity;
 
@@ -58,6 +91,11 @@ namespace CreatureTime
 
         private void Start()
         {
+            Init();
+        }
+
+        public override void Init()
+        {
 #if DEBUG_LOGS
             LogDebug("Initializing Rpg Game...");
 #endif
@@ -66,6 +104,14 @@ namespace CreatureTime
             playerPersistenceManager.Init();
             partyManager.Init();
             entityManager.Init();
+            questSystem.Init();
+            shopSystem.Init();
+            dialogueManager.Init();
+            soundSystem.Init();
+            openWorldInput.Init();
+
+            stateMachine.Init();
+            gameStateMachine.Init();
 
             playerPersistenceManager.Connect(EPlayerPersistenceManagerSignal.LocalPlayerChanged, this, nameof(_OnLocalPlayerChanged));
             playerPersistenceManager.Connect(EPlayerPersistenceManagerSignal.PlayerAdded, this, nameof(_OnPlayerAdded));
@@ -74,6 +120,8 @@ namespace CreatureTime
             // entityManager.Connect(EEntityManagerSignal.NpcEntityChanged, this, nameof(_OnNpcEntityChanged));
 
             netSocket.Connect(ENetSocketSignal.PacketChanged, this, nameof(_OnPacketChanged));
+
+            gameStateMachine.Process(openWorldGameState);
         }
 
         public void _OnLocalPlayerChanged()
@@ -87,6 +135,8 @@ namespace CreatureTime
             {
                 LocalEntity = null;
             }
+
+            openWorldInput.LocalEntity = LocalEntity;
         }
 
         [SerializeField] private CtAvatarSnapshot avatarSnapshot;
@@ -281,15 +331,15 @@ namespace CreatureTime
             entityManager.ReleaseRecruitEntity(recruit);
         }
 
-        public void JoinQuest(CtParty party, CtAbstractQuest quest)
-        {
-            party.Quest = quest.Identifier;
-        }
-
-        public void LeaveQuest(CtParty party)
-        {
-            party.Quest = CtConstants.InvalidId;
-        }
+        // public void JoinQuest(CtParty party, CtAbstractQuest quest)
+        // {
+        //     party.Battle = quest.Identifier;
+        // }
+        //
+        // public void LeaveQuest(CtParty party)
+        // {
+        //     party.Battle = CtConstants.InvalidId;
+        // }
 
         private void _PopulateEnemyParty(CtParty party, CtNpcDef[] npcDefs)
         {
@@ -411,56 +461,52 @@ namespace CreatureTime
             LogDebug($"(MessageType={messageType})");
 #endif
 
-            ushort playerId = CtConstants.InvalidId;
-            ushort identifier = CtConstants.InvalidId;
+            var playerId = CtConstants.InvalidId;
+            var identifier = CtConstants.InvalidId;
 
             switch (messageType)
             {
-                case MessagePartyAcceptQuest:
+                case MessagePartyAcceptBattle:
                     playerId = BitConverter.ToUInt16(data, offset);
-                    offset += 2;
+                    // identifier = BitConverter.ToUInt16(data, offset);
+                    _HandlePartyAcceptBattle(playerId);
+
+                    return;
+                case MessagePartyStartAdventure:
                     identifier = BitConverter.ToUInt16(data, offset);
                     offset += 2;
-                    _HandlePartyAcceptQuest(playerId, identifier);
+                    var locationId = BitConverter.ToUInt16(data, offset);
+                    _HandleStartAdventure(identifier, locationId);
 
                     return;
                 case MessagePartyJoin:
                     playerId = BitConverter.ToUInt16(data, offset);
                     offset += 2;
                     identifier = BitConverter.ToUInt16(data, offset);
-                    offset += 2;
                     _HandleJoinParty(playerId, identifier);
 
                     return;
                 case MessagePartyLeave:
                     playerId = BitConverter.ToUInt16(data, offset);
-                    offset += 2;
                     _HandleLeaveParty(playerId);
                     return;
                 case MessageRecruitJoin:
                     playerId = BitConverter.ToUInt16(data, offset);
                     offset += 2;
                     identifier = BitConverter.ToUInt16(data, offset);
-                    offset += 2;
                     _HandleRecruitNpc(playerId, identifier);
 
                     return;
                 case MessageRecruitLeave:
                     identifier = BitConverter.ToUInt16(data, offset);
-                    offset += 2;
                     _HandleLeaveNpc(identifier);
 
                     return;
                 case MessageStartBattle:
                     identifier = BitConverter.ToUInt16(data, offset);
                     offset += 2;
-                    _HandleStartBattle(identifier);
-
-                    return;
-                case MessageDamageValues:
-                    identifier = BitConverter.ToUInt16(data, offset);
-                    offset += 2;
-                    _HandleStartBattle(identifier);
+                    var nodeId = BitConverter.ToInt32(data, offset);
+                    _HandleStartBattle(identifier, nodeId);
 
                     return;
                 default:
@@ -481,6 +527,8 @@ namespace CreatureTime
             }
 
             localPlayerDef.AttributeData = data;
+
+            this.Emit(ERpgGameSignal.PlayerProfessionChanged);
         }
 
         public void RequestUpdatePlayerAttribute(int attributeIndex, int value)
@@ -501,18 +549,15 @@ namespace CreatureTime
             localPlayerDef.SetSkill(skillIndex, skillDef.Identifier);
         }
 
-        public void RequestPartyAcceptQuest(CtEntity playerEntity, CtAbstractQuest quest)
+        public void RequestPartyAcceptQuest(CtEntity playerEntity)
         {
             int size = 0;
 
-            byte[] messageId = BitConverter.GetBytes(MessagePartyAcceptQuest);
+            byte[] messageId = BitConverter.GetBytes(MessagePartyAcceptBattle);
             size += messageId.Length;
 
             byte[] playerIdBytes = BitConverter.GetBytes(playerEntity.Identifier);
             size += playerIdBytes.Length;
-
-            byte[] questIdBytes = BitConverter.GetBytes(quest.Identifier);
-            size += questIdBytes.Length;
 
             byte[] data = new byte[size];
             int offset = 0;
@@ -523,13 +568,10 @@ namespace CreatureTime
             Buffer.BlockCopy(playerIdBytes, 0, data, offset, playerIdBytes.Length);
             offset += playerIdBytes.Length;
 
-            Buffer.BlockCopy(questIdBytes, 0, data, offset, questIdBytes.Length);
-            offset += questIdBytes.Length;
-
             netSocket.SendToMasterOnly(data);
         }
 
-        private void _HandlePartyAcceptQuest(ushort playerId, ushort questId)
+        private void _HandlePartyAcceptBattle(ushort playerId)
         {
             if (!entityManager.TryGetEntity(playerId, out var playerEntity))
             {
@@ -541,6 +583,59 @@ namespace CreatureTime
 
             JoinParty(playerEntity);
 
+//             if (!partyManager.TryGetEntityParty(playerEntity, out var party))
+//             {
+// #if DEBUG_LOGS
+//                 LogCritical($"Failed to find party for entity (identifier={playerEntity.Identifier})");
+// #endif
+//                 return;
+//             }
+        }
+
+        public void _Test_RequestStartAdventure()
+        {
+            if (gameData.TryGetLocationDef(0, out var locationDef))
+                RequestStartAdventure(LocalEntity, locationDef);
+        }
+
+        public void RequestStartAdventure(CtEntity playerEntity, CtLocationDef locationDef)
+        {
+            int size = 0;
+
+            byte[] messageId = BitConverter.GetBytes(MessagePartyStartAdventure);
+            size += messageId.Length;
+
+            byte[] playerIdBytes = BitConverter.GetBytes(playerEntity.Identifier);
+            size += playerIdBytes.Length;
+
+            byte[] locationIdBytes = BitConverter.GetBytes(locationDef.Identifier);
+            size += locationIdBytes.Length;
+
+            byte[] data = new byte[size];
+            int offset = 0;
+
+            Buffer.BlockCopy(messageId, 0, data, offset, messageId.Length);
+            offset += messageId.Length;
+
+            Buffer.BlockCopy(playerIdBytes, 0, data, offset, playerIdBytes.Length);
+            offset += playerIdBytes.Length;
+
+            Buffer.BlockCopy(locationIdBytes, 0, data, offset, locationIdBytes.Length);
+            offset += locationIdBytes.Length;
+
+            netSocket.SendToMasterOnly(data);
+        }
+
+        private void _HandleStartAdventure(ushort playerId, ushort locationId)
+        {
+            if (!entityManager.TryGetEntity(playerId, out var playerEntity))
+            {
+#if DEBUG_LOGS
+                LogError($"Failed to find player entity (playerId={playerId}).");
+#endif
+                return;
+            }
+
             if (!partyManager.TryGetEntityParty(playerEntity, out var party))
             {
 #if DEBUG_LOGS
@@ -549,7 +644,10 @@ namespace CreatureTime
                 return;
             }
 
-            party.Quest = questId;
+            if (!gameData.TryGetLocationDef(locationId, out var locationDef))
+                return;
+
+            party.GenerateMap(locationDef);
         }
 
         public void RequestJoinParty(CtEntity playerEntity, CtParty party)
@@ -692,27 +790,27 @@ namespace CreatureTime
             ReleaseRecruitNpc(entity);
         }
 
-        public void _RequestStartBattleTest()
-        {
-            if (!partyManager.TryGetEntityParty(LocalEntity, out var party))
-            {
-#if DEBUG_LOGS
-                LogWarning($"Local entity was not in a party (identifier={LocalEntity.Identifier}).");
-#endif
-                return;
-            }
-
-            var quest = gameData.GetQuestDef(party.Quest);
-            if (!quest)
-            {
-#if DEBUG_LOGS
-                LogWarning($"Failed to get quest definition (identifier={party.Quest}).");
-#endif
-                return;
-            }
-
-            RequestStartBattle(party);
-        }
+//         public void _RequestStartBattleTest()
+//         {
+//             if (!partyManager.TryGetEntityParty(LocalEntity, out var party))
+//             {
+// #if DEBUG_LOGS
+//                 LogWarning($"Local entity was not in a party (identifier={LocalEntity.Identifier}).");
+// #endif
+//                 return;
+//             }
+//
+//             var battleDef = gameData.GetBattleDef(party.Battle);
+//             if (!battleDef)
+//             {
+// #if DEBUG_LOGS
+//                 LogWarning($"Failed to get battle definition (identifier={party.Battle}).");
+// #endif
+//                 return;
+//             }
+//
+//             RequestStartBattle(party);
+//         }
 
         public void StartBattle(CtParty party, CtSquadDef squadDef)
         {
@@ -727,7 +825,7 @@ namespace CreatureTime
             _StartBattle(party, squadDef);
         }
 
-        public void RequestStartBattle(CtParty party)
+        public void RequestStartBattle(CtParty party, int nodeId)
         {
             int size = 0;
 
@@ -736,6 +834,9 @@ namespace CreatureTime
 
             byte[] partyIdBytes = BitConverter.GetBytes(party.Identifier);
             size += partyIdBytes.Length;
+
+            byte[] mapPoiTypeBytes = BitConverter.GetBytes(nodeId);
+            size += mapPoiTypeBytes.Length;
 
             byte[] data = new byte[size];
             int offset = 0;
@@ -746,29 +847,50 @@ namespace CreatureTime
             Buffer.BlockCopy(partyIdBytes, 0, data, offset, partyIdBytes.Length);
             offset += partyIdBytes.Length;
 
+            Buffer.BlockCopy(mapPoiTypeBytes, 0, data, offset, mapPoiTypeBytes.Length);
+            offset += mapPoiTypeBytes.Length;
+
             netSocket.SendToMasterOnly(data);
         }
 
-        private void _HandleStartBattle(ushort partyId)
+        private void _HandleStartBattle(ushort partyId, int nodeId)
         {
             if (!partyManager.TryGetParty(partyId, out var party))
             {
 #if DEBUG_LOGS
-                LogWarning($"Failed to find party (identifier={partyId}).");
+                LogWarning($"Failed to find party (partyId={partyId}).");
 #endif
                 return;
             }
 
-            var quest = gameData.GetQuestDef(party.Quest);
-            if (!quest)
+            var map = party.Map;
+            if (!map.TryGoToNext(nodeId))
+                return;
+
+            var poiType = map.PoiType[map.Current];
+
+            CtSquadDef squadDef;
+            var locationDef = party.Map.LocationDef;
+            switch (poiType)
             {
-#if DEBUG_LOGS
-                LogWarning($"Failed to get quest definition (identifier={party.Quest}).");
-#endif
-                return;
+                case EMapPoiType.Easy:
+                    squadDef = locationDef.RandomEasySquad;
+                    break;
+                case EMapPoiType.Medium:
+                    squadDef = locationDef.RandomMediumSquad;
+                    break;
+                case EMapPoiType.Hard:
+                    squadDef = locationDef.RandomHardSquad;
+                    break;
+                case EMapPoiType.Boss:
+                    squadDef = locationDef.RandomBossSquad;
+                    break;
+                default:
+
+                    return;
             }
 
-            quest.Execute(party);
+            StartBattle(party, squadDef);
         }
     }
 }

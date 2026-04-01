@@ -37,6 +37,8 @@ namespace CreatureTime
 
         public CtDialogueEntry Entry => _entry;
 
+        public ushort ConversationId => _entry ? _entry.ConversationId : CtConstants.InvalidId;
+
         public string ActorName
         {
             get
@@ -89,9 +91,9 @@ namespace CreatureTime
             }
         }
 
-        public CtDialogueActor Actor => _entry.Actor;
+        public CtDialogueActor Actor => _entry ? _entry.Actor : null;
 
-        public CtDialogueActor Conversant => _entry.Conversant;
+        public CtDialogueActor Conversant => _entry ? _entry.Conversant : null;
 
         public bool HasResponses => _entry && _entry.Responses.Length > 0;
 

@@ -1,5 +1,4 @@
 ﻿
-using System;
 using UdonSharp;
 using UnityEngine;
 
@@ -118,7 +117,7 @@ namespace CreatureTime
                 npcContext.SetFloat($"Skills.Values[{i}]/ConditionScore", 0);
                 npcContext.SetFloat($"Skills.Values[{i}]/DamageScore", 0);
 
-                var skillDef = entity.GetSkillDef(i);
+                var skillDef = entity.GetSkill(i);
                 if (!skillDef)
                     continue;
 

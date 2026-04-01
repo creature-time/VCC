@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace CreatureTime.Editor.Graph
@@ -70,13 +71,37 @@ namespace CreatureTime.Editor.Graph
                     }
                 }
 
+                var nodes = new List<string>();
                 if (_nodesProperty != null)
                 {
-                    for (int i = 0; i < _nodesProperty.arraySize; i++)
+                    for (int i = _nodesProperty.arraySize - 1; i >= 0; i--)
                     {
                         var elementProperty = _nodesProperty.GetArrayElementAtIndex(i);
+                        if (elementProperty.managedReferenceValue is null)
+                        {
+                            _nodesProperty.DeleteArrayElementAtIndex(i);
+                            continue;
+                        }
+
                         PopulatePorts(elementProperty);
+                        nodes.Add(elementProperty.FindPropertyRelative("guid").stringValue);
                     }
+                    _serializedObject.ApplyModifiedProperties();
+                }
+
+                if (_edgesProperty != null)
+                {
+                    for (int i = _edgesProperty.arraySize - 1; i >= 0; i--)
+                    {
+                        var elementProperty = _edgesProperty.GetArrayElementAtIndex(i);
+                        if (!nodes.Contains(elementProperty.FindPropertyRelative("outputId").stringValue) ||
+                            !nodes.Contains(elementProperty.FindPropertyRelative("inputId").stringValue))
+                        {
+                            _edgesProperty.DeleteArrayElementAtIndex(i);
+                            continue;
+                        }
+                    }
+                    _serializedObject.ApplyModifiedProperties();
                 }
             }
 
@@ -112,8 +137,7 @@ namespace CreatureTime.Editor.Graph
             elementProperty.managedReferenceValue = node;
 
             Type type = node.GetType();
-            foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public |
-                                                     BindingFlags.NonPublic))
+            foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
             {
                 var fieldProperty = elementProperty.FindPropertyRelative(fieldInfo.Name);
                 var inputPortInfo = fieldInfo.GetCustomAttribute<CtInputPortInfoAttribute>();
@@ -380,10 +404,16 @@ namespace CreatureTime.Editor.Graph
                 AddOutputPort(nodeId, portData);
             }
 
+            var types = new List<Type>();
             while (nodeType != typeof(CtGraphNode))
             {
-                foreach (var fieldInfo in nodeType.GetFields(BindingFlags.Instance | BindingFlags.Public |
-                                                             BindingFlags.NonPublic))
+                types.Insert(0, nodeType);
+                nodeType = nodeType.BaseType;
+            }
+
+            foreach (var type in types)
+            {
+                foreach (var fieldInfo in type.GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic))
                 {
                     var fieldProperty = nodeProperty.FindPropertyRelative(fieldInfo.Name);
                     var inputPortInfo = fieldInfo.GetCustomAttribute<CtInputPortInfoAttribute>();
@@ -404,8 +434,6 @@ namespace CreatureTime.Editor.Graph
                         }
                     }
                 }
-
-                nodeType = nodeType.BaseType;
             }
         }
 

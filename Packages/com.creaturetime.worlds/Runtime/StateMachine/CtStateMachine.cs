@@ -20,7 +20,7 @@ namespace CreatureTime
         private CtStateBase[] _states;
         private int _processing;
 
-        private void Start()
+        public void Init()
         {
             _states = new CtStateBase[contexts.Length];
             enabled = false;
@@ -73,7 +73,7 @@ namespace CreatureTime
             if (nextState)
             {
 #if DEBUG_LOGS
-                LogDebug($"Entering state (identifier={identifier}, prevState={prevState})");
+                LogDebug($"Entering state (identifier={identifier}, nextState={nextState})");
 #endif
                 nextState.OnEnter(context);
             }

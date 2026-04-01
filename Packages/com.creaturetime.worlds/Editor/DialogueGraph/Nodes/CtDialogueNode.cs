@@ -15,14 +15,14 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
         [SerializeField]
         [CtInputPortInfo(null, typeof(CtDialoguePortTypes.TriggerPort))]
         private string[] onEnterTriggers;
-        
+
         [SerializeField]
         [CtInputPortInfo(null, typeof(CtDialoguePortTypes.TriggerPort))]
         private string[] onExitTriggers;
 
-        [CtExposedProperty, SerializeField] private string dialogue;
-        [CtExposedProperty, SerializeField] private CtDialogueActor actor;
-        [CtExposedProperty, SerializeField] private CtDialogueActor conversant;
+        [CtExposedProperty, TextArea, SerializeField] private string dialogue;
+        [CtExposedProperty, SerializeField] private CtActor actor;
+        [CtExposedProperty, SerializeField] private CtActor conversant;
 
         public override void Process(CtDialogueGraphAsset asset)
         {

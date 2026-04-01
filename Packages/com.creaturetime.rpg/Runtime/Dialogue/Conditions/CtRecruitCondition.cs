@@ -9,8 +9,8 @@ namespace CreatureTime.RpgGame
     {
         [SerializeField] private CtRpgGame rpgGame;
 
-        [SerializeField] private CtDialogueActor dialogueActor;
-        [SerializeField] private bool recruitLeave;
+        [SerializeField] private CtNpcDef npc;
+        [SerializeField] private ERecruitResponseNodeType action;
 
         private bool IsMemberInParty(CtParty party)
         {
@@ -19,7 +19,7 @@ namespace CreatureTime.RpgGame
                 var entity = party.GetEntity(i);
                 if (!entity) continue;
                 if (entity.IsPlayer) continue;
-                if (entity.EntityId == dialogueActor.Identifier)
+                if (entity.EntityId == npc.Identifier)
                     return true;
             }
 
@@ -37,7 +37,19 @@ namespace CreatureTime.RpgGame
             }
 
             var isMemberInParty = IsMemberInParty(party);
-            return recruitLeave == isMemberInParty;
+            switch (action)
+            {
+                case ERecruitResponseNodeType.Join:
+                    if (!isMemberInParty)
+                        return true;
+                    break;
+                case ERecruitResponseNodeType.Leave:
+                    if (isMemberInParty)
+                        return true;
+                    break;
+            }
+
+            return false;
         }
     }
 }

@@ -7,16 +7,21 @@ using UnityEngine.UIElements;
 
 namespace CreatureTime.Editor.Rpg
 {
-    [CustomEditor(typeof(CtEntityDef), true)]
+    // [CustomEditor(typeof(CtEntityDef), true)]
     public class CtEntityDefEditor : CtAbstractElement
     {
+        private CtProfessionAndAttributesElement _attributeDataField;
+        private SliderInt _levelField;
         private ObjectField _npcBehavior;
+        private SerializedProperty _expProperty;
 
         public override VisualElement CreateInspectorGUI()
         {
             var rootVisualElement = base.CreateInspectorGUI();
 
             serializedObject.Update();
+
+            _expProperty = serializedObject.FindProperty("exp");
 
             StyleColor alternatingColor = new StyleColor(new Color(0, 0, 0, 0.1f));
 
@@ -81,17 +86,19 @@ namespace CreatureTime.Editor.Rpg
             infoLayout.Bind(serializedObject);
             infoLayout.Add(entityName);
 
-            SliderInt level = new SliderInt(1, 30)
+            CtRpgFormulas.ConvertExpToLevel(_expProperty.intValue, out var level, out var start, out var end,
+                out var baseHealth);
+
+            _levelField = new SliderInt(1, 30)
             {
+                value = level,
                 label = "Lvl #",
-                bindingPath = "characterLevel",
                 style =
                 {
                     fontSize = 12,
                 }
             };
-            level.Bind(serializedObject);
-            infoLayout.Add(level);
+            infoLayout.Add(_levelField);
 
             {
                 MonoScript componentScriptSource = null;
@@ -145,7 +152,7 @@ namespace CreatureTime.Editor.Rpg
 
             icon.RegisterValueChangedCallback(evt =>
             {
-                var texture = evt.newValue as Texture2D;
+                var texture = (Texture2D)evt.newValue;
                 if (!texture)
                     texture = AssetDatabase.LoadAssetAtPath<Texture2D>(
                         "Assets/CreatureTime/Worlds/CreatureTimeRPG/Editor/unknown.png");
@@ -160,12 +167,12 @@ namespace CreatureTime.Editor.Rpg
             };
             rootVisualElement.Add(professionGroup);
 
-            CtProfessionAndAttributesElement attributeData = new CtProfessionAndAttributesElement
+            _attributeDataField = new CtProfessionAndAttributesElement
             {
                 BindingPath = "attributeData",
             };
-            attributeData.Bind(serializedObject);
-            professionGroup.Add(attributeData);
+            _attributeDataField.Bind(serializedObject);
+            professionGroup.Add(_attributeDataField);
 
             Foldout weaponsGroup = new Foldout
             {
@@ -261,17 +268,17 @@ namespace CreatureTime.Editor.Rpg
             armorFeet.Bind(serializedObject);
             armorGroup.Add(armorFeet);
 
-            level.RegisterValueChangedCallback(evt =>
+            _levelField.RegisterValueChangedCallback(evt =>
             {
                 if (evt.newValue < 1)
-                    level.value = 1;
+                    _levelField.value = 1;
                 else if (evt.newValue > 30)
-                    level.value = 30;
-                string text = $"Lvl {level.value}";
-                if (level.value > 20)
-                    text += "*";
-                level.label = text;
-                attributeData.CharacterLevel = level.value;
+                    _levelField.value = 30;
+
+                _expProperty.intValue = CtRpgFormulas.ConvertLevelToMinExp(_levelField.value);
+                serializedObject.ApplyModifiedProperties();
+
+                _UpdateLevelAndAttributes(_levelField.value);
             });
 
             Foldout skills = new Foldout
@@ -305,6 +312,8 @@ namespace CreatureTime.Editor.Rpg
                 }
             }
 
+            _UpdateLevelAndAttributes(_levelField.value);
+
             Foldout foldout = new Foldout
             {
                 text = "Default Parameters",
@@ -317,6 +326,16 @@ namespace CreatureTime.Editor.Rpg
             foldout.Add(defaultElements);
 
             return rootVisualElement;
+        }
+
+        private void _UpdateLevelAndAttributes(int level)
+        {
+            var text = $"Lvl {level}";
+            if (level > 20)
+                text += "*";
+
+            _levelField.label = text;
+            _attributeDataField.CharacterLevel = level;
         }
     }
 }

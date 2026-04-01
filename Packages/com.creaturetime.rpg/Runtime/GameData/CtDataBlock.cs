@@ -1,5 +1,6 @@
 ﻿
 using System;
+using CreatureTime.RpgGame;
 using UnityEngine;
 
 namespace CreatureTime
@@ -9,19 +10,36 @@ namespace CreatureTime
         None = 0,
         Weapon = 1,
         Equipment = 2,
-        OffHand = 3
+        OffHand = 3,
+        Item = 4
     }
 
     public static class CtDataBlock
     {
         public const ulong InvalidData = 0xFFFFFFFFFFFFFFFF;
-        private const int DataTypeBitMask = 0x000000000000000F;
 
         public static string Serialize(ulong data) => $"{data:X16}";
         public static ulong Deserialize(string data) => Convert.ToUInt64(data, 16);
 
-        public static EDataType GetDataType(ulong data) => (EDataType)(data & DataTypeBitMask);
         public static bool IsValid(ulong data) => data != InvalidData;
+
+        # region InventoryData
+
+        // private const ulong UniqueIdMask = 0x0000000000000FFF;
+        //
+        // private const int UniqueIdBitShift = 0;
+        // private const ulong UniqueIdBitMask = 0x0000000000000FFF;
+        // private const ulong UniqueIdBitShiftMask = UniqueIdBitMask >> UniqueIdBitShift;
+        //
+        // public static ushort GetUniqueIdentifier(ulong data) => 
+        //     (ushort)((data >> UniqueIdBitShift) & UniqueIdBitShiftMask);
+
+        private const int TypeIdBitShift = 0;
+        private const ulong TypeIdBitMask = 0x000000000000000F;
+        private const ulong TypeIdBitShiftMask = TypeIdBitMask >> TypeIdBitShift;
+
+        public static EDataType GetDataType(ulong data) => 
+            (EDataType)((data >> TypeIdBitShift) & TypeIdBitShiftMask);
 
         # region Weapons
 
@@ -112,7 +130,7 @@ namespace CreatureTime
                 ((ulong)s & WeaponSuffixBitShiftMask) << WeaponSuffixShiftBit | // Suffix
                 ((ulong)p & WeaponPrefixBitShiftMask) << WeaponPrefixShiftBit | // Prefix
                 ((ulong)identifier & WeaponIdBitShiftMask) << WeaponIdBitShift | // Identifier
-                ((ulong)EDataType.Weapon & DataTypeBitMask); // Data type
+                ((ulong)EDataType.Weapon & TypeIdBitMask); // Data type
         }
 
         # endregion
@@ -246,7 +264,7 @@ namespace CreatureTime
                 ((ulong)s & OffHandSuffixBitShiftMask) << OffHandSuffixShiftBit | // Suffix
                 ((ulong)p & OffHandPrefixBitShiftMask) << OffHandPrefixShiftBit | // Prefix
                 ((ulong)identifier & OffHandIdBitShiftMask) << OffHandIdBitShift | // Identifier
-                ((ulong)EDataType.OffHand & DataTypeBitMask); // Data type
+                ((ulong)EDataType.OffHand & TypeIdBitMask); // Data type
         }
 
         # endregion
@@ -271,22 +289,16 @@ namespace CreatureTime
 
         public static ulong CreateEquipmentData(ushort identifier, EArmorSlot slot)
         {
-            if (identifier >= EquipmentIdBitShiftMask)
-            {
-#if DEBUG_LOGS
-                Debug.LogError($"Identifier greater than mask allowed (identifier={identifier}).");
-#endif
-                return InvalidData;
-            }
-
             var s = Convert.ToInt32(slot);
 
             return
                 EquipmentUnusedMask | // Unused
                 ((ulong)s & EquipmentSlotBitShiftMask) << EquipmentSlotBitShift | // Identifier
                 (identifier & EquipmentIdBitShiftMask) << EquipmentIdBitShift | // Identifier
-                ((ulong)EDataType.Equipment & DataTypeBitMask); // Data type
+                ((ulong)EDataType.Equipment & TypeIdBitMask); // Data type
         }
+
+        #endregion
 
         #endregion
 
@@ -547,152 +559,110 @@ namespace CreatureTime
 
         # endregion
 
-        private const ulong UtMaskValidationExpected = 0xFFFFFFFFFFFFFFFF;
+        # region Quests
 
-        private const ushort UtWeaponIdentifierExpected = 1234;
-        private const EWeaponPrefix UtWeaponPrefixExpected = EWeaponPrefix.Fiery;
-        private const EWeaponSuffix UtWeaponSuffixExpected = EWeaponSuffix.Defense;
-        private const int UtWeaponReqExpected = 9;
-        private const EItemRarity UtWeaponRarityExpected = EItemRarity.Rare;
+        private const ulong QuestUnusedMask = 0x0000000000000000;
 
-        private const ushort UtEquipmentIdentifierExpected = 1337;
+        private const int QuestIdBitShift = 0;
+        private const ulong QuestIdBitMask = 0x000000000000FFFF;
+        private const ulong QuestIdBitShiftMask = QuestIdBitMask >> QuestIdBitShift;
 
-        private const ushort UtProfessionExpected = 15;
-        private const ushort UtAttributeCountExpected = MaxAttributes;
+        private const int QuestStateBitShift = QuestIdBitShift + 16;
+        private const ulong QuestStateBitMask = 0x00000000000F0000;
+        private const ulong QuestStateBitShiftMask = QuestStateBitMask >> QuestStateBitShift;
 
-        public static void UnitTests()
+        private const int ObjectiveStartBitShift = QuestStateBitShift + 4;
+
+        private const int PerObjectiveBitShift = 8;
+        private const ulong PerObjectiveBitMask = 0x00000000000000FF;
+
+        private const int ObjectiveBitShift = 0;
+        private const ulong ObjectiveBitMask = 0x00000000000000FF;
+        private const ulong ObjectiveBitShiftMask = ObjectiveBitMask >> ObjectiveBitShift;
+
+        public static ushort GetProgressionIdentifier(ulong data) => 
+            (ushort)((data >> QuestIdBitShift) & QuestIdBitShiftMask);
+
+        public static EProgressionState GetQuestState(ulong data) => 
+            (EProgressionState)((data >> QuestStateBitShift) & QuestStateBitShiftMask);
+
+        public static ulong SetQuestState(ulong data, EProgressionState state)
         {
-            ulong data;
-
-            data = WeaponUnusedMask |
-                   WeaponReqBitMask |
-                   WeaponSuffixBitMask |
-                   WeaponSuffixShiftBit |
-                   WeaponPrefixBitMask |
-                   WeaponIdBitMask |
-                   WeaponRarityBitMask |
-                   DataTypeBitMask;
-#if DEBUG_LOGS
-            if (data != UtMaskValidationExpected)
-                Debug.LogError("Weapon data masks did not match expected " +
-                               $"(given={data:x16}, expected={UtMaskValidationExpected:x16})");
-#endif
-
-            data = CreateWeaponData(
-                UtWeaponIdentifierExpected,
-                EWeaponPrefix.Fiery,
-                EWeaponSuffix.Defense,
-                UtWeaponReqExpected,
-                UtWeaponRarityExpected);
-
-            // EItemRarity rarity = GetWeaponRarity(data);
-            // if (rarity != UtWeaponRarityExpected)
-            //     Debug.LogError("Weapon rarity did not match expected " +
-            //                    $"(given={rarity}, expected={UtWeaponRarityExpected})");
-
-            ushort weaponIdentifier = GetWeaponIdentifier(data);
-#if DEBUG_LOGS
-            if (weaponIdentifier != UtWeaponIdentifierExpected)
-                Debug.LogError("Weapon identifier did not match expected " +
-                                                 $"(given={weaponIdentifier}, expected={UtWeaponIdentifierExpected})");
-#endif
-
-            EWeaponPrefix prefix = GetWeaponPrefix(data);
-#if DEBUG_LOGS
-            if (prefix != UtWeaponPrefixExpected)
-                Debug.LogError("Weapon prefix did not match expected " +
-                                                 $"(given={prefix}, expected={UtWeaponPrefixExpected})");
-#endif
-
-            EWeaponSuffix suffix = GetWeaponSuffix(data);
-#if DEBUG_LOGS
-            if (suffix != UtWeaponSuffixExpected)
-                Debug.LogError("Weapon suffix did not match expected " +
-                                                 $"(given={suffix}, expected={UtWeaponSuffixExpected})");
-#endif
-
-            int req = GetWeaponRequirement(data);
-#if DEBUG_LOGS
-            if (req != UtWeaponReqExpected)
-                Debug.LogError("Weapon requirement did not match expected " +
-                                                 $"(given={req}, expected={UtWeaponReqExpected})");
-#endif
-
-            data = EquipmentUnusedMask |
-                   EquipmentIdBitMask |
-                   DataTypeBitMask;
-#if DEBUG_LOGS
-            if (data != UtMaskValidationExpected)
-                Debug.LogError("Equipment data masks did not match expected " +
-                                                 $"(given={data:x16}, expected={UtMaskValidationExpected:x16})");
-#endif
-
-            data = CreateEquipmentData(UtEquipmentIdentifierExpected, EArmorSlot.Chest);
-
-            ushort equipmentIdentifier = GetEquipmentIdentifier(data);
-#if DEBUG_LOGS
-            if (equipmentIdentifier != UtEquipmentIdentifierExpected)
-                Debug.LogError(
-                    "Equipment identifier did not match expected " +
-                    $"(given={equipmentIdentifier:x16}, expected={UtEquipmentIdentifierExpected:x16})");
-#endif
-
-            // data = //WeaponUnusedMask |
-            //        // WeaponSuffixBitMask |
-            //        // WeaponSuffixShiftBit |
-            //        // WeaponPrefixBitMask |
-            //        AttributeCountBitMask |
-            //        ProfessionIdBitMask;
-            // if (data != UtMaskValidationExpected)
-            //     Debug.LogError("Attribute data masks did not match expected " +
-            //                    $"(given={data:x16}, expected={UtMaskValidationExpected:x16})");
-
-#if DEBUG_LOGS
-            ulong attributeBitMask = AttributeTypeBitMask | AttributeRankBitMask;
-            if (attributeBitMask != AttributeBitMask)
-                Debug.LogError("Attribute masks are not masking correctly " +
-                                                 $"(given={attributeBitMask}, expected={AttributeBitMask})");
-#endif
-
-            data = SetProfession(UtProfessionExpected, UtAttributeCountExpected);
-
-            ushort value = 1;
-            for (int i = 0; i < UtAttributeCountExpected; ++i)
-            {
-                // data = SetAttributeType(i, value, data);
-                data = SetAttributeRank(i, value, data);
-                value++;
-            }
-
-            ushort profession = GetProfession(data);
-#if DEBUG_LOGS
-            if (profession != UtProfessionExpected)
-                Debug.LogError("Profession was not returned correctly " +
-                                                 $"(given={profession}, expected={UtProfessionExpected})");
-#endif
-
-            ushort attributeCount = GetAttributeCount(data);
-#if DEBUG_LOGS
-            if (attributeCount != UtAttributeCountExpected)
-                Debug.LogError("Attribute count was not returned correctly " +
-                                                 $"(given={attributeCount}, expected={UtAttributeCountExpected})");
-#endif
-
-            ushort expectedValue = 1;
-            for (int i = 0; i < attributeCount; ++i)
-            {
-                // ushort attributeType = GetAttributeType(data, i);
-                // if (attributeType != expectedValue)
-                //     Debug.LogError("Attribute type was not returned correctly " +
-                //                    $"(given={attributeType}, expected={expectedValue})");
-                ushort attributeRank = GetAttributeRank(data, i);
-#if DEBUG_LOGS
-                if (attributeRank != expectedValue)
-                    Debug.LogError("Attribute rank was not returned correctly " +
-                                         $"(given={attributeRank}, expected={expectedValue})");
-#endif
-                expectedValue++;
-            }
+            var s = Convert.ToInt32(state);
+            return ((ulong)s & QuestStateBitShiftMask) << QuestStateBitShift | (data & ~QuestStateBitMask);
         }
+
+        private static int _CalcBitShiftByIndex(int index, int startBit, int offsetBit)
+        {
+            int bitShift = startBit + offsetBit * index;
+            if (bitShift >= 64)
+            {
+#if DEBUG_LOGS
+                Debug.LogError("Bit shift should not be greater than the size of the data block!");
+#endif
+                return startBit;
+            }
+
+            return startBit + offsetBit * index;
+        }
+
+        public static int GetQuestObjective(int objectiveIndex, ulong questData)
+        {
+            int bitShift = _CalcBitShiftByIndex(objectiveIndex, ObjectiveStartBitShift, PerObjectiveBitShift);
+            bitShift += ObjectiveBitShift;
+            return (int)((questData >> bitShift) & ObjectiveBitShiftMask);
+        }
+
+        public static ulong UpdateQuestObjective(int objectiveIndex, int value, ulong questData)
+        {
+            var v = (ushort)value;
+            if (!IsValid(questData))
+            {
+#if DEBUG_LOGS
+                Debug.LogError($"Data was invalid (data={questData}).");
+#endif
+                return questData;
+            }
+
+#if DEBUG_LOGS
+            Debug.Log($"Updating quest objective (index={objectiveIndex}, value={value}).");
+#endif
+
+//             if (value > ObjectiveBitShiftMask)
+//             {
+// #if DEBUG_LOGS
+//                 Debug.LogError("Objective value greater than mask allowed " +
+//                                $"(value={value}, allowed={ObjectiveBitShiftMask}).");
+// #endif
+//                 return questData;
+//             }
+
+            int bitShift = _CalcBitShiftByIndex(objectiveIndex, ObjectiveStartBitShift, PerObjectiveBitShift);
+            bitShift += ObjectiveBitShift;
+
+            var objectiveBitMask = ObjectiveBitShiftMask << bitShift;
+            return (v & ObjectiveBitShiftMask) << bitShift | 
+                   (questData & ~objectiveBitMask);
+        }
+
+        public static ulong CreateQuestData(ushort identifier)
+        {
+            if (identifier >= QuestIdBitShiftMask)
+            {
+#if DEBUG_LOGS
+                Debug.LogError($"Identifier greater than quest mask allowed (identifier={identifier}).");
+#endif
+                return InvalidData;
+            }
+
+            var s = Convert.ToInt32(EProgressionState.Active);
+
+            return
+                QuestUnusedMask | // Unused
+                ((ulong)s & QuestStateBitShiftMask) << QuestStateBitShift | // State
+                (identifier & QuestIdBitShiftMask) << QuestIdBitShift; // Identifier
+        }
+
+        # endregion
     }
 }

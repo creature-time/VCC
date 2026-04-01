@@ -9,8 +9,8 @@ namespace CreatureTime.RpgGame
     {
         [SerializeField] private CtRpgGame rpgGame;
 
-        [SerializeField] private CtDialogueActor dialogueActor;
-        [SerializeField] private bool recruitLeave;
+        [SerializeField] private CtNpcDef npc;
+        [SerializeField] private ERecruitResponseNodeType action;
 
         private bool IsMemberInParty(CtParty party)
         {
@@ -19,7 +19,7 @@ namespace CreatureTime.RpgGame
                 var entity = party.GetEntity(i);
                 if (!entity) continue;
                 if (entity.IsPlayer) continue;
-                if (entity.EntityId == dialogueActor.Identifier)
+                if (entity.EntityId == npc.Identifier)
                     return true;
             }
 
@@ -37,27 +37,29 @@ namespace CreatureTime.RpgGame
             }
 
             var isMemberInParty = IsMemberInParty(party);
-            if (recruitLeave)
+            switch (action)
             {
-                if (isMemberInParty)
-                {
+                case ERecruitResponseNodeType.Join:
+                    if (isMemberInParty)
+                    {
 #if DEBUG_LOGS
-                LogWarning($"Npc already in party (partyId={party.Identifier}, recruitId={dialogueActor.Identifier}).");
+                        LogWarning($"Npc already in party (partyId={party.Identifier}, recruitId={npc.Identifier}).");
 #endif
-                    return;
-                }
+                        return;
+                    }
 
-                rpgGame.RequestRecruitNpc(rpgGame.LocalEntity, rpgGame.GameData.GetNpcDef(dialogueActor.Identifier));
-            }
-            else
-            {
-                for (int i = 0; i < party.MaxCount; ++i)
-                {
-                    var entity = party.GetEntity(i);
-                    if (!entity) continue;
-                    if (!entity.IsPlayer && entity.EntityId == dialogueActor.Identifier)
-                        rpgGame.RequestLeaveNpc(entity);
-                }
+                    rpgGame.RequestRecruitNpc(rpgGame.LocalEntity, rpgGame.GameData.GetNpcDef(npc.Identifier));
+
+                    break;
+                case ERecruitResponseNodeType.Leave:
+                    for (int i = 0; i < party.MaxCount; ++i)
+                    {
+                        var entity = party.GetEntity(i);
+                        if (!entity) continue;
+                        if (!entity.IsPlayer && entity.EntityId == npc.Identifier)
+                            rpgGame.RequestLeaveNpc(entity);
+                    }
+                    break;
             }
         }
     }

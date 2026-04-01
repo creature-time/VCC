@@ -19,7 +19,7 @@ namespace CreatureTime
 
         private DataDictionary _partyLookup = new DataDictionary();
 
-        public void Init()
+        public override void Init()
         {
             for (ushort i = 0; i < playerParties.Length; i++)
             {

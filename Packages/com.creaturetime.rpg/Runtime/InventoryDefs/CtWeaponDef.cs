@@ -8,7 +8,8 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtWeaponDef : CtInventoryItemDef
     {
-        // TODO: Combined weaponType and attackType.
+        [SerializeField] private CtGameData gameData;
+
         [SerializeField] private EWeaponType weaponType;
         [SerializeField] private EWeaponAttackType attackType;
         [SerializeField] private ushort attributeType = CtConstants.InvalidId;
@@ -29,52 +30,6 @@ namespace CreatureTime
         public EItemRarity Rarity => rarity;
         public CtUserData UserData => userData;
 
-        public static string GetPrefixName(EWeaponPrefix prefix)
-        {
-            switch (prefix)
-            {
-                case EWeaponPrefix.None:
-                    return string.Empty;
-                case EWeaponPrefix.Barbed:
-                    return "Barbed";
-                case EWeaponPrefix.Ebon:
-                    return "Ebon";
-                case EWeaponPrefix.Fiery:
-                    return "Fiery";
-                case EWeaponPrefix.Shocking:
-                    return "Shocking";
-                case EWeaponPrefix.Icy:
-                    return "Icy";
-                default:
-#if DEBUG_LOGS
-                    Debug.LogError($"Prefix display name was not defined (prefix={prefix}).");
-#endif
-                    return "<Invalid>";
-            }
-        }
-
-        public static string GetSuffixName(EWeaponSuffix suffix)
-        {
-            switch (suffix)
-            {
-                case EWeaponSuffix.None:
-                    return string.Empty;
-                case EWeaponSuffix.Defense:
-                    return "Defense";
-                case EWeaponSuffix.Shelter:
-                    return "Shelter";
-                case EWeaponSuffix.Warding:
-                    return "Warding";
-                case EWeaponSuffix.Enchanting:
-                    return "Enchanting";
-                default:
-#if DEBUG_LOGS
-                    Debug.LogError($"Suffix display name was not defined (suffix={suffix}).");
-#endif
-                    return "<Invalid>";
-            }
-        }
-
         public ulong GenerateWeapon()
         {
             int req = attributeRequirement;
@@ -90,74 +45,18 @@ namespace CreatureTime
                 (EItemRarity)rolledRarity);
         }
 
-        public string BuildFullDisplayName(EWeaponPrefix prefix, EWeaponSuffix suffix)
+        public int CalcDamage(int reqAttributeRank, int attributeRank, int sourceLevel, 
+            int targetLevel, int targetArmorRating, bool isCritical)
         {
-            string fullName = DisplayName;
-            if (prefix != EWeaponPrefix.None)
-            {
-                string prefixName = GetPrefixName(prefix);
-                if (!string.IsNullOrEmpty(prefixName))
-                    fullName = $"{prefixName} {fullName}";
-            }
-
-            if (suffix != EWeaponSuffix.None)
-            {
-                string suffixName = GetSuffixName(suffix);
-                if (!string.IsNullOrEmpty(suffixName))
-                    fullName = $"{fullName} of {suffixName}";
-            }
-
-            return fullName;
-        }
-
-        private float _CritChance(int sourceLevel, int targetLevel, int weaponAttributeLevel)
-        {
-            int levelA = sourceLevel;
-            int levelD = targetLevel;
-            int weaponSkill = weaponAttributeLevel;
-
-            float a = 8 * levelA;
-            float b = 4 * weaponSkill;
-            float c = 6 * Mathf.Min(weaponSkill, (levelA + 4) / 2);
-            float d = 15 * levelD;
-            float baseCriticalChance =
-                (0.05f * Mathf.Pow(2, (a + b + c - d - 100) / 40) * (1.0f - weaponSkill * 0.01f)) +
-                weaponSkill * 0.01f;
-            return baseCriticalChance;
-        }
-
-        private bool _IsCritical(int sourceLevel, int targetLevel, int weaponAttributeLevel)
-        {
-            float criticalChance = _CritChance(sourceLevel, targetLevel, weaponAttributeLevel);
-            return Random.Range(0, 1000) < criticalChance * 1000;
-        }
-
-        public int CalcDamage(int weaponAttributeLevel, int sourceWeaponAttributeLevel, int sourceLevel, 
-            int targetLevel, int targetArmorRating, out bool isCritical)
-        {
-            isCritical = _IsCritical(sourceLevel, targetLevel, weaponAttributeLevel);
-
-            var weaponDamage = isCritical
-                ? (int)(damageMax * 1.2f)
-                : Random.Range(damageMin, damageMax);
-
-            var attributeThreshold = (sourceLevel + 4) / 2;
-            var strikeLevel = isCritical
-                ? weaponAttributeLevel + 20
-                : 5 * Mathf.Min(weaponAttributeLevel, attributeThreshold) +
-                  2 * Mathf.Max(0, weaponAttributeLevel - attributeThreshold);
-            var damageTotal = CtEntityDef.CalculateDamage(weaponDamage, strikeLevel, targetArmorRating);
-            damageTotal = Mathf.Max(0, damageTotal);
-
-            // If source does not meet requirements to use the weapon.
-            if (sourceWeaponAttributeLevel < weaponAttributeLevel)
-                damageTotal = (int)(damageTotal * CtConstants.OneThirds);
+            var weaponDamage = CtRpgFormulas.CalcWeaponDamage(isCritical, damageMin, damageMax);
+            var damageTotal = CtRpgFormulas.CalcWeaponDamageModWithAttributeLevel(
+                weaponDamage, isCritical, sourceLevel, reqAttributeRank, attributeRank, targetArmorRating);
 
 #if DEBUG_LOGS
-            Debug.Log("Calculating weapon damage " +
-                      $"(reqAttrLevel={weaponAttributeLevel}, sourceAttrLevel={sourceWeaponAttributeLevel}, " +
-                      $"sourceLevel={sourceLevel}, targetLevel={targetLevel}, targetArmorRating={targetArmorRating}, " +
-                      $"isCritical={isCritical}, damageTotal={damageTotal})");
+            LogDebug("Calculating weapon damage " +
+                     $"(reqAttrLevel={reqAttributeRank}, attributeLevel={attributeRank}, " +
+                     $"sourceLevel={sourceLevel}, targetLevel={targetLevel}, targetArmorRating={targetArmorRating}, " +
+                     $"isCritical={isCritical}, damageTotal={damageTotal})");
 #endif
 
             return damageTotal;
@@ -165,8 +64,8 @@ namespace CreatureTime
 
         public void GetFormattedStats(ulong dataBlock, ref string weaponName, ref string stats, ref EItemRarity rarity, ref int requirement)
         {
-            const string RarityDefaultColor = "#000000";
-            const string RarityCommonColor = "#000000";
+            const string RarityDefaultColor = "#808080";
+            const string RarityCommonColor = "#ffffff";
             const string RarityMagicalColor = "#182e6f";
             const string RarityUncommonColor = "#520075";
             const string RarityRareColor = "#db9d00";
@@ -247,6 +146,58 @@ namespace CreatureTime
             //     stats += $"<color=#008000>{Enum.GetName(typeof(EWeaponSuffix), suffix)}</color>\n";
 
             stats = stats.Trim();
+        }
+
+        private static bool DoesAttackMiss(CtEntity source, CtEntity target)
+        {
+            bool missed = source.IsBlind && Random.Range(0.0f, 1.0f) <= 0.9f;
+#if DEBUG_LOGS
+            Debug.LogWarning($"Does attack miss? (missed={missed}).");
+#endif
+
+            if (missed)
+            {
+                CtSkillDef._ApplyDamage(0, source, target, source.MainHand.Identifier, EDamageSourceType.Weapon, EDamageType.Missed, false);
+                return true;
+            }
+
+            missed = target.Evasion > 0 && Random.Range(0.0f, 1.0f) <= target.Evasion;
+#if DEBUG_LOGS
+            Debug.LogWarning($"Does attack get evaded? (missed={missed}).");
+#endif
+
+            if (missed)
+            {
+                CtSkillDef._ApplyDamage(0, source, target, source.MainHand.Identifier, EDamageSourceType.Weapon, EDamageType.Missed, false);
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryCalcMeleeAttack(CtEntity source, CtEntity target, bool isCritical, out int damage)
+        {
+            if (DoesAttackMiss(source, target))
+            {
+                damage = 0;
+                return false;
+            }
+
+            var weaponDefinition = source.MainHand;
+            var attributeRank = source.TryGetAttributeLevelByAttributeType(weaponDefinition.AttributeType);
+
+            isCritical = CtRpgFormulas.IsCritical(source.Level, target.Level, attributeRank, source.CriticalChanceMod);
+
+            int armorRating = CtSkillDef.CalculateArmorRating(gameData, target, damageType);
+            armorRating = (int)(armorRating * (1.0f - source.ArmorPenetrationMod));
+
+            int weaponAttributeLevel = CtDataBlock.GetWeaponRequirement(source.EntityDef.MainHandWeapon);
+            damage = weaponDefinition.CalcDamage(weaponAttributeLevel, attributeRank, source.Level,
+                target.Level, armorRating, isCritical);
+
+            source.GainAdrenaline(25);
+
+            return true;
         }
     }
 }

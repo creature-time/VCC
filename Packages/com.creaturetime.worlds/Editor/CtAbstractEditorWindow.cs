@@ -15,14 +15,10 @@ namespace CreatureTime
         public const string DefaultWhiteX64 = "Packages/com.creaturetime.worlds/Editor/Resources/default_white_x64.png";
         public const string DefaultWhiteX128 = "Packages/com.creaturetime.worlds/Editor/Resources/default_white_x128.png";
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(StyleSheetFilePath);
             rootVisualElement.styleSheets.Add(styleSheet);
-
-            SetUp();
         }
-
-        private protected abstract void SetUp();
     }
 }

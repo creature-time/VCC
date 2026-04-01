@@ -7,7 +7,7 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtDialogueTrigger : CtLoggerUdonScript
     {
-        [SerializeField] public UdonSharpBehaviour target;
+        [SerializeField] public CtAbstractSignal target;
         [SerializeField] public string eventTrigger;
     }
 }

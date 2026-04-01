@@ -47,7 +47,6 @@ namespace CreatureTime
 
         [Header("Characteristics")]
         [SerializeField] private CtNpcBrain brain;
-        [SerializeField] private CtNpcFeature[] features = {};
 
         public CtNpcBrain Brain => brain;
 
@@ -157,14 +156,11 @@ namespace CreatureTime
 #endif
 
             NpcMovementSpeed = npcMovementSpeed;
-
-            for (int i = 0; i < features.Length; i++)
-                features[i].Init(this);
         }
 
         private void _HandleAnimator()
         {
-            Vector3 velocity = RootTransform.InverseTransformDirection(agent.velocity);
+            var velocity = RootTransform.InverseTransformDirection(agent.velocity);
             animator.SetFloat("RightVelocity", velocity.x / sprintSpeed);
             animator.SetFloat("ForwardVelocity", velocity.z / sprintSpeed);
         }
@@ -189,7 +185,7 @@ namespace CreatureTime
             if (_blinkTimer <= 0)
                 _blinkTimer = Random.Range(minMaxBlinkDelta.x, minMaxBlinkDelta.y);
 
-            float t = 1.0f - Mathf.Exp(-blinkSpeed * Time.deltaTime);
+            var t = 1.0f - Mathf.Exp(-blinkSpeed * Time.deltaTime);
             _blinkTargetValue = Mathf.Lerp(_blinkTargetValue, _blinkTimer < blinkHoldTimer ? 100.0f : 0.0f, t);
 
             if (blinkEyeLeft != -1)
@@ -210,9 +206,6 @@ namespace CreatureTime
 
             _HandleEyeLookUpdate();
             _HandleBlinkUpdate();
-
-            for (int i = 0; i < features.Length; i++)
-                features[i].ExecuteUpdate(this);
         }
 
         private void _HandleHeadLookLateUpdate()
@@ -237,8 +230,8 @@ namespace CreatureTime
                         _targetHeadLookRotation = HeadBone.rotation;
                     }
 
-                    Quaternion targetRotation = Quaternion.LookRotation(headPosition - HeadBone.position);
-                    float t = 1.0f - Mathf.Exp(-headLookSpeed * Time.deltaTime);
+                    var targetRotation = Quaternion.LookRotation(headPosition - HeadBone.position);
+                    var t = 1.0f - Mathf.Exp(-headLookSpeed * Time.deltaTime);
                     _targetHeadLookRotation = Quaternion.Lerp(_targetHeadLookRotation, targetRotation, t);
 
                     HeadBone.rotation = _targetHeadLookRotation;
@@ -255,7 +248,7 @@ namespace CreatureTime
                 }
                 else
                 {
-                    float t = 1.0f - Mathf.Exp(-headLookResetSpeed * Time.deltaTime);
+                    var t = 1.0f - Mathf.Exp(-headLookResetSpeed * Time.deltaTime);
                     _targetHeadLookRotation = Quaternion.Slerp(_targetHeadLookRotation, HeadBone.rotation, t);
                     HeadBone.rotation = _targetHeadLookRotation;
                 }
@@ -266,24 +259,24 @@ namespace CreatureTime
         {
             if (!EyeBoneL || !EyeBoneR) return;
 
-            Quaternion targetEyeLeft = defaultEyeRotationLeft;
-            Quaternion targetEyeRight = defaultEyeRotationRight;
+            var targetEyeLeft = defaultEyeRotationLeft;
+            var targetEyeRight = defaultEyeRotationRight;
             
             if (rpgGame.LocalEntity)
             {
-                Vector3 targetLookPosition = rpgGame.LocalEntity.HeadTransform.position;
+                var targetLookPosition = rpgGame.LocalEntity.HeadTransform.position;
                 if (LookTarget)
                 {
                     targetLookPosition = LookTarget.position;
                 }
 
-                Vector3 eyePosition = (EyeBoneL.position + EyeBoneR.position) / 2;
+                var eyePosition = (EyeBoneL.position + EyeBoneR.position) / 2;
                 eyePosition.x = transform.position.x;
                 eyePosition.z = transform.position.z;
-                Vector3 worldLookDirection = targetLookPosition - eyePosition;
-                Vector3 headLookDirection = HeadBone.forward;
-            
-                float angle = Vector3.SignedAngle(worldLookDirection, headLookDirection, Vector3.up);
+                var worldLookDirection = targetLookPosition - eyePosition;
+                var headLookDirection = HeadBone.forward;
+
+                var angle = Vector3.SignedAngle(worldLookDirection, headLookDirection, Vector3.up);
                 if (angle > eyeLookMinMaxEyeAngle.x && angle < eyeLookMinMaxEyeAngle.y &&
                     worldLookDirection.magnitude <= eyeLookDistance)
                 {
@@ -310,7 +303,7 @@ namespace CreatureTime
 
         private void _UpdateEyeLook(Transform eyeTransform, Quaternion targetRotation, ref Quaternion lastRotation)
         {
-            float t = 1.0f - Mathf.Exp(-eyeLookSpeed * Time.deltaTime);
+            var t = 1.0f - Mathf.Exp(-eyeLookSpeed * Time.deltaTime);
             lastRotation = Quaternion.Slerp(lastRotation, targetRotation, t);
             eyeTransform.localRotation = lastRotation;
         }
@@ -319,8 +312,6 @@ namespace CreatureTime
         {
             _HandleHeadLookLateUpdate();
             _HandleEyeLookLateUpdate();
-            for (int i = 0; i < features.Length; i++)
-                features[i].ExecuteLateUpdate(this);
         }
     }
 }

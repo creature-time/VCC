@@ -26,7 +26,7 @@ namespace CreatureTime
 
         private DataDictionary _entityLookup = new DataDictionary();
 
-        public void Init()
+        public override void Init()
         {
             foreach (var entity in playerEntities)
             {

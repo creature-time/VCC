@@ -40,10 +40,10 @@ namespace CreatureTime
 
     public enum EWeaponAttackType
     {
-        None,
-        Melee,
-        Magic,
-        Ranged
+        None = 0,
+        Melee = 1,
+        Magic = 2,
+        Ranged = 3
     }
 
     public enum EOffHandPrefix
@@ -118,6 +118,9 @@ namespace CreatureTime
         Holy,
         Shadow,
 
+        Physical,
+        Elemental,
+
         Bleeding,
         Burning,
         Disease,
@@ -142,12 +145,13 @@ namespace CreatureTime
         PersistentEffect = 1 << 1,
         SkillUsedEffect = 1 << 2,
         TickEffect = 1 << 3,
-        TakeDamage = 1 << 4,
+        BlockEffect = 1 << 4
     }
 
     [Flags]
     public enum ETargetType
     {
+        None = 0,
         Self                = 1 << 0, // 00001
         SingleAlly          = 1 << 1, // 00010
         AllAllies           = 1 << 2, // 00100
@@ -163,5 +167,52 @@ namespace CreatureTime
         Unused0             = 3,
         ShadowBound         = 4,
         Unused1             = 5
+    }
+
+    public enum EConvertType
+    {
+        
+    }
+
+    public enum EIntModType
+    {
+        Damage,
+        ArmorRating,
+
+        SlashDamage,
+        SlashArmor,
+        BluntDamage,
+        BluntArmor,
+        PiercingDamage,
+        PiercingArmor,
+
+        EarthDamage,
+        EarthArmor,
+        FireDamage,
+        FireArmor,
+        AirDamage,
+        AirArmor,
+        WaterDamage,
+        WaterArmor,
+
+        HolyDamage,
+        HolyArmor,
+
+        Max
+    }
+
+    public enum EFloatModType
+    {
+        Recharge,
+        CriticalChance,
+        ArmorPenetration,
+
+        Max
+    }
+
+    public enum ERecruitResponseNodeType
+    {
+        Join,
+        Leave
     }
 }

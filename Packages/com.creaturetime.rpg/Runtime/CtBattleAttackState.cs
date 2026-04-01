@@ -98,6 +98,7 @@ namespace CreatureTime
                     var otherEntity = party.GetEntity(i);
                     if (!otherEntity) continue;
                     if (otherEntity.State == ECombatState.Dead) continue;
+                    if (otherEntity == target) continue;
                     adjacentTargets.Add(otherEntity);
                 }
 

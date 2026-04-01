@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿
+using UdonSharp;
 using UnityEngine;
 
 namespace CreatureTime
@@ -7,6 +8,7 @@ namespace CreatureTime
     public class CtBattleEndState : CtStateBase
     {
         [SerializeField] private CtRpgGame rpgGame;
+        [SerializeField] private CtQuestSystem questSystem;
         [SerializeField] private CtBattleState battleState;
 
         public override CtStateBase GetNext(CtBlackboard context)
@@ -23,6 +25,29 @@ namespace CreatureTime
         {
             if (!battleState.InProgress)
                 return ENodeStatus.Failure;
+
+            var allyParty = battleState.AllyParty;
+            if (!allyParty)
+            {
+#if DEBUG_LOGS
+                LogCritical($"Failed to find ally party for battle state (battleState={battleState}).");
+                return ENodeStatus.Failure;
+#endif
+            }
+
+            var enemyParty = battleState.EnemyParty;
+            if (!enemyParty)
+            {
+#if DEBUG_LOGS
+                LogCritical($"Failed to find enemy party for battle state (battleState={battleState}).");
+                return ENodeStatus.Failure;
+#endif
+            }
+
+            if (battleState.IsEnemyTeamDead() && !battleState.IsAllyTeamDead())
+            {
+                allyParty.Map.SetCompleted();
+            }
 
             rpgGame.EndBattle(battleState);
 

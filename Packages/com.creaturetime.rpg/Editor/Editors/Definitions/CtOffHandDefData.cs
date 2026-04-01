@@ -11,11 +11,12 @@ namespace CreatureTime
         public override string GenerateName => 
             $"{identifier:00000}_{(string.IsNullOrEmpty(displayName) ? "NoName" : displayName.Replace(' ', '-'))}";
 
-        public override int Identifier => identifier;
+        public override ushort Identifier => identifier;
 
         [SerializeField] public ushort identifier = CtConstants.InvalidId;
         [SerializeField] public string displayName;
         [SerializeField] public Texture icon;
+        [SerializeField] public int baseValue;
         [SerializeField] public EOffHandType offHandType;
         [SerializeField] public CtAttributeDefData attributeType;
         [SerializeField] [Range(0, 9)] public int attributeRequirement;

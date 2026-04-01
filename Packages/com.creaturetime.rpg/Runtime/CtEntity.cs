@@ -17,14 +17,28 @@ namespace CreatureTime
 
     public enum EEntitySignal
     {
+        EntityDefChanged,
+        AttributesChanged,
+        MainHandChanged,
+        OffHandChanged,
+        HeadSlotChanged,
+        ChestSlotChanged,
+        HandsSlotChanged,
+        LegsSlotChanged,
+        FeetSlotChanged,
+        SkillSlotChanged,
         HealthChanged,
         MaxHealthChanged,
         HealthRegenChanged,
         EnergyChanged,
         MaxEnergyChanged,
         EnergyRegenChanged,
-        EntityDefChanged,
-        DamageApplied
+        ExpChanged,
+        LevelChanged,
+        DamageApplied,
+        Death,
+
+        Extension
     }
 
     public abstract class CtEntity : CtEntityBase
@@ -71,6 +85,8 @@ namespace CreatureTime
                 if (_health == 0)
                 {
                     OnDeath();
+
+                    this.Emit(EEntitySignal.Death);
                 }
 
                 SetArgs.Add(_health);
@@ -80,7 +96,8 @@ namespace CreatureTime
 
         protected virtual void OnDeath()
         {
-            
+            Energy = 0;
+            _ResetStatusEffectsInstanceData();
         }
 
         public int Health
@@ -223,7 +240,7 @@ namespace CreatureTime
         private CtSkillDef _skillDef8;
         private CtSkillDef _skillDef9;
 
-        public CtSkillDef GetSkillDef(int index)
+        public CtSkillDef GetSkill(int index)
         {
             switch (index)
             {
@@ -242,264 +259,436 @@ namespace CreatureTime
 
         }
 
+        private float _rechargeIncrease;
+        public float RechargeIncrease
+        {
+            private get => _rechargeIncrease;
+            set => _rechargeIncrease = Mathf.Max(_rechargeIncrease, value);
+        }
+        
+        private float _rechargeReduction;
+        public float RechargeReduction
+        {
+            private get => _rechargeReduction;
+            set => _rechargeReduction = Mathf.Max(_rechargeReduction, value);
+        }
+        
+        public float RechargeMod => RechargeIncrease - RechargeReduction;
+
+        private int _absorbShield;
+        public int AbsorbShield
+        {
+            get => _absorbShield;
+            set => _absorbShield += value;
+        }
+
+        private float _armorPenetrationIncrease;
+        public float ArmorPenetrationIncrease
+        {
+            private get => _armorPenetrationIncrease;
+            set => _armorPenetrationIncrease += value;
+        }
+
+        private float _armorPenetrationReduction;
+        public float ArmorPenetrationReduction
+        {
+            private get => _armorPenetrationReduction;
+            set => _armorPenetrationReduction += value;
+        }
+        
+        public float ArmorPenetrationMod => ArmorPenetrationIncrease - ArmorPenetrationReduction;
+        
+        private float _criticalChanceIncrease;
+        public float CriticalChanceIncrease
+        {
+            private get => _criticalChanceIncrease;
+            set => _criticalChanceIncrease += value;
+        }
+        
+        private float _criticalChanceReduction;
+        public float CriticalChanceReduction
+        {
+            private get => _criticalChanceReduction;
+            set => _criticalChanceReduction += value;
+        }
+        
+        public float CriticalChanceMod => CriticalChanceIncrease - CriticalChanceReduction;
+        
         private int _damageIncrease;
         public int DamageIncrease
         {
-            get => _damageIncrease;
-            set => _damageIncrease = Mathf.Max(_damageIncrease, value);
+            private get => _damageIncrease;
+            set => _damageIncrease += value;
         }
 
         private int _damageReduction;
         public int DamageReduction
         {
-            get => _damageReduction;
-            set => _damageReduction = Mathf.Max(_damageReduction, value);
+            private get => _damageReduction;
+            set => _damageReduction += value;
         }
+
+        public int DamageMod => DamageIncrease - DamageReduction;
 
         private int _armorRatingIncrease;
         public int ArmorRatingIncrease
         {
-            get => _armorRatingIncrease;
-            set => _armorRatingIncrease = Mathf.Max(_armorRatingIncrease, value);
+            private get => _armorRatingIncrease;
+            set => _armorRatingIncrease += value;
         }
-
+        
         private int _armorRatingReduction;
         public int ArmorRatingReduction
         {
-            get => _armorRatingReduction;
-            set => _armorRatingReduction = Mathf.Max(_armorRatingReduction, value);
+            private get => _armorRatingReduction;
+            set => _armorRatingReduction += value;
         }
-
+        
+        public int ArmorRatingMod => ArmorRatingIncrease - ArmorRatingReduction;
+        
         private int _slashDamageIncrease;
         public int SlashDamageIncrease
         {
-            get => _slashDamageIncrease;
+            private get => _slashDamageIncrease;
             set => _slashDamageIncrease = Mathf.Max(_slashDamageIncrease, value);
         }
 
         private int _slashDamageReduction;
         public int SlashDamageReduction
         {
-            get => _slashDamageReduction;
+            private get => _slashDamageReduction;
             set => _slashDamageReduction = Mathf.Max(_slashDamageReduction, value);
         }
-
+        
+        public int SlashDamageMod => SlashDamageIncrease - SlashDamageReduction;
+        
         private int _slashArmorIncrease;
         public int SlashArmorIncrease
         {
-            get => _slashArmorIncrease;
+            private get => _slashArmorIncrease;
             set => _slashArmorIncrease = Mathf.Max(_slashArmorIncrease, value);
         }
-
+        
         private int _slashArmorReduction;
         public int SlashArmorReduction
         {
-            get => _slashArmorReduction;
+            private get => _slashArmorReduction;
             set => _slashArmorReduction = Mathf.Max(_slashArmorReduction, value);
         }
-
+        
+        public int SlashArmorMod => SlashArmorIncrease - SlashArmorReduction;
+        
         private int _bluntDamageIncrease;
         public int BluntDamageIncrease
         {
-            get => _bluntDamageIncrease;
+            private get => _bluntDamageIncrease;
             set => _bluntDamageIncrease = Mathf.Max(_bluntDamageIncrease, value);
         }
-
+        
         private int _bluntDamageReduction;
         public int BluntDamageReduction
         {
-            get => _bluntDamageReduction;
+            private get => _bluntDamageReduction;
             set => _bluntDamageReduction = Mathf.Max(_bluntDamageReduction, value);
         }
-
+        
+        public int BluntDamageMod => BluntDamageIncrease - BluntDamageReduction;
+        
         private int _bluntArmorIncrease;
         public int BluntArmorIncrease
         {
-            get => _bluntArmorIncrease;
+            private get => _bluntArmorIncrease;
             set => _bluntArmorIncrease = Mathf.Max(_bluntArmorIncrease, value);
         }
-
+        
         private int _bluntArmorReduction;
         public int BluntArmorReduction
         {
-            get => _bluntArmorReduction;
+            private get => _bluntArmorReduction;
             set => _bluntArmorReduction = Mathf.Max(_bluntArmorReduction, value);
         }
-
-        private int _pierceDamageIncrease;
-        public int PierceDamageIncrease
+        
+        public int BluntArmorMod => BluntArmorIncrease - BluntArmorReduction;
+        
+        private int _piercingDamageIncrease;
+        public int PiercingDamageIncrease
         {
-            get => _pierceDamageIncrease;
-            set => _pierceDamageIncrease = Mathf.Max(_pierceDamageIncrease, value);
+            private get => _piercingDamageIncrease;
+            set => _piercingDamageIncrease = Mathf.Max(_piercingDamageIncrease, value);
         }
-
-        private int _pierceDamageReduction;
-        public int PierceDamageReduction
+        
+        private int _piercingDamageReduction;
+        public int PiercingDamageReduction
         {
-            get => _pierceDamageReduction;
-            set => _pierceDamageReduction = Mathf.Max(_pierceDamageReduction, value);
+            private get => _piercingDamageReduction;
+            set => _piercingDamageReduction = Mathf.Max(_piercingDamageReduction, value);
         }
-
-        private int _pierceArmorIncrease;
-        public int PierceArmorIncrease
+        
+        public int PiercingDamageMod => PiercingDamageIncrease - PiercingDamageReduction;
+        
+        private int _piercingArmorIncrease;
+        public int PiercingArmorIncrease
         {
-            get => _pierceArmorIncrease;
-            set => _pierceArmorIncrease = Mathf.Max(_pierceArmorIncrease, value);
+            private get => _piercingArmorIncrease;
+            set => _piercingArmorIncrease = Mathf.Max(_piercingArmorIncrease, value);
         }
-
-        private int _pierceArmorReduction;
-        public int PierceArmorReduction
+        
+        private int _piercingArmorReduction;
+        public int PiercingArmorReduction
         {
-            get => _pierceArmorReduction;
-            set => _pierceArmorReduction = Mathf.Max(_pierceArmorReduction, value);
+            private get => _piercingArmorReduction;
+            set => _piercingArmorReduction = Mathf.Max(_piercingArmorReduction, value);
         }
-
+        
+        public int PiercingArmorMod => PiercingArmorIncrease - PiercingArmorReduction;
+        
         private int _earthDamageIncrease;
         public int EarthDamageIncrease
         {
-            get => _earthDamageIncrease;
+            private get => _earthDamageIncrease;
             set => _earthDamageIncrease = Mathf.Max(_earthDamageIncrease, value);
         }
-
+        
         private int _earthDamageReduction;
         public int EarthDamageReduction
         {
-            get => _earthDamageReduction;
+            private get => _earthDamageReduction;
             set => _earthDamageReduction = Mathf.Max(_earthDamageReduction, value);
         }
-
+        
+        public int EarthDamageMod => EarthDamageIncrease - EarthDamageReduction;
+        
         private int _earthArmorIncrease;
         public int EarthArmorIncrease
         {
-            get => _earthArmorIncrease;
+            private get => _earthArmorIncrease;
             set => _earthArmorIncrease = Mathf.Max(_earthArmorIncrease, value);
         }
-
+        
         private int _earthArmorReduction;
         public int EarthArmorReduction
         {
-            get => _earthArmorReduction;
+            private get => _earthArmorReduction;
             set => _earthArmorReduction = Mathf.Max(_earthArmorReduction, value);
         }
-
+        
+        public int EarthArmorMod => EarthArmorIncrease - EarthArmorReduction;
+        
         private int _fireDamageIncrease;
         public int FireDamageIncrease
         {
-            get => _fireDamageIncrease;
+            private get => _fireDamageIncrease;
             set => _fireDamageIncrease = Mathf.Max(_fireDamageIncrease, value);
         }
         
         private int _fireDamageReduction;
         public int FireDamageReduction
         {
-            get => _fireDamageReduction;
+            private get => _fireDamageReduction;
             set => _fireDamageReduction = Mathf.Max(_fireDamageReduction, value);
         }
+        
+        public int FireDamageMod => FireDamageIncrease - FireDamageReduction;
         
         private int _fireArmorIncrease;
         public int FireArmorIncrease
         {
-            get => _fireArmorIncrease;
+            private get => _fireArmorIncrease;
             set => _fireArmorIncrease = Mathf.Max(_fireArmorIncrease, value);
         }
         
         private int _fireArmorReduction;
         public int FireArmorReduction
         {
-            get => _fireArmorReduction;
+            private get => _fireArmorReduction;
             set => _fireArmorReduction = Mathf.Max(_fireArmorReduction, value);
         }
+        
+        public int FireArmorMod => FireArmorIncrease - FireArmorReduction;
         
         private int _airDamageIncrease;
         public int AirDamageIncrease
         {
-            get => _airDamageIncrease;
+            private get => _airDamageIncrease;
             set => _airDamageIncrease = Mathf.Max(_airDamageIncrease, value);
         }
         
         private int _airDamageReduction;
         public int AirDamageReduction
         {
-            get => _airDamageReduction;
+            private get => _airDamageReduction;
             set => _airDamageReduction = Mathf.Max(_airDamageReduction, value);
         }
+        
+        public int AirDamageMod => AirDamageIncrease - AirDamageReduction;
         
         private int _airArmorIncrease;
         public int AirArmorIncrease
         {
-            get => _airArmorIncrease;
+            private get => _airArmorIncrease;
             set => _airArmorIncrease = Mathf.Max(_airArmorIncrease, value);
         }
         
         private int _airArmorReduction;
         public int AirArmorReduction
         {
-            get => _airArmorReduction;
+            private get => _airArmorReduction;
             set => _airArmorReduction = Mathf.Max(_airArmorReduction, value);
         }
+        
+        public int AirArmorMod => AirArmorIncrease - AirArmorReduction;
         
         private int _waterDamageIncrease;
         public int WaterDamageIncrease
         {
-            get => _waterDamageIncrease;
+            private get => _waterDamageIncrease;
             set => _waterDamageIncrease = Mathf.Max(_waterDamageIncrease, value);
         }
         
         private int _waterDamageReduction;
         public int WaterDamageReduction
         {
-            get => _waterDamageReduction;
+            private get => _waterDamageReduction;
             set => _waterDamageReduction = Mathf.Max(_waterDamageReduction, value);
         }
+        
+        public int WaterDamageMod => WaterDamageIncrease - WaterDamageReduction;
         
         private int _waterArmorIncrease;
         public int WaterArmorIncrease
         {
-            get => _waterArmorIncrease;
+            private get => _waterArmorIncrease;
             set => _waterArmorIncrease = Mathf.Max(_waterArmorIncrease, value);
         }
-
+        
         private int _waterArmorReduction;
         public int WaterArmorReduction
         {
-            get => _waterArmorReduction;
+            private get => _waterArmorReduction;
             set => _waterArmorReduction = Mathf.Max(_waterArmorReduction, value);
         }
-
+        
+        public int WaterArmorMod => WaterArmorIncrease - WaterArmorReduction;
+        
         private int _holyDamageIncrease;
         public int HolyDamageIncrease
         {
-            get => _holyDamageIncrease;
+            private get => _holyDamageIncrease;
             set => _holyDamageIncrease = Mathf.Max(_holyDamageIncrease, value);
         }
-
+        
         private int _holyDamageReduction;
         public int HolyDamageReduction
         {
-            get => _holyDamageReduction;
+            private get => _holyDamageReduction;
             set => _holyDamageReduction = Mathf.Max(_holyDamageReduction, value);
         }
-
+        
+        public int HolyDamageMod => HolyDamageIncrease - HolyDamageReduction;
+        
         private int _holyArmorIncrease;
         public int HolyArmorIncrease
         {
-            get => _holyArmorIncrease;
+            private get => _holyArmorIncrease;
             set => _holyArmorIncrease = Mathf.Max(_holyArmorIncrease, value);
         }
-
+        
         private int _holyArmorReduction;
         public int HolyArmorReduction
         {
-            get => _holyArmorReduction;
+            private get => _holyArmorReduction;
             set => _holyArmorReduction = Mathf.Max(_holyArmorReduction, value);
         }
+        
+        public int HolyArmorMod => HolyArmorIncrease - HolyArmorReduction;
 
+        private float _evasion;
+        public float Evasion
+        {
+            get => _evasion;
+            set => _evasion += value * (1 - _evasion);
+        }
+        
         private float _block;
         public float Block
         {
             get => _block;
             set => _block += value * (1 - _block);
         }
+
+        // private int[] _intMods = new int[Convert.ToInt32(EIntModType.Max)];
+        //
+        // public int GetIntMod(EIntModType modType)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2;
+        //     return _intMods[index] - _intMods[index + 1];
+        // }
+        //
+        // public void AddIntMod(EIntModType modType, int value)
+        // {
+        //     var index = Convert.ToInt32(modType);
+        //     _intMods[index] += Mathf.Max(value,  _intMods[index]);
+        // }
+        //
+        // private int[] _tempIntMods = new int[Convert.ToInt32(EIntModType.Max) * 2];
+        //
+        // public int GetTempIntMod(EIntModType modType)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2;
+        //     return _tempIntMods[index] - _tempIntMods[index + 1];
+        // }
+        //
+        // public void SetTempIntIncreaseMod(EIntModType modType, int value)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2;
+        //     _tempIntMods[index] = Mathf.Max(value,  _tempIntMods[index]);
+        // }
+        //
+        // public void SetTempReductionMod(EIntModType modType, int value)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2 + 1;
+        //     _tempIntMods[index] = Mathf.Max(value,  _tempIntMods[index]);
+        // }
+        //
+        // private float[] _floatMods = new float[Convert.ToInt32(EFloatModType.Max) * 2];
+        //
+        // public float GetFloatMod(EFloatModType modType)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2;
+        //     return _floatMods[index] - _floatMods[index + 1];
+        // }
+        //
+        // public void SetFloatIncreaseMod(EFloatModType modType, int value)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2;
+        //     _floatMods[index] = Mathf.Max(value,  _floatMods[index]);
+        // }
+        //
+        // public void SetFloatReductionMod(EFloatModType modType, int value)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2 + 1;
+        //     _floatMods[index] = Mathf.Max(value,  _floatMods[index]);
+        // }
+        //
+        // private float[] _tempFloatMods = new float[Convert.ToInt32(EFloatModType.Max) * 2];
+        //
+        // public float GetTempFloatMod(EFloatModType modType)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2;
+        //     return _tempFloatMods[index] - _tempFloatMods[index + 1];
+        // }
+        //
+        // public void SetTempFloatIncreaseMod(EFloatModType modType, int value)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2;
+        //     _tempFloatMods[index] = Mathf.Max(value, _tempFloatMods[index]);
+        // }
+        //
+        // public void SetTempFloatReductionMod(EFloatModType modType, int value)
+        // {
+        //     var index = Convert.ToInt32(modType) * 2 + 1;
+        //     _tempFloatMods[index] = Mathf.Max(value, _tempFloatMods[index]);
+        // }
 
         // public int ArmorRatingIncrease { get; set; }
         // public int ArmorRatingReduction { get; set; }
@@ -534,6 +723,21 @@ namespace CreatureTime
         //
         // public float Evasion { get; set; }
 
+        public bool HasStatusEffect(CtSkillDef skillDef)
+        {
+            for (int i = 0; i < statusEffectInstances.Count; i++)
+            {
+                var statusEffect = statusEffectInstances.GetStatusEffect(i);
+                if (statusEffect == CtDataBlock.InvalidData) continue;
+
+                var identifier = CtDataBlock.GetEffectIdentifier(statusEffect);
+                if (identifier == skillDef.Identifier)
+                    return true;
+            }
+
+            return false;
+        }
+
         public bool IsDazed { get; set; }
         public bool IsBlind { get; set; }
         public bool IsKnockedDown { get; set; }
@@ -541,7 +745,7 @@ namespace CreatureTime
 
         public string DisplayName => _entityDef ? _entityDef.DisplayName : "Disconnected";
         public Texture Icon => _entityDef ? _entityDef.Icon : null;
-        public int Level => _entityDef ? _entityDef.CharacterLevel : 0;
+        public bool IsBoss => _entityDef && _entityDef.IsBoss;
 
         private int _maxHealth;
 
@@ -592,9 +796,42 @@ namespace CreatureTime
             }
         }
 
+        private int _level = -1;
+
+        public int Level
+        {
+            get => _level;
+            private set
+            {
+                if (_level == value) return;
+                _level = value;
+                this.Emit(EEntitySignal.LevelChanged);
+            }
+        }
+
+        public int Exp => _entityDef ? _entityDef.Exp : 0;
+        public int ExpStart { get; private set; }
+        public int ExpEnd { get; private set; }
+
+        private int _baseHealth;
+
+        public void _OnExpChanged()
+        {
+            CtRpgFormulas.ConvertExpToLevel(_entityDef.Exp, out var level, out var start, out var end,
+                out var baseHealth);
+            Level = level;
+            ExpStart = start;
+            ExpEnd = end;
+            _baseHealth = baseHealth;
+
+            _UpdateStats();
+
+            this.Emit(EEntitySignal.ExpChanged);
+        }
+
         public void _UpdateStats()
         {
-            var maxHealth = EntityDef.MaxHealth;
+            var maxHealth = _baseHealth;
             var maxEnergy = 20;
             var energyRegen = 2;
 
@@ -623,7 +860,7 @@ namespace CreatureTime
                     continue;
                 }
 
-                if (!armorDef.IsAllowedProfession(Profession)) continue;
+                if (!armorDef.IsAllowedProfession(ProfessionDef)) continue;
 
                 var armorSlotDef = armorDef.GetArmorSlot(slot);
                 if (!armorSlotDef)
@@ -649,6 +886,7 @@ namespace CreatureTime
         public float NormalizedHealth => _entityDef ? Health / (float)MaxHealth : 0;
         // public float MaxEnergy => _entityDef ? _entityDef.MaxEnergy : 0;
         public float NormalizedEnergy => _entityDef ? Energy / (float)MaxEnergy : 0;
+        public float NormalizedExp => _entityDef ? (_entityDef.Exp - ExpStart) / (float)(ExpEnd - ExpStart) : 0;
 
         // TODO: Maybe make these flags? IsPlayer, IsNpc, IsLocal, IsRemote?
         public abstract bool IsPlayer
@@ -665,14 +903,25 @@ namespace CreatureTime
             {
                 if (_entityDef)
                 {
+                    _entityDef.Disconnect(EEntityDefSignal.AttributesChanged, this, nameof(_OnAttributesChanged));
+                    _entityDef.Disconnect(EEntityDefSignal.MainHandChanged, this, nameof(_OnMainHandChanged));
+                    _entityDef.Disconnect(EEntityDefSignal.OffHandChanged, this, nameof(_OnOffHandChanged));
                     _entityDef.Disconnect(EEntityDefSignal.HeadSlotChanged, this, nameof(_UpdateStats));
                     _entityDef.Disconnect(EEntityDefSignal.ChestSlotChanged, this, nameof(_UpdateStats));
                     _entityDef.Disconnect(EEntityDefSignal.HandsSlotChanged, this, nameof(_UpdateStats));
                     _entityDef.Disconnect(EEntityDefSignal.LegsSlotChanged, this, nameof(_UpdateStats));
                     _entityDef.Disconnect(EEntityDefSignal.FeetSlotChanged, this, nameof(_UpdateStats));
                     _entityDef.Disconnect(EEntityDefSignal.SkillSlotChanged, this, nameof(_OnSkillSlotChanged));
-                    _entityDef.Disconnect(EEntityDefSignal.AttributesChanged, this, nameof(_OnProfessionChanged));
+                    _entityDef.Disconnect(EEntityDefSignal.ExpChanged, this, nameof(_OnExpChanged));
 
+                    Level = 0;
+                    ExpStart = 0;
+                    ExpEnd = 0;
+                    _baseHealth = 0;
+                    ProfessionDef = null;
+                    _attributeRanks = new int[] { };
+                    MainHand = null;
+                    OffHand = null;
                     _OnSkillSlotChangedRaw(0, CtConstants.InvalidId);
                     _OnSkillSlotChangedRaw(1, CtConstants.InvalidId);
                     _OnSkillSlotChangedRaw(2, CtConstants.InvalidId);
@@ -689,8 +938,11 @@ namespace CreatureTime
 
                 if (_entityDef)
                 {
+                    _OnExpChanged();
+                    OnAttributesChangedRaw();
+                    OnMainHandChangedRaw();
+                    _OnOffHandChanged();
                     _UpdateStats();
-                    _OnProfessionChanged();
                     _OnSkillSlotChangedRaw(0, _entityDef.SkillSlot0);
                     _OnSkillSlotChangedRaw(1, _entityDef.SkillSlot1);
                     _OnSkillSlotChangedRaw(2, _entityDef.SkillSlot2);
@@ -702,13 +954,16 @@ namespace CreatureTime
                     _OnSkillSlotChangedRaw(8, _entityDef.SkillSlot8);
                     _OnSkillSlotChangedRaw(9, _entityDef.SkillSlot9);
 
-                    _entityDef.Connect(EEntityDefSignal.HeadSlotChanged, this, nameof(_UpdateStats));
-                    _entityDef.Connect(EEntityDefSignal.ChestSlotChanged, this, nameof(_UpdateStats));
-                    _entityDef.Connect(EEntityDefSignal.HandsSlotChanged, this, nameof(_UpdateStats));
-                    _entityDef.Connect(EEntityDefSignal.LegsSlotChanged, this, nameof(_UpdateStats));
-                    _entityDef.Connect(EEntityDefSignal.FeetSlotChanged, this, nameof(_UpdateStats));
+                    _entityDef.Connect(EEntityDefSignal.AttributesChanged, this, nameof(_OnAttributesChanged));
+                    _entityDef.Connect(EEntityDefSignal.MainHandChanged, this, nameof(_OnMainHandChanged));
+                    _entityDef.Connect(EEntityDefSignal.OffHandChanged, this, nameof(_OnOffHandChanged));
+                    _entityDef.Connect(EEntityDefSignal.HeadSlotChanged, this, nameof(_OnHeadSlotChanged));
+                    _entityDef.Connect(EEntityDefSignal.ChestSlotChanged, this, nameof(_OnChestSlotChanged));
+                    _entityDef.Connect(EEntityDefSignal.HandsSlotChanged, this, nameof(_OnHandsSlotChanged));
+                    _entityDef.Connect(EEntityDefSignal.LegsSlotChanged, this, nameof(_OnLegsSlotChanged));
+                    _entityDef.Connect(EEntityDefSignal.FeetSlotChanged, this, nameof(_OnFeetSlotChanged));
                     _entityDef.Connect(EEntityDefSignal.SkillSlotChanged, this, nameof(_OnSkillSlotChanged));
-                    _entityDef.Connect(EEntityDefSignal.AttributesChanged, this, nameof(_OnProfessionChanged));
+                    _entityDef.Connect(EEntityDefSignal.ExpChanged, this, nameof(_OnExpChanged));
                 }
 
                 SetArgs.Add(_entityDef);
@@ -716,24 +971,152 @@ namespace CreatureTime
             }
         }
 
-        public CtProfessionDef Profession { get; private set; }
+        public CtWeaponDef MainHand { get; private set; }
+
+        public ulong MainHandData
+        {
+            get => _entityDef.MainHandWeapon;
+            set => _entityDef.MainHandWeapon = value;
+        }
+
+        public CtOffHandDef OffHand { get; private set; }
+
+        public ulong OffHandData
+        {
+            get => _entityDef.OffHandWeapon;
+            set => _entityDef.OffHandWeapon = value;
+        }
+
+        public ulong HeadSlotData
+        {
+            get => _entityDef.HeadSlot;
+            set => _entityDef.HeadSlot = value;
+        }
+
+        public ulong ChestSlotData
+        {
+            get => _entityDef.ChestSlot;
+            set => _entityDef.ChestSlot = value;
+        }
+
+        public ulong HandsSlotData
+        {
+            get => _entityDef.HandsSlot;
+            set => _entityDef.HandsSlot = value;
+        }
+
+        public ulong LegsSlotData
+        {
+            get => _entityDef.LegsSlot;
+            set => _entityDef.LegsSlot = value;
+        }
+
+        public ulong FeetSlotData
+        {
+            get => _entityDef.FeetSlot;
+            set => _entityDef.FeetSlot = value;
+        }
+
+        private int[] _attributeRanks = { };
+
+        public CtProfessionDef ProfessionDef { get; private set; }
+        public int AttrCount => _attributeRanks.Length;
+        public int GetAttrRank(int attrIndex) => _attributeRanks[attrIndex];
 
         public void _OnSkillSlotChanged()
         {
             var index = GetArgs[0].Int;
             _OnSkillSlotChangedRaw(index, _entityDef.GetSkill(index));
+
+            SetArgs.Add(index);
+            this.Emit(EEntitySignal.SkillSlotChanged);
         }
 
-        public void _OnProfessionChanged()
+        protected virtual void OnAttributesChangedRaw()
         {
-            Profession = null;
+            ProfessionDef = null;
             if (CtDataBlock.IsValid(EntityDef.AttributeData))
             {
                 var professionId = CtDataBlock.GetProfession(EntityDef.AttributeData);
-                Profession = gameData.GetProfessionDef(professionId);
+                ProfessionDef = gameData.GetProfessionDef(professionId);
+                int attrCount = CtDataBlock.GetAttributeCount(EntityDef.AttributeData);
+                _attributeRanks = new int[ProfessionDef.Attributes.Length];
+                for (int i = 0; i < attrCount; i++)
+                {
+                    _attributeRanks[i] = CtDataBlock.GetAttributeRank(EntityDef.AttributeData, i);
+                }
             }
+        }
 
+        public void _OnAttributesChanged()
+        {
+            OnAttributesChangedRaw();
             _UpdateStats();
+            this.Emit(EEntitySignal.AttributesChanged);
+        }
+
+        protected virtual void OnMainHandChangedRaw()
+        {
+            MainHand = null;
+            if (CtDataBlock.IsValid(_entityDef.MainHandWeapon))
+            {
+                var identifier = CtDataBlock.GetWeaponIdentifier(_entityDef.MainHandWeapon);
+                MainHand = gameData.GetWeaponDef(identifier);
+            }
+        }
+
+        public void _OnMainHandChanged()
+        {
+            OnMainHandChangedRaw();
+            _UpdateStats();
+            this.Emit(EEntitySignal.MainHandChanged);
+        }
+
+        protected virtual void OnOffHandChangedRaw()
+        {
+            OffHand = null;
+            if (CtDataBlock.IsValid(_entityDef.OffHandWeapon))
+            {
+                var identifier = CtDataBlock.GetOffHandIdentifier(_entityDef.OffHandWeapon);
+                OffHand = gameData.GetOffHandDef(identifier);
+            }
+        }
+
+        public void _OnOffHandChanged()
+        {
+            OnOffHandChangedRaw();
+            _UpdateStats();
+            this.Emit(EEntitySignal.OffHandChanged);
+        }
+
+        public void _OnHeadSlotChanged()
+        {
+            _UpdateStats();
+            this.Emit(EEntitySignal.HeadSlotChanged);
+        }
+
+        public void _OnChestSlotChanged()
+        {
+            _UpdateStats();
+            this.Emit(EEntitySignal.ChestSlotChanged);
+        }
+
+        public void _OnHandsSlotChanged()
+        {
+            _UpdateStats();
+            this.Emit(EEntitySignal.HandsSlotChanged);
+        }
+
+        public void _OnLegsSlotChanged()
+        {
+            _UpdateStats();
+            this.Emit(EEntitySignal.LegsSlotChanged);
+        }
+
+        public void _OnFeetSlotChanged()
+        {
+            _UpdateStats();
+            this.Emit(EEntitySignal.FeetSlotChanged);
         }
 
         private void _OnSkillSlotChangedRaw(int index, ushort skillId)
@@ -781,23 +1164,22 @@ namespace CreatureTime
         private void _ResetStatusEffectsInstanceData()
         {
             for (int i = 0; i < statusEffectInstances.Count; i++)
-            {
                 statusEffectInstances.SetStatusEffect(i, CtDataBlock.InvalidData);
-            }
+            UpdatePersistantEffects();
         }
 
         private void _ResetSkillInstanceData()
         {
-            skillInstances.SkillRecharge0 = (char)0;
-            skillInstances.SkillRecharge1 = (char)0;
-            skillInstances.SkillRecharge2 = (char)0;
-            skillInstances.SkillRecharge3 = (char)0;
-            skillInstances.SkillRecharge4 = (char)0;
-            skillInstances.SkillRecharge5 = (char)0;
-            skillInstances.SkillRecharge6 = (char)0;
-            skillInstances.SkillRecharge7 = (char)0;
-            skillInstances.SkillRecharge8 = (char)0;
-            skillInstances.SkillRecharge9 = (char)0;
+            skillInstances.SkillRecharge0 = 0;
+            skillInstances.SkillRecharge1 = 0;
+            skillInstances.SkillRecharge2 = 0;
+            skillInstances.SkillRecharge3 = 0;
+            skillInstances.SkillRecharge4 = 0;
+            skillInstances.SkillRecharge5 = 0;
+            skillInstances.SkillRecharge6 = 0;
+            skillInstances.SkillRecharge7 = 0;
+            skillInstances.SkillRecharge8 = 0;
+            skillInstances.SkillRecharge9 = 0;
 
             skillInstances.SkillAdrenaline0 = 0;
             skillInstances.SkillAdrenaline1 = 0;
@@ -971,9 +1353,14 @@ namespace CreatureTime
             this.Emit(EEntitySignal.DamageApplied);
         }
 
+        public void GainExperience(int exp)
+        {
+            EntityDef.Exp += exp;
+        }
+
         public void GainAdrenalineOnHit(int roll)
         {
-            int adrenaline = (int)(roll / (float)EntityDef.MaxHealth * 100.0f);
+            int adrenaline = (int)(roll / (float)MaxHealth * 100.0f);
 #if DEBUG_LOGS
             LogDebug($"Adrenaline gained on hit (adrenaline={adrenaline}).");
 #endif
@@ -984,7 +1371,7 @@ namespace CreatureTime
         {
             for (int i = 0; i < 10; i++)
             {
-                var skillDef = GetSkillDef(i);
+                var skillDef = GetSkill(i);
                 if (!skillDef) continue;
                 if (skillDef.SkillType != ESkillType.Adrenaline) continue;
 
@@ -1037,10 +1424,148 @@ namespace CreatureTime
             UpdatePersistantEffects();
         }
 
-        private void UpdatePersistantEffects()
+        public int TryGetAttributeLevelByAttributeType(ushort attributeType)
+        {
+            for (int i = 0; i < ProfessionDef.Attributes.Length; ++i)
+                if (ProfessionDef.Attributes[i].Identifier == attributeType)
+                    return GetAttrRank(i);
+
+            return 0;
+        }
+
+        private EDamageType _convertSlashing = EDamageType.None;
+        
+        public EDamageType ConvertSlashing
+        {
+            get => _convertSlashing;
+            set
+            {
+                if (_convertSlashing != EDamageType.None) return;
+                _convertSlashing = value;
+            }
+        }
+        
+        private EDamageType _convertBlunt = EDamageType.None;
+        
+        public EDamageType ConvertBlunt
+        {
+            get => _convertBlunt;
+            set
+            {
+                if (_convertBlunt != EDamageType.None) return;
+                _convertBlunt = value;
+            }
+        }
+        
+        private EDamageType _convertPiercing = EDamageType.None;
+        
+        public EDamageType ConvertPiercing
+        {
+            get => _convertPiercing;
+            set
+            {
+                if (_convertPiercing != EDamageType.None) return;
+                _convertPiercing = value;
+            }
+        }
+        
+        private EDamageType _convertEarth = EDamageType.None;
+        
+        public EDamageType ConvertEarth
+        {
+            get => _convertEarth;
+            set
+            {
+                if (_convertEarth != EDamageType.None) return;
+                _convertEarth = value;
+            }
+        }
+        
+        private EDamageType _convertFire = EDamageType.None;
+        
+        public EDamageType ConvertFire
+        {
+            get => _convertFire;
+            set
+            {
+                if (_convertFire != EDamageType.None) return;
+                _convertFire = value;
+            }
+        }
+        
+        private EDamageType _convertAir = EDamageType.None;
+        
+        public EDamageType ConvertAir
+        {
+            get => _convertAir;
+            set
+            {
+                if (_convertAir != EDamageType.None) return;
+                _convertAir = value;
+            }
+        }
+        
+        private EDamageType _convertWater = EDamageType.None;
+        
+        public EDamageType ConvertWater
+        {
+            get => _convertWater;
+            set
+            {
+                if (_convertWater != EDamageType.None) return;
+                _convertWater = value;
+            }
+        }
+        
+        private EDamageType _convertPhysical = EDamageType.None;
+        
+        public EDamageType ConvertPhysical
+        {
+            set
+            {
+                ConvertSlashing = value;
+                ConvertBlunt = value;
+                ConvertPiercing = value;
+            }
+        }
+        
+        private EDamageType _convertElemental = EDamageType.None;
+        
+        public EDamageType ConvertElemental
+        {
+            set
+            {
+                ConvertEarth = value;
+                ConvertFire = value;
+                ConvertAir = value;
+                ConvertWater = value;
+            }
+        }
+
+        public void UpdatePersistantEffects()
         {
             // TODO: Can this be done while iterating over the list the first time?
 
+            _convertPhysical = EDamageType.None;
+            _convertElemental = EDamageType.None;
+
+            _convertEarth = EDamageType.None;
+            _convertFire = EDamageType.None;
+            _convertAir = EDamageType.None;
+            _convertWater = EDamageType.None;
+
+            // _intMods = new int[Convert.ToInt32(EIntModType.Max) * 2];
+            // _floatMods = new float[Convert.ToInt32(EIntModType.Max) * 2];
+
+            _absorbShield = 0;
+            _block = 0;
+
+            _rechargeIncrease = 0;
+            _rechargeReduction = 0;
+            _criticalChanceIncrease = 0;
+            _criticalChanceReduction = 0;
+            _armorPenetrationIncrease = 0;
+            _armorPenetrationReduction = 0;
             _damageIncrease = 0;
             _damageReduction = 0;
             _armorRatingIncrease = 0;
@@ -1053,10 +1578,10 @@ namespace CreatureTime
             _bluntDamageReduction = 0;
             _bluntArmorIncrease = 0;
             _bluntArmorReduction = 0;
-            _pierceDamageIncrease = 0;
-            _pierceDamageReduction = 0;
-            _pierceArmorIncrease = 0;
-            _pierceArmorReduction = 0;
+            _piercingDamageIncrease = 0;
+            _piercingDamageReduction = 0;
+            _piercingArmorIncrease = 0;
+            _piercingArmorReduction = 0;
             _earthDamageIncrease = 0;
             _earthDamageReduction = 0;
             _earthArmorIncrease = 0;
@@ -1077,7 +1602,7 @@ namespace CreatureTime
             _holyDamageReduction = 0;
             _holyArmorIncrease = 0;
             _holyArmorReduction = 0;
-            _block = 0;
+
             IsDazed = false;
             IsBlind = false;
             IsKnockedDown = false;
@@ -1110,17 +1635,17 @@ namespace CreatureTime
                 }
 
                 Debug.Log($"Persistant effects updated skillDef.OnPersistentEffect {skillDef}");
-                skillDef.OnPersistentEffect(this, source);
+                skillDef.OnPersistentEffect(source, this);
             }
 
-#if DEBUG_LOGS
-            LogDebug($"Persistant effects updated (armorRatingReduction={ArmorRatingReduction}, slashReduction={SlashDamageReduction}, bluntReduction={BluntDamageReduction}, pierceReduction={PierceDamageReduction}, earthReduction={EarthDamageReduction}, airReduction={AirDamageReduction}, fireReduction={FireDamageReduction}, waterReduction={WaterDamageReduction}, isDazed={IsDazed}, isBlind={IsBlind}).");
-#endif
+// #if DEBUG_LOGS
+//             LogDebug($"Persistant effects updated (armorRatingReduction={GetIntMod(EIntModType.ArmorRating)}, slashReduction={GetIntMod(EIntModType.SlashArmor)}, bluntReduction={GetIntMod(EIntModType.BluntArmor)}, pierceReduction={GetIntMod(EIntModType.PiercingArmor)}, earthReduction={GetIntMod(EIntModType.EarthArmor)}, airReduction={GetIntMod(EIntModType.AirArmor)}, fireReduction={GetIntMod(EIntModType.FireArmor)}, waterReduction={GetIntMod(EIntModType.WaterArmor)}, isDazed={IsDazed}, isBlind={IsBlind}).");
+// #endif
         }
 
         public bool ProcessStatusTick()
         {
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < statusEffectInstances.Count; i++)
             {
                 var statusEffect = statusEffectInstances.GetStatusEffect(i);
                 if (statusEffect != CtDataBlock.InvalidData)
@@ -1139,7 +1664,7 @@ namespace CreatureTime
                         var turns = CtDataBlock.GetEffectTurns(statusEffect);
                         LogDebug($"Processing Status Tick (skillDef={skillDef}, source={source}, turns={turns})");
 
-                        skillDef.OnTickEffect(this, source);
+                        skillDef.OnTickEffect(source, this);
 
                         if (State == ECombatState.Dead)
                             return true;
@@ -1153,7 +1678,7 @@ namespace CreatureTime
         public void RemoveExpiredStatusEffects(CtEntity source)
         {
             var expired = false;
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < statusEffectInstances.Count; i++)
             {
                 var statusEffect = statusEffectInstances.GetStatusEffect(i);
                 if (statusEffect != CtDataBlock.InvalidData)
@@ -1190,21 +1715,72 @@ namespace CreatureTime
                 UpdatePersistantEffects();
         }
 
+        public bool TryRemoveStatusEffect(DataList toRemove, int count)
+        {
+            bool result = false;
+            // Remove a condition.
+            for (int i = 0; i < StatusEffectInstances.Count; i++)
+            {
+                var statusEffect = StatusEffectInstances.GetStatusEffect(i);
+                if (statusEffect == CtDataBlock.InvalidData) continue;
+
+                var effectIdentifier = CtDataBlock.GetEffectIdentifier(statusEffect);
+                var skillDef = gameData.GetSkillDef(effectIdentifier);
+                if (toRemove.Contains(skillDef))
+                {
+                    StatusEffectInstances.SetStatusEffect(i, CtDataBlock.InvalidData);
+                    result = true;
+
+                    count--;
+                    if (count == 0)
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        public bool TryBlockWithEffects(CtEntity source, int damage)
+        {
+            for (int i = 0; i < statusEffectInstances.Count; i++)
+            {
+                var statusEffect = statusEffectInstances.GetStatusEffect(i);
+                if (statusEffect == CtDataBlock.InvalidData) continue;
+
+                var identifier = CtDataBlock.GetEffectIdentifier(statusEffect);
+                var skillDef = gameData.GetSkillDef(identifier);
+                if (!skillDef.HasBlockEffect) continue;
+
+                if (skillDef.TryBlock(this, source, damage))
+                    return true;
+            }
+
+            return false;
+        }
+
         public void UseWeapon(CtEntity target)
         {
-            CtSkillDef.MeleeAttack(gameData, target, this);
+            CtSkillDef.MeleeAttack(gameData, this, target);
         }
 
         public void UseSkill(ushort skillId, CtEntity target, DataList adjacentTargets)
         {
-            if (!EntityDef.TryGetSkillIndex(skillId, out int index))
+            if (!EntityDef.TryGetSkillIndex(skillId, out var index))
             {
                 LogCritical($"Failed to find skill identifier in entity skill set (skillId={skillId}, entity={this}).");
                 return;
             }
 
+#if DEBUG_LOGS
+            var recharge = skillInstances.GetRecharge(index);
+            if (recharge > 0)
+            {
+                LogWarning($"Skill was not fully recharge, but still used (index={index}, entity={this})?");
+            }
+#endif
+
             var usedSkillDef = gameData.GetSkillDef(skillId);
-            usedSkillDef.OnUse(gameData, this, target, adjacentTargets);
+            usedSkillDef.OnUse(this, target, adjacentTargets);
 
             switch (usedSkillDef.SkillType)
             {
@@ -1216,7 +1792,7 @@ namespace CreatureTime
                     break;
             }
 
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < statusEffectInstances.Count; i++)
             {
                 var statusEffect = statusEffectInstances.GetStatusEffect(i);
                 if (statusEffect != CtDataBlock.InvalidData)
@@ -1232,7 +1808,7 @@ namespace CreatureTime
                             continue;
                         }
 
-                        skillDef.OnSkillUsed(gameData, this, source, usedSkillDef);
+                        skillDef.OnSkillUsed(this, source, usedSkillDef);
                     }
                 }
             }
@@ -1258,7 +1834,21 @@ namespace CreatureTime
             Health = Mathf.Min(Health + HealthRegen, MaxHealth);
             Energy = Mathf.Min(Energy + EnergyRegen, MaxEnergy);
 
-            int rechargeSpeed = 1;
+            var rechargeSpeed = 1 - RechargeMod;
+#if DEBUG_LOGS
+            if (rechargeSpeed <= 0)
+            {
+                LogWarning("Recharge speed should never be less than or 0 " +
+                           $"(rechargeSpeed={rechargeSpeed}, RechargeMod={RechargeMod}). " +
+                           "Reverting to default 1 recharge speed.");
+                rechargeSpeed = 1;
+            }
+#endif
+
+#if DEBUG_LOGS
+            LogDebug($"Recharge speed is {rechargeSpeed} turns.");
+#endif
+
             for (int i = 0; i < 10; i++)
             {
                 var recharge = skillInstances.GetRecharge(i);
@@ -1269,6 +1859,7 @@ namespace CreatureTime
 
         public virtual CtBattleState BattleState
         {
+            get => null;
             set
             {
                 // Do nothing?
@@ -1279,6 +1870,8 @@ namespace CreatureTime
         {
             return true;
         }
+
+        public virtual bool IsReadyToLeave() => true;
 
         public virtual bool HasAttackReady() => false;
 
@@ -1295,5 +1888,30 @@ namespace CreatureTime
         {
             _ResetBattleStates();
         }
+
+        public EDamageType ConvertDamageType(EDamageType damageType)
+        {
+            switch (damageType)
+            {
+                case EDamageType.Slashing:
+                    return _convertSlashing;
+                case EDamageType.Blunt:
+                    return _convertBlunt;
+                case EDamageType.Piercing:
+                    return _convertPiercing;
+                case EDamageType.Earth:
+                    return _convertEarth;
+                case EDamageType.Fire:
+                    return _convertFire;
+                case EDamageType.Air:
+                    return _convertAir;
+                case EDamageType.Water:
+                    return _convertWater;
+            }
+
+            return damageType;
+        }
+
+        
     }
 }

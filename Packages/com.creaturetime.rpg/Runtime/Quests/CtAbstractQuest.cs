@@ -7,7 +7,7 @@ namespace CreatureTime
     {
         [SerializeField] private int levelReq;
 
-        public virtual int LevelReq => levelReq;
+        public int LevelReq => levelReq;
 
         public abstract void Execute(CtParty party);
     }

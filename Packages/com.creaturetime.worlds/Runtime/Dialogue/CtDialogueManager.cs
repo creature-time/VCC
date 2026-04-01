@@ -18,9 +18,13 @@ namespace CreatureTime
         [SerializeField] private CtConversationModel conversationModel;
         [SerializeField] private CtChatterModel[] chatterModels;
 
+        public CtDialogueDatabase DialogueDatabase => dialogueDatabase;
+        public CtConversationModel ConversationModel => conversationModel;
+        public CtChatterModel[] ChatterModels => chatterModels;
+
         private CtChatterModel[] _activeChatterModels;
 
-        private void Start()
+        public override void Init()
         {
             _activeChatterModels = new CtChatterModel[chatterModels.Length];
 
@@ -57,6 +61,21 @@ namespace CreatureTime
             }
 
             conversationModel.Identifier = conversation.StartEntryId;
+        }
+
+        public void StartConversationWithActor(CtDialogueActor actor)
+        {
+            foreach (var conversation in dialogueDatabase.Conversations)
+            {
+                if (!dialogueDatabase.TryGetDialogueEntry(conversation.StartEntryId, out var dialogueEntry)) continue;
+                if (dialogueEntry.Actor != actor) continue;
+                StartConversation(conversation.Identifier);
+                return;
+            }
+
+#if DEBUG_LOGS
+            LogCritical($"Failed to find actor's conversation (actor={actor}).");
+#endif
         }
 
         public void StopConversation()

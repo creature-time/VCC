@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using CreatureTime.Editor;
 using CreatureTime.RpgGame;
 using UdonSharp;
 using UdonSharpEditor;
@@ -111,7 +112,7 @@ namespace CreatureTime
         private void _PopulateRow(Type type, ref int variant, string parentProp = "")
         {
             int levelVariant = variant;
-            foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 var propPath = string.IsNullOrEmpty(parentProp) ? field.Name : $"{parentProp}.{field.Name}";
                 // TODO: Reverse these checks and check if type is found otherwise check if is class.
@@ -131,7 +132,15 @@ namespace CreatureTime
         private void _GenerateColumn(Type type, string title, string bindingPath, int variant)
         {
             Func<VisualElement> makeCellFunc;
-            if (type.IsEnum)
+            if (type.IsArray)
+            {
+                makeCellFunc = () =>
+                {
+                    var field = new Label();
+                    return field;
+                };
+            }
+            else if (type.IsEnum)
             {
                 if (type.GetCustomAttribute<FlagsAttribute>() != null)
                 {
@@ -184,7 +193,15 @@ namespace CreatureTime
             }
 
             Action<VisualElement, int> bindCellFunc;
-            if (type.IsEnum)
+            if (type.IsArray)
+            {
+                bindCellFunc = (element, i) =>
+                {
+                    var field = (Label)element;
+                    _Bind(field, i);
+                };
+            }
+            else if (type.IsEnum)
             {
                 bindCellFunc = (element, i) =>
                 {
@@ -476,6 +493,7 @@ namespace CreatureTime
             _scrollView.style.flexGrow = 1;
             Add(_scrollView);
 
+            _CreateView<CtQuestDefData>("Quest Definitions");
             _CreateView<CtBattleQuestData>("Battle Quest Definitions");
             _CreateView<CtSquadDefData>("Squad Definitions");
             _CreateView<CtNpcDefData>("Npc Definitions");
@@ -518,6 +536,7 @@ namespace CreatureTime
 
         private void _OnRenameAssets()
         {
+            RenameDefinitions<CtQuestDefData>("qst");
             RenameDefinitions<CtSkillDefData>("skl");
             RenameDefinitions<CtNpcDefData>("npc");
             RenameDefinitions<CtMainHandDefData>("mhw");
@@ -526,7 +545,7 @@ namespace CreatureTime
             RenameDefinitions<CtProfessionDefData>("pro");
             RenameDefinitions<CtAttributeDefData>("att");
             RenameDefinitions<CtNpcBehaviorData>("bhv");
-            RenameDefinitions<CtBattleQuestData>("qst");
+            RenameDefinitions<CtBattleQuestData>("btl");
             RenameDefinitions<CtSquadDefData>("sqd");
             RenameDefinitions<CtNpcTypeDefData>("typ");
         }
@@ -629,7 +648,8 @@ namespace CreatureTime
                     so.FindProperty("identifier").intValue = data.identifier;
                     so.FindProperty("displayName").stringValue = data.displayName;
                     so.FindProperty("icon").objectReferenceValue = data.icon;
-                    so.FindProperty("characterLevel").intValue = data.characterLevel;
+                    so.FindProperty("exp").intValue = CtRpgFormulas.ConvertLevelToMinExp(data.characterLevel);
+                    so.FindProperty("isBoss").boolValue = data.isBoss;
                     so.FindProperty("attributeData").stringValue = CtDataBlock.Serialize(data.professionDataBlock.DataBlock);
                     so.FindProperty("mainHandWeaponData").stringValue = CtDataBlock.Serialize(data.mainHandDataBlock.DataBlock);
                     so.FindProperty("offHandWeaponData").stringValue = CtDataBlock.Serialize(data.offHandDataBlock.DataBlock);
@@ -726,6 +746,7 @@ namespace CreatureTime
                     weaponDefSo.FindProperty("identifier").intValue = data.identifier;
                     weaponDefSo.FindProperty("displayName").stringValue = data.displayName;
                     weaponDefSo.FindProperty("icon").objectReferenceValue = data.icon;
+                    weaponDefSo.FindProperty("baseValue").intValue = data.baseValue;
                     weaponDefSo.FindProperty("weaponType").enumValueIndex = Convert.ToInt32(data.weaponType);
                     weaponDefSo.FindProperty("attackType").enumValueIndex = Convert.ToInt32(data.attackType);
                     weaponDefSo.FindProperty("attributeType").intValue = data.attributeType.identifier;
@@ -791,6 +812,7 @@ namespace CreatureTime
                     so.FindProperty("identifier").intValue = data.identifier;
                     so.FindProperty("displayName").stringValue = data.displayName;
                     so.FindProperty("icon").objectReferenceValue = data.icon;
+                    so.FindProperty("baseValue").intValue = data.baseValue;
                     so.FindProperty("offHandType").enumValueIndex = Convert.ToInt32(data.offHandType);
                     so.FindProperty("attributeType").intValue = data.attributeType.identifier;
                     so.FindProperty("attributeRequirement").intValue = data.attributeRequirement;
@@ -1035,7 +1057,7 @@ namespace CreatureTime
                     var view = _GetView<CtBattleQuestData>();
                     view.Data.Sort((a, b) => a.identifier.CompareTo(b.identifier));
 
-                    var dataProp = soGameData.FindProperty("questDefinitions");
+                    var dataProp = soGameData.FindProperty("battleDefinitions");
                     dataProp.arraySize = view.Data.Count;
 
                     for (int i = 0; i < view.Data.Count; i++)
@@ -1044,7 +1066,7 @@ namespace CreatureTime
                         var gameObject = new GameObject(data.GenerateName);
                         gameObject.transform.SetParent(group);
 
-                        var def = AddUdonSharpComponentWithUdonBehavior<CtBattleQuest>(gameObject);
+                        var def = AddUdonSharpComponentWithUdonBehavior<CtBattleDef>(gameObject);
                         var so = new SerializedObject(def);
 
                         so.FindProperty("identifier").intValue = data.identifier;
@@ -1078,19 +1100,218 @@ namespace CreatureTime
                 }
             }
 
+            {
+                {
+                    var dialogueActorLookUp = new Dictionary<ushort, CtDialogueActor>();
+                    var dialogueActors = GameObject.FindObjectsByType<CtDialogueActor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                    foreach (var dialogueActor in dialogueActors)
+                        dialogueActorLookUp.Add(dialogueActor.Identifier, dialogueActor);
+
+                    var group = gameData.transform.Find("Quests/Quests");
+                    for (int i = group.transform.childCount - 1; i >= 0; i--)
+                        Object.DestroyImmediate(group.transform.GetChild(i).gameObject);
+
+                    var view = _GetView<CtQuestDefData>();
+                    view.Data.Sort((a, b) => a.Identifier.CompareTo(b.Identifier));
+
+                    var dataProp = soGameData.FindProperty("questDefinitions");
+                    dataProp.arraySize = view.Data.Count;
+
+                    var questLookUp = new Dictionary<CtQuestDefData, CtQuestDef>();
+                    for (int i = 0; i < view.Data.Count; i++)
+                    {
+                        var data = view.Data[i];
+                        var gameObject = new GameObject(data.GenerateName);
+                        gameObject.transform.SetParent(group);
+
+                        var def = AddUdonSharpComponentWithUdonBehavior<CtQuestDef>(gameObject);
+                        questLookUp.Add(data, def);
+
+                        var so = new SerializedObject(def);
+
+                        so.FindProperty("identifier").intValue = data.Identifier;
+                        so.FindProperty("isPrimaryQuest").boolValue = data.IsPrimaryQuest;
+                        so.FindProperty("turnInActor").objectReferenceValue = dialogueActorLookUp[data.TurnInActor.Identifier];
+                        so.FindProperty("pickUpActor").objectReferenceValue = dialogueActorLookUp[data.PickUpActor.Identifier];
+                        so.FindProperty("title").stringValue = data.Title;
+                        so.FindProperty("description").stringValue = data.Description;
+
+                        so.ApplyModifiedPropertiesWithoutUndo();
+
+                        dataProp.GetArrayElementAtIndex(i).objectReferenceValue = def;
+                    }
+
+                    for (int i = 0; i < view.Data.Count; i++)
+                    {
+                        var data = view.Data[i];
+                        var questDef = questLookUp[data];
+                        var gameObject = questDef.gameObject;
+
+                        var prerequisites = new List<Progression.CtAbstractPrerequisite>();
+
+                        var leveReq = AddUdonSharpComponentWithUdonBehavior<CtLevelPrerequisite>(gameObject);
+                        prerequisites.Add(leveReq);
+
+                        var subSo = new SerializedObject(leveReq);
+                        subSo.FindProperty("reqLevel").intValue = data.LevelReq;
+                        subSo.ApplyModifiedPropertiesWithoutUndo();
+
+                        if (data.QuestReq.Length > 0)
+                        {
+                            foreach (var questReqData in data.QuestReq)
+                            {
+                                var questReq = AddUdonSharpComponentWithUdonBehavior<CtQuestPrerequisite>(gameObject);
+                                prerequisites.Add(questReq);
+
+                                subSo = new SerializedObject(questReq);
+                                subSo.FindProperty("reqQuest").objectReferenceValue = questLookUp[questReqData];
+                                subSo.ApplyModifiedPropertiesWithoutUndo();
+                            }
+                        }
+
+                        var so = new SerializedObject(questDef);
+
+                        var prerequisitesProp = so.FindProperty("prerequisites");
+                        prerequisitesProp.arraySize = prerequisites.Count;
+                        for (int j = 0; j < prerequisites.Count; j++)
+                        {
+                            var arrayIndexProp = prerequisitesProp.GetArrayElementAtIndex(j);
+                            arrayIndexProp.objectReferenceValue = prerequisites[j];
+                        }
+
+                        if (data.Objectives.Length > 0)
+                        {
+                            var objectives = new List<CtAbstractQuestObjective>();
+                            for (int j = 0; j < data.Objectives.Length; j++)
+                            {
+                                var objectiveData = data.Objectives[j];
+                                CtAbstractQuestObjective objective;
+                                subSo = null;
+                                switch (objectiveData.QuestType)
+                                {
+                                    case EQuestObjectType.Flag:
+                                        objective =
+                                            AddUdonSharpComponentWithUdonBehavior<CtQuestFlagObjective>(gameObject);
+                                        objectives.Add(objective);
+
+                                        subSo = new SerializedObject(objective);
+                                        // subSo.FindProperty("identifier").intValue = objectiveData.Identifier;
+                                        subSo.FindProperty("quest").objectReferenceValue = questDef;
+                                        subSo.FindProperty("description").stringValue = objectiveData.Description;
+                                        subSo.ApplyModifiedPropertiesWithoutUndo();
+
+                                        break;
+                                    case EQuestObjectType.Kill:
+                                        objective =
+                                            AddUdonSharpComponentWithUdonBehavior<CtKillObjective>(gameObject);
+                                        objectives.Add(objective);
+
+                                        subSo = new SerializedObject(objective);
+                                        // subSo.FindProperty("identifier").intValue = objectiveData.Identifier;
+                                        subSo.FindProperty("quest").objectReferenceValue = questDef;
+                                        subSo.FindProperty("targetNpc").objectReferenceValue =
+                                            npcDefLookUp[objectiveData.KillTarget];
+                                        subSo.FindProperty("count").intValue = objectiveData.KillCount;
+                                        subSo.ApplyModifiedPropertiesWithoutUndo();
+
+                                        break;
+                                    case EQuestObjectType.TalkTo:
+                                        objective =
+                                            AddUdonSharpComponentWithUdonBehavior<CtQuestTalkToObjective>(gameObject);
+                                        objectives.Add(objective);
+
+                                        subSo = new SerializedObject(objective);
+                                        // subSo.FindProperty("identifier").intValue = objectiveData.Identifier;
+                                        subSo.FindProperty("quest").objectReferenceValue = questDef;
+                                        subSo.FindProperty("actor").objectReferenceValue = dialogueActorLookUp[objectiveData.TalkTo.Identifier];
+
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+
+                                subSo.FindProperty("flag").stringValue = objectiveData.Flag;
+
+                                subSo.ApplyModifiedPropertiesWithoutUndo();
+                            }
+
+                            var objectivesProp = so.FindProperty("objectives");
+                            objectivesProp.arraySize = objectives.Count;
+                            for (int j = 0; j < objectives.Count; j++)
+                            {
+                                var arrayIndexProp = objectivesProp.GetArrayElementAtIndex(j);
+                                arrayIndexProp.objectReferenceValue = objectives[j];
+                            }
+                        }
+
+                        var rewards = new List<CtAbstractQuestReward>();
+
+                        if (data.CurrencyReward > 0)
+                        {
+                            var currencyReward =
+                                AddUdonSharpComponentWithUdonBehavior<CtCurrencyReward>(gameObject);
+                            rewards.Add(currencyReward);
+
+                            subSo = new SerializedObject(currencyReward);
+                            subSo.FindProperty("currencyReward").intValue = data.CurrencyReward;
+                            subSo.ApplyModifiedPropertiesWithoutUndo();
+                        }
+
+                        if (data.ExpReward > 0)
+                        {
+                            var expReward =
+                                AddUdonSharpComponentWithUdonBehavior<CtExpReward>(gameObject);
+                            rewards.Add(expReward);
+
+                            subSo = new SerializedObject(expReward);
+                            subSo.FindProperty("expReward").intValue = data.ExpReward;
+                            subSo.ApplyModifiedPropertiesWithoutUndo();
+                        }
+
+                        if (data.ItemRewards.Length > 0)
+                        {
+                            var itemReward =
+                                AddUdonSharpComponentWithUdonBehavior<CtItemReward>(gameObject);
+                            rewards.Add(itemReward);
+
+                            subSo = new SerializedObject(itemReward);
+                            var itemRewardsProp = subSo.FindProperty("itemRewards");
+                            itemRewardsProp.arraySize = data.ItemRewards.Length;
+                            for (int j = 0; j < data.ItemRewards.Length; j++)
+                            {
+                                var arrayIndexProp = itemRewardsProp.GetArrayElementAtIndex(j);
+                                arrayIndexProp.stringValue = data.ItemRewards[j];
+                            }
+
+                            subSo.ApplyModifiedPropertiesWithoutUndo();
+                        }
+
+                        var rewardsProp = so.FindProperty("rewards");
+                        rewardsProp.arraySize = rewards.Count;
+                        for (int j = 0; j < rewards.Count; j++)
+                        {
+                            var arrayIndexProp = rewardsProp.GetArrayElementAtIndex(j);
+                            arrayIndexProp.objectReferenceValue = rewards[j];
+                        }
+
+                        so.ApplyModifiedPropertiesWithoutUndo();
+                    }
+                }
+            }
+
             soGameData.ApplyModifiedProperties();
 
             CtSingletonEditor.AssignSingletons(CtSingletonEditor.GetCurrentSingletonTypes(), gameData.gameObject);
         }
 
-        private CtSquadCategory _GenerateSquadCategory(CtBattleQuest battleQuest, CtSquadCategoryDataBlock data,
+        private CtSquadCategory _GenerateSquadCategory(CtBattleDef battleDef, CtSquadCategoryDataBlock data,
             ref Dictionary<CtSquadDefData, CtSquadDef> squadDefLookUp)
         {
             var squadDefs = data.SquadDefs;
             if (squadDefs.Length == 0)
                 return null;
 
-            var squadCategory = AddUdonSharpComponentWithUdonBehavior<CtSquadCategory>(battleQuest.gameObject);
+            var squadCategory = AddUdonSharpComponentWithUdonBehavior<CtSquadCategory>(battleDef.gameObject);
             var so = new SerializedObject(squadCategory);
 
             var squadDefsProp = so.FindProperty("squadDefs");
@@ -1117,6 +1338,7 @@ namespace CreatureTime
             so.FindProperty("displayName").stringValue = 
                 string.IsNullOrEmpty(data.suffix) ? displayName : $"{displayName} {data.suffix}";
             so.FindProperty("icon").objectReferenceValue = data.icon;
+            so.FindProperty("baseValue").intValue = Convert.ToInt32(data.baseValue);
             so.FindProperty("armorRating").intValue = data.armorRating;
             so.FindProperty("armorRatingBonus").intValue = data.armorRatingBonus;
             so.FindProperty("armorRatingBonusType").enumValueIndex = Convert.ToInt32(data.armorRatingBonusType);

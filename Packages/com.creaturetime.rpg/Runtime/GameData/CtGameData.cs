@@ -15,8 +15,10 @@ namespace CreatureTime
         [SerializeField] private CtArmorSetDef[] armorDefinitions;
         [SerializeField] private CtProfessionDef[] professionDefinitions;
         [SerializeField] private CtAttributeDef[] attributeDefinitions;
-        [SerializeField] private CtAbstractQuest[] questDefinitions;
+        [SerializeField] private CtQuestDef[] questDefinitions;
+        [SerializeField] private CtBattleDef[] battleDefinitions;
         [SerializeField] private CtSquadDef[] squadDefinitions;
+        [SerializeField] private CtLocationDef[] locationDefinitions;
 
         public CtNpcDef[] NpcDefinitions => npcDefinitions;
         public CtSkillDef[] SkillDefinitions => skillDefinitions;
@@ -25,8 +27,10 @@ namespace CreatureTime
         public CtArmorSetDef[] ArmorDefinitions => armorDefinitions;
         public CtProfessionDef[] ProfessionDefinitions => professionDefinitions;
         public CtAttributeDef[] AttributeDefinitions => attributeDefinitions;
-        public CtAbstractQuest[] QuestDefinitions => questDefinitions;
+        public CtQuestDef[] QuestDefinitions => questDefinitions;
+        public CtBattleDef[] BattleDefinitions => battleDefinitions;
         public CtSquadDef[] SquadDefinitions => squadDefinitions;
+        public CtLocationDef[] LocationDefinitions => locationDefinitions;
 
         private DataDictionary _npcDefinitions = new DataDictionary();
         private DataDictionary _skillDefinitions = new DataDictionary();
@@ -35,10 +39,12 @@ namespace CreatureTime
         private DataDictionary _armorDefinitions = new DataDictionary();
         private DataDictionary _professionDefinitions = new DataDictionary();
         private DataDictionary _attributeDefinitions = new DataDictionary();
-        private DataDictionary _questDefinitions = new DataDictionary();
+        private DataDictionary _battleDefinitions = new DataDictionary();
         private DataDictionary _squadDefinitions = new DataDictionary();
+        private DataDictionary _questDefinitions = new DataDictionary();
+        private DataDictionary _locationDefinitions = new DataDictionary();
 
-        public void Init()
+        public override void Init()
         {
             foreach (var npcDef in npcDefinitions)
             {
@@ -73,14 +79,24 @@ namespace CreatureTime
                     _attributeDefinitions[attributeDef.Identifier] = attributeDef;
             }
 
-            foreach (var quest in questDefinitions)
+            foreach (var battleDef in battleDefinitions)
             {
-                _questDefinitions[quest.Identifier] = quest;
+                _battleDefinitions[battleDef.Identifier] = battleDef;
             }
 
             foreach (var squadDef in squadDefinitions)
             {
                 _squadDefinitions[squadDef.Identifier] = squadDef;
+            }
+
+            foreach (var questDef in questDefinitions)
+            {
+                _questDefinitions[questDef.Identifier] = questDef;
+            }
+
+            foreach (var locationDef in locationDefinitions)
+            {
+                _locationDefinitions[locationDef.Identifier] = locationDef;
             }
 
 #if DEBUG_LOGS
@@ -173,16 +189,17 @@ namespace CreatureTime
             return (CtAttributeDef)dataToken.Reference;
         }
 
-        public CtAbstractQuest GetQuestDef(ushort identifier)
+        public CtBattleDef GetBattleDef(ushort identifier)
         {
-            if (!_questDefinitions.TryGetValue(identifier, out var dataToken))
+            if (!_battleDefinitions.TryGetValue(identifier, out var dataToken))
             {
 #if DEBUG_LOGS
-                LogWarning($"Failed to find quest by identifier (identifier={identifier}).");
+                LogWarning($"Failed to find battle by identifier (identifier={identifier}).");
 #endif
                 return null;
             }
-            return (CtAbstractQuest)dataToken.Reference;
+
+            return (CtBattleDef)dataToken.Reference;
         }
 
         public CtSquadDef GetSquadDef(ushort identifier)
@@ -195,6 +212,38 @@ namespace CreatureTime
                 return null;
             }
             return (CtSquadDef)dataToken.Reference;
+        }
+
+        public bool TryGetQuestDef(ushort identifier, out CtQuestDef questDef)
+        {
+            questDef = null;
+
+            if (!_questDefinitions.TryGetValue(identifier, out var dataToken))
+            {
+#if DEBUG_LOGS
+                LogWarning($"Failed to find quest by identifier (identifier={identifier}).");
+#endif
+                return false;
+            }
+
+            questDef = (CtQuestDef)dataToken.Reference;
+            return true;
+        }
+
+        public bool TryGetLocationDef(ushort identifier, out CtLocationDef locationDef)
+        {
+            locationDef = null;
+
+            if (!_locationDefinitions.TryGetValue(identifier, out var dataToken))
+            {
+#if DEBUG_LOGS
+                LogWarning($"Failed to find world by identifier (identifier={identifier}).");
+#endif
+                return false;
+            }
+
+            locationDef = (CtLocationDef)dataToken.Reference;
+            return true;
         }
     }
 }

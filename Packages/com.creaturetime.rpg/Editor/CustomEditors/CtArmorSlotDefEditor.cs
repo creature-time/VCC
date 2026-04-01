@@ -124,7 +124,7 @@ namespace CreatureTime.Editor.Rpg
         {
             var armorSlotDef = (CtArmorSlotDef)target;
             var armorRating = armorSlotDef.CalcArmorRating((EDamageType)_debugDamageType.value);
-            _debugDamageResult.text = CtSkillDef.CalcValue(_debugDamage.value, _debugSourceLevel.value, armorRating).ToString();
+            _debugDamageResult.text = CtRpgFormulas.CalcValue(_debugDamage.value, _debugSourceLevel.value, armorRating).ToString();
         }
     }
 }

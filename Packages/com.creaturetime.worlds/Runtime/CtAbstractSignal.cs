@@ -17,7 +17,20 @@ namespace CreatureTime
         public CtAbstractSignal Sender => (CtAbstractSignal)_sender[0].Reference;
 
         public DataList SetArgs => _setArgs;
-        public DataList GetArgs => _getArgs[0].DataList;
+
+        public DataList GetArgs
+        {
+            get
+            {
+#if DEBUG_LOGS
+                if (_getArgs.Count == 0)
+                    LogCritical("Getting arguments failed due to no arguments available. " +
+                                "Make sure you are not calling this from a non-signal called method.");
+#endif
+
+                return _getArgs[0].DataList;
+            }
+        }
 
         public void Connect(int typeId, CtAbstractSignal receiver, string method)
         {
@@ -80,54 +93,55 @@ namespace CreatureTime
 
         public void Emit(int typeId)
         {
-            if (_blocked)
-                return;
-
-            _blocked = true;
-
-#if DEBUG_SIGNALS
-            LogDebug($"Begin emitting (signal={this}, typeId={typeId}).");
-#endif
-
-            if (_callbacks.TryGetValue(typeId, TokenType.DataDictionary, out DataToken token))
+            if (!_blocked)
             {
-                var receivers = token.DataDictionary;
-                var keys = receivers.GetKeys();
-                DataToken[] tokens = keys.ToArray();
-                for (int i = 0; i < tokens.Length; ++i)
+                _blocked = true;
+
+#if DEBUG_SIGNALS
+                LogDebug($"Begin emitting (signal={this}, typeId={typeId}).");
+#endif
+
+                if (_callbacks.TryGetValue(typeId, TokenType.DataDictionary, out DataToken token))
                 {
-                    var receiver = tokens[i];
-                    if (!receivers.ContainsKey(receiver))
+                    var receivers = token.DataDictionary;
+                    var keys = receivers.GetKeys();
+                    DataToken[] tokens = keys.ToArray();
+                    for (int i = 0; i < tokens.Length; ++i)
                     {
+                        var receiver = tokens[i];
+                        if (!receivers.ContainsKey(receiver))
+                        {
 #if DEBUG_SIGNALS
-                        LogWarning($"Receiver was invalid (signal={this}, typeId={typeId}, receiver={receiver}).");
+                            LogWarning($"Receiver was invalid (signal={this}, typeId={typeId}, receiver={receiver}).");
 #endif
-                        continue;
-                    }
+                            continue;
+                        }
 
-                    var reference = (CtAbstractSignal)receiver.Reference;
+                        var reference = (CtAbstractSignal)receiver.Reference;
 
-                    reference._sender.Insert(0, this);
-                    reference._getArgs.Insert(0, _setArgs);
+                        reference._sender.Insert(0, this);
+                        reference._getArgs.Insert(0, _setArgs);
 
-                    var methods = receivers[receiver].DataList;
-                    for (int j = 0; j < methods.Count; ++j)
-                    {
-                        string method = methods[j].String;
+                        var methods = receivers[receiver].DataList;
+                        for (int j = 0; j < methods.Count; ++j)
+                        {
+                            string method = methods[j].String;
 
 #if DEBUG_SIGNALS
-                        LogDebug($"Emitting (signal={this}, typeId={typeId}, receiver={receiver}, method={method}).");
+                            LogDebug(
+                                $"Emitting (signal={this}, typeId={typeId}, receiver={receiver}, method={method}).");
 #endif
 
-                        reference.SendCustomEvent(method);
-                    }
+                            reference.SendCustomEvent(method);
+                        }
 
-                    reference._sender.RemoveAt(0);
-                    reference._getArgs.RemoveAt(0);
+                        reference._sender.RemoveAt(0);
+                        reference._getArgs.RemoveAt(0);
+                    }
                 }
-            }
 
-            _blocked = false;
+                _blocked = false;
+            }
 
             _setArgs.Clear();
         }

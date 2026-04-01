@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿
+using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Components;
 
@@ -24,6 +25,7 @@ namespace CreatureTime
             audioSource.pitch = pitch;
             audioSource.volume = volume;
             audioSource.spatialBlend = is2d ? 0f : 1f;
+            audioSource.spatialize = !is2d;
         }
 
         public void Play()

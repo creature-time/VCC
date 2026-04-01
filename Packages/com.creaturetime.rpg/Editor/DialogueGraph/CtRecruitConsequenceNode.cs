@@ -7,20 +7,28 @@ using UnityEngine;
 namespace CreatureTime.Editor.Graph.DialogueGraph
 {
     [Serializable]
-    [CtNodeInfo("Recruit", "#5aa754", "Recruit", false, false)]
+    [CtNodeInfo("Set Recruit", "#5aa754", "Set Recruit", false, false)]
     public class CtRecruitConsequenceNode : CtConsequenceNode
     {
-        [CtExposedProperty, SerializeField] private ushort npcIdentifier;
-        [CtExposedProperty, SerializeField] private bool recruitLeave;
+        [CtExposedProperty, SerializeField] private CtNpcDefData npc;
+        [CtExposedProperty, SerializeField] private ERecruitResponseNodeType action;
+
+        public CtRecruitConsequenceNode() { }
+
+        public CtRecruitConsequenceNode(CtNpcDefData npc, ERecruitResponseNodeType action)
+        {
+            this.npc = npc;
+            this.action = action;
+        }
 
         public override void Process(CtDialogueGraphAsset asset)
         {
-            Debug.Log($"Recruit: {recruitLeave}");
+            Debug.Log($"Recruit: {action}");
             var recruitConsequence = asset.CreateConsequence<CtRecruitConsequence>();
 
             var so = new SerializedObject(recruitConsequence);
-            so.FindProperty("dialogueActor").objectReferenceValue = asset.FindActor(npcIdentifier);
-            so.FindProperty("recruitLeave").boolValue = recruitLeave;
+            so.FindProperty("npc").objectReferenceValue = CtRpgNodeGraphUtils.FindNpc(npc.Identifier);
+            so.FindProperty("action").enumValueIndex = Convert.ToInt32(action);
             so.ApplyModifiedProperties();
         }
     }

@@ -109,8 +109,8 @@ namespace CreatureTime
         public void GetFormattedStats(ulong dataBlock, ref string weaponName, ref string stats, ref EItemRarity rarity, 
             ref int modifierStat, ref int requirement)
         {
-            const string RarityDefaultColor = "#000000";
-            const string RarityCommonColor = "#000000";
+            const string RarityDefaultColor = "#808080";
+            const string RarityCommonColor = "#ffffff";
             const string RarityMagicalColor = "#182e6f";
             const string RarityUncommonColor = "#520075";
             const string RarityRareColor = "#db9d00";

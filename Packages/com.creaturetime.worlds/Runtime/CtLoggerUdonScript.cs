@@ -8,27 +8,27 @@ namespace CreatureTime
     {
         [SerializeField] private CtLogger logger;
 
-        protected void LogDebug(string message)
+        public void LogDebug(string message)
         {
             logger.LogDebug(gameObject.name, message);
         }
 
-        protected void Log(string message)
+        public void Log(string message)
         {
             logger.Log(gameObject.name, message);
         }
 
-        protected void LogWarning(string message)
+        public void LogWarning(string message)
         {
             logger.LogWarning(gameObject.name, message);
         }
 
-        protected void LogError(string message)
+        public void LogError(string message)
         {
             logger.LogError(gameObject.name, message);
         }
 
-        protected void LogCritical(string message)
+        public void LogCritical(string message)
         {
             logger.LogCritical(gameObject.name, message);
         }

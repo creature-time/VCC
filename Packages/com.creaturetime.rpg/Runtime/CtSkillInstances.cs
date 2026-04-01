@@ -12,9 +12,9 @@ namespace CreatureTime
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class CtSkillInstances : CtAbstractSignal
     {
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge0Callback))] private char _skillRecharge0;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge0Callback))] private float _skillRecharge0;
 
-        public char SkillRecharge0Callback
+        public float SkillRecharge0Callback
         {
             get => _skillRecharge0;
             set
@@ -25,7 +25,7 @@ namespace CreatureTime
             }
         }
 
-        public char SkillRecharge0
+        public float SkillRecharge0
         {
             get => SkillRecharge0Callback;
             set
@@ -35,9 +35,9 @@ namespace CreatureTime
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge1Callback))] private char _skillRecharge1;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge1Callback))] private float _skillRecharge1;
 
-        public char SkillRecharge1Callback
+        public float SkillRecharge1Callback
         {
             get => _skillRecharge1;
             set
@@ -48,7 +48,7 @@ namespace CreatureTime
             }
         }
 
-        public char SkillRecharge1
+        public float SkillRecharge1
         {
             get => SkillRecharge1Callback;
             set
@@ -58,9 +58,9 @@ namespace CreatureTime
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge2Callback))] private char _skillRecharge2;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge2Callback))] private float _skillRecharge2;
 
-        public char SkillRecharge2Callback
+        public float SkillRecharge2Callback
         {
             get => _skillRecharge2;
             set
@@ -71,7 +71,7 @@ namespace CreatureTime
             }
         }
 
-        public char SkillRecharge2
+        public float SkillRecharge2
         {
             get => SkillRecharge2Callback;
             set
@@ -81,9 +81,9 @@ namespace CreatureTime
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge3Callback))] private char _skillRecharge3;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge3Callback))] private float _skillRecharge3;
 
-        public char SkillRecharge3Callback
+        public float SkillRecharge3Callback
         {
             get => _skillRecharge3;
             set
@@ -94,7 +94,7 @@ namespace CreatureTime
             }
         }
 
-        public char SkillRecharge3
+        public float SkillRecharge3
         {
             get => SkillRecharge3Callback;
             set
@@ -104,9 +104,9 @@ namespace CreatureTime
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge4Callback))] private char _skillRecharge4;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge4Callback))] private float _skillRecharge4;
 
-        public char SkillRecharge4Callback
+        public float SkillRecharge4Callback
         {
             get => _skillRecharge4;
             set
@@ -117,7 +117,7 @@ namespace CreatureTime
             }
         }
 
-        public char SkillRecharge4
+        public float SkillRecharge4
         {
             get => SkillRecharge4Callback;
             set
@@ -127,9 +127,9 @@ namespace CreatureTime
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge5Callback))] private char _skillRecharge5;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge5Callback))] private float _skillRecharge5;
 
-        public char SkillRecharge5Callback
+        public float SkillRecharge5Callback
         {
             get => _skillRecharge5;
             set
@@ -140,7 +140,7 @@ namespace CreatureTime
             }
         }
 
-        public char SkillRecharge5
+        public float SkillRecharge5
         {
             get => SkillRecharge5Callback;
             set
@@ -150,9 +150,9 @@ namespace CreatureTime
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge6Callback))] private char _skillRecharge6;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge6Callback))] private float _skillRecharge6;
 
-        public char SkillRecharge6Callback
+        public float SkillRecharge6Callback
         {
             get => _skillRecharge6;
             set
@@ -163,7 +163,7 @@ namespace CreatureTime
             }
         }
 
-        public char SkillRecharge6
+        public float SkillRecharge6
         {
             get => SkillRecharge6Callback;
             set
@@ -173,20 +173,20 @@ namespace CreatureTime
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge7Callback))] private char _skillRecharge7;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge7Callback))] private float _skillRecharge7;
 
-        public char SkillRecharge7Callback
+        public float SkillRecharge7Callback
         {
             get => _skillRecharge7;
             set
             {
-                _skillRecharge0 = value;
+                _skillRecharge7 = value;
                 SetArgs.Add(7);
                 this.Emit(ESkillInstancesSignal.SkillRechargeChanged);
             }
         }
 
-        public char SkillRecharge7
+        public float SkillRecharge7
         {
             get => SkillRecharge7Callback;
             set
@@ -196,9 +196,9 @@ namespace CreatureTime
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge8Callback))] private char _skillRecharge8;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge8Callback))] private float _skillRecharge8;
 
-        public char SkillRecharge8Callback
+        public float SkillRecharge8Callback
         {
             get => _skillRecharge8;
             set
@@ -209,7 +209,7 @@ namespace CreatureTime
             }
         }
 
-        public char SkillRecharge8
+        public float SkillRecharge8
         {
             get => SkillRecharge8Callback;
             set
@@ -219,9 +219,9 @@ namespace CreatureTime
             }
         }
 
-        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge9Callback))] private char _skillRecharge9;
+        [UdonSynced, FieldChangeCallback(nameof(SkillRecharge9Callback))] private float _skillRecharge9;
 
-        public char SkillRecharge9Callback
+        public float SkillRecharge9Callback
         {
             get => _skillRecharge9;
             set
@@ -232,7 +232,7 @@ namespace CreatureTime
             }
         }
 
-        public char SkillRecharge9
+        public float SkillRecharge9
         {
             get => SkillRecharge9Callback;
             set
@@ -242,7 +242,7 @@ namespace CreatureTime
             }
         }
 
-        public int GetRecharge(int index)
+        public float GetRecharge(int index)
         {
             switch (index)
             {
@@ -256,24 +256,28 @@ namespace CreatureTime
                 case 7: return SkillRecharge7;
                 case 8: return SkillRecharge8;
                 case 9: return SkillRecharge9;
-                default: return CtConstants.InvalidId;
+                default: return 0;
             }
         }
 
-        public void SetRecharge(int index, int value)
+        public void SetRecharge(int index, float value)
         {
+#if DEBUG_LOGS
+            LogDebug($"Setting recharge (index={index}, value={value})");
+#endif
+
             switch (index)
             {
-                case 0: SkillRecharge0 = (char)value; return;
-                case 1: SkillRecharge1 = (char)value; return;
-                case 2: SkillRecharge2 = (char)value; return;
-                case 3: SkillRecharge3 = (char)value; return;
-                case 4: SkillRecharge4 = (char)value; return;
-                case 5: SkillRecharge5 = (char)value; return;
-                case 6: SkillRecharge6 = (char)value; return;
-                case 7: SkillRecharge7 = (char)value; return;
-                case 8: SkillRecharge8 = (char)value; return;
-                case 9: SkillRecharge9 = (char)value; return;
+                case 0: SkillRecharge0 = value; return;
+                case 1: SkillRecharge1 = value; return;
+                case 2: SkillRecharge2 = value; return;
+                case 3: SkillRecharge3 = value; return;
+                case 4: SkillRecharge4 = value; return;
+                case 5: SkillRecharge5 = value; return;
+                case 6: SkillRecharge6 = value; return;
+                case 7: SkillRecharge7 = value; return;
+                case 8: SkillRecharge8 = value; return;
+                case 9: SkillRecharge9 = value; return;
                 default: return;
             }
         }
@@ -528,6 +532,10 @@ namespace CreatureTime
 
         public void SetAdrenaline(int index, int value)
         {
+#if DEBUG_LOGS
+            LogDebug($"Setting adrenaline (index={index}, value={value})");
+#endif
+
             switch (index)
             {
                 case 0: SkillAdrenaline0 = (short)value; return;

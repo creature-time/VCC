@@ -18,7 +18,7 @@ namespace CreatureTime
         private int _audioSourcePoolCount;
         private DataList _activeSoundEmitters = new DataList();
 
-        private void Start()
+        public override void Init()
         {
             _sourceEmitterPool = new CtSoundEmitter[maxPoolSize];
             for (int i = 0; i < defaultCapacity; i++)

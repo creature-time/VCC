@@ -1,0 +1,15 @@
+#OverlayPropertyEditor
+{
+    background-color: #383838;
+    position: absolute;
+    width: 320;
+    /*min-height: 512;*/
+    flex-grow: 0;
+    padding: 8;
+    border-radius: 8;
+}
+
+#OverlayPropertyEditor-Header
+{
+    padding: 4;
+}

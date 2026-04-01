@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UdonSharp;
 using UdonSharpEditor;
 using UnityEditor;
@@ -60,6 +61,21 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
 
             assets.Sort((a, b) => a.conversationId.CompareTo(b.conversationId));
 
+            var actorsGroup = dialogueDatabase.transform.Find("Actors");
+            var actors = actorsGroup.GetComponentsInChildren<CtDialogueActor>(true);
+
+            so = new SerializedObject(dialogueDatabase);
+
+            var actorsProperty = so.FindProperty("actors");
+            actorsProperty.arraySize = actors.Length;
+            for (var i = 0; i < actors.Length; ++i)
+            {
+                var actorProperty = actorsProperty.GetArrayElementAtIndex(i);
+                actorProperty.objectReferenceValue = actors[i];
+            }
+
+            so.ApplyModifiedProperties();
+
             ushort identifierGen = 0;
             foreach (var asset in assets)
             {
@@ -97,11 +113,15 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             _inputLookup.Clear();
             _outputLookup.Clear();
             _visitedNodes.Clear();
+            _dialogueEntry.Clear();
 
             var startNodes = new List<CtStartNode>();
 
             foreach (var node in graph.Nodes)
             {
+                if (node is null)
+                    throw new WarningException($"Node was null (asset={this}).");
+
                 _nodeLookup.Add(node.Guid, (CtDialogueNodeBase)node);
                 if (node is CtStartNode startNode)
                     startNodes.Add(startNode);
@@ -143,21 +163,9 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             return _nodeLookup.TryGetValue(guid, out node);
         }
 
-        public CtProfessionDef FindProfessionDef(ushort professionId)
+        public CtDialogueActor FindActor(ushort actorId)
         {
-            var definitions = FindObjectsOfType<CtProfessionDef>(true);
-            foreach (var definition in definitions)
-            {
-                if (definition.Identifier == professionId)
-                    return definition;
-            }
-        
-            return null;
-        }
-
-        public CreatureTime.CtDialogueActor FindActor(ushort actorId)
-        {
-            var dialogueActors = FindObjectsOfType<CreatureTime.CtDialogueActor>(true);
+            var dialogueActors = FindObjectsOfType<CtDialogueActor>(true);
             foreach (var dialogueActor in dialogueActors)
             {
                 if (dialogueActor.Identifier == actorId)
@@ -191,9 +199,9 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
             so.FindProperty("startEntryId").uintValue = _identifierGen;
 
             so.ApplyModifiedProperties();
-        
+
             so = new SerializedObject(_dialogueDatabase);
-        
+
             var conversationsProperty = so.FindProperty("conversations");
             conversationsProperty.InsertArrayElementAtIndex(conversationsProperty.arraySize);
             var conversationProperty = conversationsProperty.GetArrayElementAtIndex(conversationsProperty.arraySize - 1);;
@@ -269,11 +277,11 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
 
                 so.FindProperty("actor").objectReferenceValue = FindActor(actorId);
                 so.FindProperty("conversant").objectReferenceValue = FindActor(conversantId);
-        
+
                 so.ApplyModifiedProperties();
-        
+
                 so = new SerializedObject(_conversation);
-        
+
                 var entriesProperty = so.FindProperty("entries");
                 entriesProperty.InsertArrayElementAtIndex(entriesProperty.arraySize);
                 var entryProperty = entriesProperty.GetArrayElementAtIndex(entriesProperty.arraySize - 1);
@@ -312,12 +320,14 @@ namespace CreatureTime.Editor.Graph.DialogueGraph
         
             return !result;
         }
-        
+
+        public CtDialogueEntry PeekDialogue() => _dialogueEntry.Peek();
+
         public void PopDialogue()
         {
             _dialogueEntry.Pop();
         }
-        
+
         public void CreateResponse(string dialogue, EDialogueChoiceType choiceType)
         {
             _dialogueResponse = AddUdonSharpComponentWithUdonBehavior<CtDialogueResponse>(_dialogueEntry.Peek().gameObject);

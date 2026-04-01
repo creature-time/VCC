@@ -127,7 +127,7 @@ MonoBehaviour:
       Data: 8|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: UdonSharp.UdonSharpBehaviour, UdonSharp.Runtime
+      Data: CreatureTime.CtAbstractSignal, com.creaturetime.worlds
     - Name: 
       Entry: 8
       Data: 

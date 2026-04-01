@@ -1,6 +1,9 @@
 CtGraphView {
     flex-grow: 1;
 }
+CtGraphEditorNode {
+    max-width: 256;
+}
 #Grid
 {
     --thick-lines: 0;

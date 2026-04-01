@@ -21,11 +21,11 @@ namespace CreatureTime
         [Header("Actor Controller")]
         [SerializeField] private CtDialogueActor dialogueActor;
         [SerializeField] private string subTitle;
-        [SerializeField] private AudioClip babbleClip;
+        [SerializeField] private AudioClip blipClip;
 
         public override string DisplayName => dialogueActor.ActorName;
         public string SubTitle => subTitle;
-        public AudioClip BabbleClip => babbleClip;
+        public AudioClip BlipClip => blipClip;
 
         public bool HasDialogue
         {

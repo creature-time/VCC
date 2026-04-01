@@ -39,8 +39,8 @@ namespace CreatureTime
             displayName = string.Empty;
             stats = string.Empty;
 
-            const string RarityDefaultColor = "#000000";
-            const string RarityCommonColor = "#000000";
+            const string RarityDefaultColor = "#808080";
+            const string RarityCommonColor = "#ffffff";
             const string RarityMagicalColor = "#182e6f";
             const string RarityUncommonColor = "#520075";
             const string RarityRareColor = "#db9d00";
@@ -71,6 +71,8 @@ namespace CreatureTime
             displayName = $"<color={color}>{DisplayName}</color>";
 
             DataList statsArray = new DataList();
+
+            statsArray.Add($"+{ArmorRating} Armor");
 
             if (ArmorRatingBonus > 0)
             {

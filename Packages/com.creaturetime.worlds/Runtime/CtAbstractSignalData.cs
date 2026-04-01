@@ -1,9 +1,6 @@
 ﻿
 using System;
-
-#if DEBUG_SIGNALS
 using UnityEngine;
-#endif
 
 namespace CreatureTime
 {
@@ -13,7 +10,7 @@ namespace CreatureTime
             where T : Enum
         {
 #if DEBUG_SIGNALS
-            Debug.Log($"Connecting signal [{receiver} -> {signal} for {typeId} and {method}]");
+            signal.LogDebug($"Connecting signal [{receiver} -> {signal} for {typeId} and {method}]");
 #endif
             signal.Connect(Convert.ToInt32(typeId), receiver, method);
         }
@@ -22,7 +19,7 @@ namespace CreatureTime
             where T : Enum
         {
 #if DEBUG_SIGNALS
-            Debug.Log($"Disconnecting signal [{receiver} -//> {signal}] for {typeId} and {method}");
+            signal.LogDebug($"Disconnecting signal [{receiver} -//> {signal}] for {typeId} and {method}");
 #endif
             signal.Disconnect(Convert.ToInt32(typeId), receiver, method);
         }
@@ -31,7 +28,7 @@ namespace CreatureTime
             where T : Enum
         {
 #if DEBUG_SIGNALS
-            Debug.Log($"Emitting signal [{signal} for {typeId}]");
+            signal.LogDebug($"Emitting signal [{signal} for {typeId}]");
 #endif
             signal.Emit(Convert.ToInt32(typeId));
         }

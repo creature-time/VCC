@@ -46,5 +46,8 @@ namespace CreatureTime
             color.b = Mathf.Clamp01(color.b - amount);
             return color;
         }
+
+        public static string ConvertToHex(Color color) => 
+            $"#{ToByte(color.r):X2}{ToByte(color.g):X2}{ToByte(color.b):X2}";
     }
 }

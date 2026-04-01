@@ -75,11 +75,11 @@ namespace CreatureTime
                 _weaponArt = null;
             }
 
-            EWeaponType weaponType = EWeaponType.None;
+            var weaponType = EWeaponAttackType.None;
             if (weaponDef)
             {
                 _weaponArt = Instantiate(weaponDef.UserData.gameObject, HandBoneR);
-                weaponType = weaponDef.WeaponType;
+                weaponType = weaponDef.AttackType;
             }
 
             animator.SetFloat("WeaponType", Convert.ToInt32(weaponType));

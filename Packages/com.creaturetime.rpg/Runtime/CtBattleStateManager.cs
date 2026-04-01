@@ -4,11 +4,6 @@ using UnityEngine;
 
 namespace CreatureTime
 {
-    public enum EBattleStateManagerSignal
-    {
-        LocalBattleStateChanged,
-    }
-
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtBattleStateManager : CtSingleton
     {
@@ -37,7 +32,7 @@ namespace CreatureTime
                     var entity = allyParty.GetEntity(i);
                     if (!entity) continue;
 #if DEBUG_LOGS
-                LogDebug($"Adding ally entity to initiative (index={index}, entity={entity}).");
+                    LogDebug($"Adding ally entity to initiative (index={index}, entity={entity}).");
 #endif
                     temp[index++] = entity.Identifier;
                 }
@@ -60,6 +55,20 @@ namespace CreatureTime
                 return true;
             }
 
+            return false;
+        }
+
+        public bool TryGetBattleState(CtParty party, out CtBattleState battleState)
+        {
+            battleState = null;
+            foreach (var bs in battleStates)
+            {
+                if (bs.AllyParty != party) continue;
+
+                battleState = bs;
+                return true;
+            }
+    
             return false;
         }
 

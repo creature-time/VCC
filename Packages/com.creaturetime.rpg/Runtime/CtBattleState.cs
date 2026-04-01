@@ -11,7 +11,7 @@ namespace CreatureTime
         SquadIdChanged,
         InitiativesChanged,
         TurnIndexChanged,
-        IsLocalChanged,
+        // IsLocalChanged,
         AllyPartyChanged,
         EnemyPartyChanged,
         DamageSource,
@@ -26,6 +26,8 @@ namespace CreatureTime
         Wait,
         Attack,
         NextTurn,
+        Successful,
+        Failure,
         End,
     }
 
@@ -35,6 +37,7 @@ namespace CreatureTime
         [SerializeField] private CtRpgGame rpgGame;
         [SerializeField] private CtPartyManager partyManager;
         [SerializeField] private CtEntityManager entityManager;
+        [SerializeField] private CtQuestSystem questSystem;
 
         [SerializeField] private CtDamageMessageBuilder damageMessageBuilder;
         [SerializeField] private CtStatusEffectsMessageBuilder statusEffectsMessageBuilder;
@@ -43,7 +46,11 @@ namespace CreatureTime
         [SerializeField] private CtBattleWaitState waitState;
         [SerializeField] private CtBattleAttackState attackState;
         [SerializeField] private CtBattleNextTurnState nextTurnState;
+        [SerializeField] private CtBattleResultsState resultState;
         [SerializeField] private CtBattleEndState endState;
+
+        [SerializeField] private CtBattleLoot loot;
+        public CtBattleLoot Loot => loot;
 
         [SerializeField] private ushort identifier = CtConstants.InvalidId;
 
@@ -172,21 +179,6 @@ namespace CreatureTime
             {
                 TurnIndexCallback = value;
                 RequestSerialization();
-            }
-        }
-
-        private bool _isLocal;
-        public bool IsLocal
-        {
-            get => _isLocal;
-            private set
-            {
-#if DEBUG_LOGS
-                LogDebug($"Is local was changed (isLocal={_isLocal}).");
-#endif
-
-                _isLocal = value;
-                this.Emit(EBattleStateSignal.IsLocalChanged);
             }
         }
 
@@ -329,31 +321,33 @@ namespace CreatureTime
         public CtParty AllyParty => _allyParty;
         public CtParty EnemyParty => _enemyParty;
 
+        public bool IsHardMode => false;
+
         private void Start()
         {
-            rpgGame.Connect(ERpgGameSignal.LocalPlayerChanged, this, nameof(_OnLocalPlayerChanged));
+            // rpgGame.Connect(ERpgGameSignal.LocalPlayerChanged, this, nameof(_OnLocalPlayerChanged));
             damageMessageBuilder.Connect(EDamageBlockSignal.DamageSource, this, nameof(_OnDamageSourceChanged));
             damageMessageBuilder.Connect(EDamageBlockSignal.DamageApplied, this, nameof(_OnDamageBlockChanged));
             statusEffectsMessageBuilder.Connect(EStatusEffectBlockSignal.DamageApplied, this, nameof(_OnStatusEffectDamageApplied));
         }
 
-        public void _OnLocalPlayerChanged()
-        {
-            if (!_allyParty) return;
+        // public void _OnLocalPlayerChanged()
+        // {
+        //     if (!_allyParty) return;
+        //
+        //     for (int i = 0; i < _allyParty.MaxCount; i++)
+        //     {
+        //         var entity = _allyParty.GetEntity(i);
+        //         if (!entity) continue;
+        //         _OnLocalPlayerChangedRaw(entity, true);
+        //     }
+        // }
 
-            for (int i = 0; i < _allyParty.MaxCount; i++)
-            {
-                var entity = _allyParty.GetEntity(i);
-                if (!entity) continue;
-                _OnLocalPlayerChangedRaw(entity, true);
-            }
-        }
-
-        private void _OnLocalPlayerChangedRaw(CtEntity entity, bool value)
-        {
-            if (entity == rpgGame.LocalEntity)
-                IsLocal = value;
-        }
+        // private void _OnLocalPlayerChangedRaw(CtEntity entity, bool value)
+        // {
+        //     if (entity == rpgGame.LocalEntity)
+        //         IsLocal = value;
+        // }
 
         public void _OnDamageSourceChanged()
         {
@@ -437,7 +431,7 @@ namespace CreatureTime
             entity.BattleState = this;
             entity.Connect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
 
-            _OnLocalPlayerChangedRaw(entity, true);
+            // _OnLocalPlayerChangedRaw(entity, true);
         }
 
         public void _OnAllyPartyRemoved()
@@ -459,7 +453,7 @@ namespace CreatureTime
             entity.Disconnect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = null;
 
-            _OnLocalPlayerChangedRaw(entity, false);
+            // _OnLocalPlayerChangedRaw(entity, false);
         }
 
         public void _OnEnemyPartyAdded()
@@ -477,6 +471,7 @@ namespace CreatureTime
 #endif
                 return;
             }
+            entity.Connect(EEntitySignal.Death, this, nameof(_OnDeathTrigger));
             entity.Connect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = this;
         }
@@ -496,8 +491,43 @@ namespace CreatureTime
 #endif
                 return;
             }
+
+            entity.Disconnect(EEntitySignal.Death, this, nameof(_OnDeathTrigger));
             entity.Disconnect(EEntitySignal.DamageApplied, this, nameof(_HandleAppliedDamage));
             entity.BattleState = null;
+        }
+
+        public void _OnDeathTrigger()
+        {
+            var npcEntity = (CtNpcEntity)Sender;
+
+            var localPlayer = rpgGame.LocalEntity;
+
+            var eventData = CtKillObjective.CreateEventData(npcEntity.NpcId, 1);
+            questSystem.UpdateQuests(localPlayer.PrimaryQuestProgression, eventData);
+            questSystem.UpdateQuests(localPlayer.SecondaryQuestProgression, eventData);
+
+            var exp = CtRpgFormulas.CalcExperience(localPlayer.Level, npcEntity.Level);
+
+            // Split exp between party members
+            exp /= _allyParty.Count;
+
+            // Boss bonus!
+            if (localPlayer.IsBoss)
+            {
+                exp *= 2;
+            }
+
+            // Hard mode bonus!
+            if (IsHardMode)
+            {
+                exp += exp / 2;
+            }
+
+#if DEBUG_LOGS
+            Log($"{localPlayer.DisplayName} gains {exp} experience from {npcEntity.DisplayName}.");
+#endif
+            localPlayer.GainExperience(exp);
         }
 
         public bool TryGetEntity(ushort identifier, out CtEntity entity)
@@ -571,6 +601,19 @@ namespace CreatureTime
         public bool IsEnemyTeamDead()
         {
             return _IsPartyDead(_enemyParty);
+        }
+
+        public bool IsReadyToLeave()
+        {
+            for (var i = 0; i < _allyParty.MaxCount; i++)
+            {
+                var entity = _allyParty.GetEntity(i);
+                if (!entity) continue;
+                if (!entity.IsReadyToLeave())
+                    return false;
+            }
+
+            return true;
         }
 
         public void BeginTickBlock()

@@ -183,7 +183,6 @@ namespace CreatureTime.Editor.Graph
 
         private void NodeCreationRequest(NodeCreationContext obj)
         {
-            _searchProvider.target = (VisualElement)focusController.focusedElement;
             SearchWindow.Open(new SearchWindowContext(obj.screenMousePosition), _searchProvider);
         }
 

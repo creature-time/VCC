@@ -2,7 +2,7 @@
 using UdonSharp;
 using UnityEngine;
 
-namespace CreatureTime
+namespace CreatureTime.RpgGame
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class CtEyeLookFeature : CtNpcFeature
