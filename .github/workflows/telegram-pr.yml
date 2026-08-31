@@ -1,0 +1,65 @@
+name: Telegram PR Notifications
+
+on:
+  pull_request:
+    types:
+      - opened
+      - closed
+      - review_requested
+  pull_request_review:
+    types:
+      - submitted
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Telegram notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          EVENT_NAME: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_USER: ${{ github.event.pull_request.user.login }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            if [ "$ACTION" = "opened" ]; then
+              MESSAGE="🔀 <b>PR #$PR_NUMBER opened</b>%0A%0A$PR_TITLE%0A👤 $PR_USER%0A%0A<a href='$PR_URL'>View Pull Request</a>"
+
+            elif [ "$ACTION" = "closed" ] && [ "$PR_MERGED" = "true" ]; then
+              MESSAGE="🎉 <b>PR #$PR_NUMBER merged</b>%0A%0A$PR_TITLE%0A👤 $PR_USER%0A%0A<a href='$PR_URL'>View Pull Request</a>"
+
+            elif [ "$ACTION" = "closed" ]; then
+              MESSAGE="❌ <b>PR #$PR_NUMBER closed</b>%0A%0A$PR_TITLE%0A%0A<a href='$PR_URL'>View Pull Request</a>"
+
+            elif [ "$ACTION" = "review_requested" ]; then
+              MESSAGE="👀 <b>Review requested</b>%0A%0APR #$PR_NUMBER — $PR_TITLE%0A%0A<a href='$PR_URL'>View Pull Request</a>"
+            fi
+
+          elif [ "$EVENT_NAME" = "pull_request_review" ]; then
+            REVIEWER="${{ github.event.review.user.login }}"
+            REVIEW_STATE="${{ github.event.review.state }}"
+
+            if [ "$REVIEW_STATE" = "approved" ]; then
+              EMOJI="✅"
+            elif [ "$REVIEW_STATE" = "changes_requested" ]; then
+              EMOJI="🔧"
+            else
+              EMOJI="💬"
+            fi
+
+            MESSAGE="$EMOJI <b>PR #$PR_NUMBER review</b>%0A%0A$PR_TITLE%0A👤 $REVIEWER%0AStatus: $REVIEW_STATE%0A%0A<a href='$PR_URL'>View Pull Request</a>"
+          fi
+
+          if [ -n "$MESSAGE" ]; then
+            curl -s -X POST \
+              "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+              -d "chat_id=$TELEGRAM_CHAT_ID" \
+              -d "parse_mode=HTML" \
+              -d "text=$MESSAGE"
+          fi
