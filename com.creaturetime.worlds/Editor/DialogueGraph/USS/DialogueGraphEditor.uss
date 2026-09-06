@@ -1,0 +1,21 @@
+CtGraphView {
+    flex-grow: 1;
+}
+CtGraphEditorNode {
+    max-width: 256;
+}
+#Grid
+{
+    --thick-lines: 0;
+    --spacing: 15;
+    --grid-background-color: rgb(35, 35, 35);
+    --line-color: rgb(32, 32, 32);
+}
+/*#unity-content*/
+/*{*/
+/*    flex-grow: 0;*/
+/*}*/
+/*#unity-content-and-vertical-scroll-container*/
+/*{*/
+/*    flex-grow: 0;*/
+/*}*/

@@ -41,7 +41,7 @@ jobs:
         #Multiline string for dumb reasons
         run: |
           TEMP=""
-          for package in $(find Packages -maxdepth 1 -mindepth 1 -type d -name "com.creaturetime.*"); do
+          for package in $(find . -maxdepth 1 -mindepth 1 -type d -name "com.creaturetime.*"); do
             packageID=${package##*/}
             TEMP="$TEMP\"$packageID\", "
           done
@@ -69,7 +69,7 @@ jobs:
         id: version
         uses: notiz-dev/github-action-json-property@v0.2.0
         with:
-          path: "Packages/${{matrix.packageID}}/package.json"
+          path: "${{matrix.packageID}}/package.json"
           prop_path: "version"
 
       - name: generate tag
@@ -93,10 +93,10 @@ jobs:
         uses: thedoctor0/zip-release@09336613be18a8208dfa66bd57efafd9e2685657
         with:
           type: "zip"
-          directory: "Packages/${{matrix.packageID}}/"
+          directory: "${{matrix.packageID}}/"
           filename: "../../${{env.zipFile}}" # make the zip file two directories up, since we start two directories in above
 
-      - run: find "Packages/${{matrix.packageID}}/" -name \*.meta >> metaList
+      - run: find "${{matrix.packageID}}/" -name \*.meta >> metaList
         if: ${{ steps.check-release-tag.outputs.exists == 'false' }}
 
       - name: Create UnityPackage
@@ -121,7 +121,7 @@ jobs:
           files: |
             ${{ env.zipFile }}
             ${{ env.unityPackage }}
-            Packages/${{ matrix.packageID }}/package.json
+            ${{ matrix.packageID }}/package.json
           body: "TODO"
 #          body: |
 #            ${{ steps.ReleaseTemplateContents.outputs.content }}

@@ -76,6 +76,7 @@ crashlytics-build.properties
 ##################################################
 # CreatureTime Ignore Settings
 
+/*
 /*/**
 
 # Ignore IDE files
@@ -84,39 +85,20 @@ crashlytics-build.properties
 # GitHub recommends to submit .gitattributes
 !.gitattributes
 
-# Do not include any other extra by accident
-/[Aa]ssets/**
-/[Pp]ackages/**
-
 # Allow only our package to be added to git
 
-# Allow serialized udon programs
-!/[Aa]ssets/SerializedUdonPrograms
-!/[Aa]ssets/SerializedUdonPrograms/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].*
-
-# Allow CreatureTime editor assets for RPG game.
-!/[Aa]ssets/CreatureTime
-!/[Aa]ssets/CreatureTime.meta
-!/[Aa]ssets/CreatureTime/Editor
-!/[Aa]ssets/CreatureTime/Editor.meta
-!/[Aa]ssets/CreatureTime/Editor/**
+## Allow serialized udon programs
+#!/[Aa]ssets/SerializedUdonPrograms
+#!/[Aa]ssets/SerializedUdonPrograms/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].*
 
 # Vmp
 !/.github/**
 !/Website/**
 !/source.json
 
-# Worlds
-!/[Pp]ackages/com.creaturetime.worlds
-!/[Pp]ackages/com.creaturetime.worlds/**
-
-# Rpg Game Core
-!/[Pp]ackages/com.creaturetime.rpg
-!/[Pp]ackages/com.creaturetime.rpg/**
-
 # Allow only our project settings to be added to git
-!/[Pp]rojectSettings/
-!/[Pp]rojectSettings/**
+!/com.creaturetime.*/
+!/com.creaturetime.*/**
 
 # Ignore special cases:
 
