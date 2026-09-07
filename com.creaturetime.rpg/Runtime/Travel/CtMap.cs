@@ -14,11 +14,48 @@ namespace CreatureTime
 
     public enum EMapPoiType
     {
-        Rest,
+        None,
+
+        /// <summary>
+        /// The final combat encounter of the map. Defeating the Boss completes
+        /// the current run or map. At least, a single rare reward plus potentially other rewards.
+        /// </summary>
+        Boss,
+
+        /// <summary>
+        /// A low-difficulty combat encounter with modest rewards.
+        /// </summary>
         Easy,
+
+        /// <summary>
+        /// A moderate-difficulty combat encounter with improved rewards.
+        /// </summary>
         Medium,
+
+        /// <summary>
+        /// A high-difficulty combat encounter with valuable rewards.
+        /// </summary>
         Hard,
-        Boss
+
+        /// <summary>
+        /// Mini-bosses with moderate to rare rewards.
+        /// </summary>
+        Elite,
+
+        /// <summary>
+        /// A safe location where the player can recover and make a limited
+        /// number of preparations. The player may heal, respec, or choose
+        /// another available option, but can only perform one action before
+        /// leaving.
+        /// </summary>
+        CampSite,
+
+        /// <summary>
+        /// A non-combat location where the player can spend resources to heal,
+        /// acquire supplies or buffs, redo skills, and potentially purchase
+        /// rare items or upgrades.
+        /// </summary>
+        Merchant
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
@@ -26,6 +63,8 @@ namespace CreatureTime
     {
         [SerializeField] private CtRpgGame rpgGame;
         [SerializeField] private CtGameData gameData;
+
+        [SerializeField] private CtPoiTable poiTable;
 
         [UdonSynced] private int _width;
         [UdonSynced] private int _length;
@@ -153,8 +192,8 @@ namespace CreatureTime
             var pathArray = new int[pathCount][];
 
             poiType = new EMapPoiType[nodes.Length];
-            poiType[0] = EMapPoiType.Rest;
-            poiType[1] = EMapPoiType.Rest;
+            poiType[0] = EMapPoiType.None;
+            poiType[1] = EMapPoiType.Boss;
 
             if (nodes.Length == 3)
             {
@@ -168,30 +207,15 @@ namespace CreatureTime
                     if (!CtAStar.TryGetPath(nodes, edges, disabled, 0, 1, out var path)) continue;
                     if (path.Length <= 1) continue;
 
-                    var poiTable = new float[5] { 0, 3, 1.5f, 0, 0 };
+                    var poiTableDef = locationDef.PoiTableDef;
+                    poiTableDef.ResetTable(poiTable);
+
                     for (var j = 0; j < path.Length - 1; ++j)
                     {
-                        var isLast = j >= path.Length - 2;
-                        if (isLast)
-                            poiTable[0] = 0;
+                        var choice = (EMapPoiType)(CtRandomizer.GetRandomFromArray(poiTable.ToArray) + 2);
+                        poiType[path[j]] = choice;
 
-                        var choice = CtRandomizer.GetRandomFromArray(poiTable);
-                        poiType[path[j]] = (EMapPoiType)choice;
-
-                        if (isLast) continue;
-
-                        for (var k = 0; k < poiTable.Length; ++k)
-                        {
-                            if (choice == k)
-                            {
-                                if (k == 0)
-                                    poiTable[k] = 0;
-                                else
-                                    poiTable[k] = 1;
-                            }
-                            else
-                                poiTable[k] += 0.2f;
-                        }
+                        poiTableDef.UpdateTable(poiTable, choice);
                     }
 
                     pathArray[i] = path;
@@ -235,6 +259,7 @@ namespace CreatureTime
             {
                 if (Array.IndexOf(paths, i) != -1) continue;
                 CtArrayUtils.Pop(ref nodes, i);
+                CtArrayUtils.Pop(ref poiType, i);
                 for (var j = 0; j < paths.Length; j++)
                 {
                     if (paths[j] >= i)
@@ -331,6 +356,7 @@ namespace CreatureTime
 #if DEBUG_LOGS
             LogDebug($"Nodes: {CtArrayUtils.DebugToString(nodes)}");
             LogDebug($"Edges: {CtArrayUtils.DebugToString(_edges)}");
+            LogDebug($"Poi Types: {CtArrayUtils.DebugToString(poiType)}");
             LogDebug($"Available Paths: {CtArrayUtils.DebugToString(_availablePaths)}");
 #endif
 

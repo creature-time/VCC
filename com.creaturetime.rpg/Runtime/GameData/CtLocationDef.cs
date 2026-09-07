@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace CreatureTime
 {
@@ -13,8 +14,10 @@ namespace CreatureTime
         [SerializeField] private CtSquadDef[] easySquads;
         [SerializeField] private CtSquadDef[] mediumSquads;
         [SerializeField] private CtSquadDef[] hardSquads;
-        [SerializeField] private CtSquadDef[] bossSquads;
+        [SerializeField] private CtSquadDef[] eliteSquads;
         [SerializeField] private CtSquadDef[] endBossSquads;
+
+        [SerializeField] private CtPoiTableDef poiTableDef;
 
         public string DisplayName => displayName;
 
@@ -24,8 +27,10 @@ namespace CreatureTime
         public CtSquadDef[] EasySquads => easySquads;
         public CtSquadDef[] MediumSquads => mediumSquads;
         public CtSquadDef[] HardSquads => hardSquads;
-        public CtSquadDef[] BossSquads => bossSquads;
+        public CtSquadDef[] EliteSquads => eliteSquads;
         public CtSquadDef[] EndBossSquads => endBossSquads;
+
+        public CtPoiTableDef PoiTableDef => poiTableDef;
 
         public bool HasEndBoss => endBossSquads.Length > 0;
 
@@ -35,9 +40,9 @@ namespace CreatureTime
             mediumSquads.Length > 0 ? mediumSquads[Random.Range(0, mediumSquads.Length)] : null;
         public CtSquadDef RandomHardSquad => 
             hardSquads.Length > 0 ? hardSquads[Random.Range(0, hardSquads.Length)] : null;
+        public CtSquadDef RandomEliteSquad => 
+            eliteSquads.Length > 0 ? eliteSquads[Random.Range(0, eliteSquads.Length)] : null;
         public CtSquadDef RandomBossSquad => 
-            bossSquads.Length > 0 ? bossSquads[Random.Range(0, bossSquads.Length)] : null;
-        public CtSquadDef RandomEndBossSquad => 
             endBossSquads.Length > 0 ? endBossSquads[Random.Range(0, endBossSquads.Length)] : null;
     }
 }
