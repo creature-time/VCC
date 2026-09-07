@@ -3681,6 +3681,7 @@ MonoBehaviour:
   headTransform: {fileID: 8528125347828453774}
   leftHandTransform: {fileID: 2004493585339714698}
   rightHandTransform: {fileID: 1332535981855365260}
+  _locationId: 65535
 --- !u!114 &9205724272987164084
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5507,6 +5508,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7057004601398843915, guid: 82fbfbd0fefbfa04ba9d723cdcb9a17e,
         type: 3}
+    - target: {fileID: 7110540481367616398, guid: 82fbfbd0fefbfa04ba9d723cdcb9a17e,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 7110540481367616398, guid: 82fbfbd0fefbfa04ba9d723cdcb9a17e,
+        type: 3}
     - target: {fileID: 7161286670159765623, guid: 82fbfbd0fefbfa04ba9d723cdcb9a17e,
         type: 3}
       propertyPath: logger
@@ -5913,6 +5920,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9219527415698272173, guid: 82fbfbd0fefbfa04ba9d723cdcb9a17e,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 9219527415698272173, guid: 82fbfbd0fefbfa04ba9d723cdcb9a17e,
+        type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 8168494666283624045, guid: 82fbfbd0fefbfa04ba9d723cdcb9a17e, type: 3}
@@ -6249,6 +6262,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 255538977120716002, guid: ad379915f15a2974bba52ff278448ff3,
         type: 3}
+    - target: {fileID: 467712933072657690, guid: ad379915f15a2974bba52ff278448ff3,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 467712933072657690, guid: ad379915f15a2974bba52ff278448ff3,
+        type: 3}
     - target: {fileID: 1151494165523027129, guid: ad379915f15a2974bba52ff278448ff3,
         type: 3}
       propertyPath: logger
@@ -6389,6 +6408,12 @@ PrefabInstance:
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 4800833713169612536, guid: ad379915f15a2974bba52ff278448ff3,
+        type: 3}
+    - target: {fileID: 5145786866676229888, guid: ad379915f15a2974bba52ff278448ff3,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 5145786866676229888, guid: ad379915f15a2974bba52ff278448ff3,
         type: 3}
     - target: {fileID: 5687705879094423203, guid: ad379915f15a2974bba52ff278448ff3,
         type: 3}

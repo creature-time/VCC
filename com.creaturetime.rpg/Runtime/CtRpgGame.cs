@@ -990,7 +990,7 @@ namespace CreatureTime
             {
                 if (destinationDef.HasEndBoss)
                 {
-                    squadDef = destinationDef.RandomEndBossSquad;
+                    squadDef = destinationDef.RandomBossSquad;
                     StartBattle(party, squadDef);
                 }
                 else
@@ -1022,15 +1022,18 @@ namespace CreatureTime
                     squadDef = destinationDef.RandomHardSquad;
                     StartBattle(party, squadDef);
                     break;
-                case EMapPoiType.Boss:
-                    squadDef = destinationDef.RandomBossSquad;
+                case EMapPoiType.Elite:
+                    squadDef = destinationDef.RandomEliteSquad;
                     StartBattle(party, squadDef);
                     break;
-                case EMapPoiType.Rest:
+                case EMapPoiType.CampSite:
+                    map.SetCompleted();
+                    break;
+                case EMapPoiType.Merchant:
                     map.SetCompleted();
                     break;
                 default:
-
+                    LogCritical($"Invalid poi type (poiType={poiType}.");
                     return;
             }
         }
